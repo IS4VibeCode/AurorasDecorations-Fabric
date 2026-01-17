@@ -63,7 +63,7 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.logic.RedstoneSignalLevels;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.Map;
 
@@ -395,7 +395,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 
 	private static Settings settings(LanternBlock lanternBlock) {
 		ASSOCIATED_LANTERN_INIT.set(lanternBlock);
-		return QuiltBlockSettings.copyOf(lanternBlock).pistonBehavior(PistonBehavior.DESTROY).dropsLike(lanternBlock);
+		return AbstractBlock.Settings.copy(lanternBlock).pistonBehavior(PistonBehavior.DESTROY).dropsLike(lanternBlock);
 	}
 
 	static {

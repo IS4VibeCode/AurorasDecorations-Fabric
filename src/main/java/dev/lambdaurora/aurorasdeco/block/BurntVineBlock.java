@@ -34,7 +34,7 @@ import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 /**
  * Represents a burnt vine tip block.
@@ -48,7 +48,7 @@ import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
 public final class BurntVineBlock extends VineBlock {
 	public BurntVineBlock() {
 		super(
-				QuiltBlockSettings.create()
+				AbstractBlock.Settings.create()
 						.pistonBehavior(PistonBehavior.DESTROY)
 						.replaceable()
 						.noCollision()

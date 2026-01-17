@@ -45,7 +45,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -83,7 +83,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	}
 
 	public BigFlowerPotBlock(PottedPlantType type) {
-		this(type, QuiltBlockSettings.create()
+		this(type, AbstractBlock.Settings.create()
 				.nonSolid(true).pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.1f).nonOpaque()
 		);

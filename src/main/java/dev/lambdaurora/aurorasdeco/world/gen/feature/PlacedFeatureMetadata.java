@@ -25,7 +25,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectionContext;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 
 import java.util.ArrayList;
 import java.util.Arrays;

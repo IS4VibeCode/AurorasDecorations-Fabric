@@ -26,7 +26,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 /**
  * Represents a Lantern Block Entity for the wall lanterns.
@@ -95,7 +95,7 @@ public class LanternBlockEntity extends SwayingBlockEntity {
 
 	/* Ticking */
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
 	protected void tickClient(World world) {
 		super.tickClient(world);

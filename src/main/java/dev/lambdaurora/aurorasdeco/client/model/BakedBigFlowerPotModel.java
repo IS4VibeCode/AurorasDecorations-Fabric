@@ -34,11 +34,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.BlockRenderView;
 import org.joml.Vector3f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.function.Supplier;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedBigFlowerPotModel extends ForwardingBakedModel {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 

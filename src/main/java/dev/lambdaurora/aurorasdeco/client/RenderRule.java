@@ -36,7 +36,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
 
 import java.io.InputStreamReader;
@@ -54,7 +54,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public record RenderRule(List<Model> models) {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final Map<Identifier, RenderRule> ITEM_RULES = new Object2ObjectOpenHashMap<>();

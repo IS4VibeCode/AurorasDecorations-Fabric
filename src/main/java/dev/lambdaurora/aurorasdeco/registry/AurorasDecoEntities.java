@@ -25,7 +25,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder;
+import net.minecraft.entity.EntityType;
 
 import static dev.lambdaurora.aurorasdeco.AurorasDeco.id;
 
@@ -46,7 +46,7 @@ public final class AurorasDecoEntities {
 	public static final EntityType<FakeLeashKnotEntity> FAKE_LEASH_KNOT_ENTITY_TYPE = Registry.register(
 			Registries.ENTITY_TYPE,
 			id("fake_leash_knot"),
-			QuiltEntityTypeBuilder.<FakeLeashKnotEntity>createMob()
+			EntityType.Builder.<FakeLeashKnotEntity>createMob()
 					.entityFactory(FakeLeashKnotEntity::new)
 					.setDimensions(EntityDimensions.fixed(.375f, .5f))
 					.defaultAttributes(MobEntity.createAttributes())
@@ -58,7 +58,7 @@ public final class AurorasDecoEntities {
 	public static final EntityType<SeatEntity> SEAT_ENTITY_TYPE = Registry.register(
 			Registries.ENTITY_TYPE,
 			id("seat"),
-			QuiltEntityTypeBuilder.create(SpawnGroup.MISC, SeatEntity::new)
+			EntityType.Builder.create(SpawnGroup.MISC, SeatEntity::new)
 					.setDimensions(EntityDimensions.fixed(0.f, 0.f))
 					.disableSaving()
 					.disableSummon()

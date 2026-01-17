@@ -25,7 +25,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 /**
  * Represents the shelf container screen.
@@ -34,7 +34,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class ShelfScreen extends HandledScreen<ShelfScreenHandler> {
 	private static final Identifier TEXTURE = AurorasDeco.id("textures/gui/container/shelf.png");
 

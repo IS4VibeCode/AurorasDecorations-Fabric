@@ -26,7 +26,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 /**
  * Represents an amethyst lantern.
@@ -41,7 +41,7 @@ public class AmethystLanternBlock extends LanternBlock {
 	public static final int EFFECT_RADIUS = 32;
 
 	public AmethystLanternBlock() {
-		super(QuiltBlockSettings.copyOf(Blocks.LANTERN).luminance(14));
+		super(AbstractBlock.Settings.copy(Blocks.LANTERN).luminance(14));
 	}
 
 	/* Visual */

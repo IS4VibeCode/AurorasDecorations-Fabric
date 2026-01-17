@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 /**
  * Represents a brazier.
@@ -78,10 +78,10 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	private final int fireDamage;
 
 	public BrazierBlock(MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
-		this(QuiltBlockSettings.create(), color, fireDamage, luminance, particle);
+		this(AbstractBlock.Settings.create(), color, fireDamage, luminance, particle);
 	}
 
-	public BrazierBlock(QuiltBlockSettings settings, MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
+	public BrazierBlock(AbstractBlock.Settings settings, MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
 		this(settings.mapColor(color)
 						.strength(2.f)
 						.nonOpaque()
@@ -90,7 +90,7 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 				fireDamage, particle);
 	}
 
-	public BrazierBlock(QuiltBlockSettings settings, int fireDamage, ParticleEffect particle) {
+	public BrazierBlock(AbstractBlock.Settings settings, int fireDamage, ParticleEffect particle) {
 		super(settings);
 
 		this.fireDamage = fireDamage;

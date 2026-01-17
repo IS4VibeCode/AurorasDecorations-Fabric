@@ -55,13 +55,13 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientLifecycleEvents;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientWorldTickEvents;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
 
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
@@ -73,7 +73,7 @@ import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class AurorasDecoClient implements ClientModInitializer {
 	public static final AurorasDecoPack RESOURCE_PACK = new AurorasDecoPack(ResourceType.CLIENT_RESOURCES);
 	public static final ModelIdentifier BLACKBOARD_MASK = new ModelIdentifier(AurorasDeco.id("blackboard_mask"),

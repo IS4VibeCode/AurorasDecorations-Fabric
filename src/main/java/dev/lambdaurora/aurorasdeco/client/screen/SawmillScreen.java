@@ -26,7 +26,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 /**
  * Represents the sawmill screen.
@@ -35,7 +35,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 	private static final Identifier TEXTURE = new Identifier("textures/gui/container/stonecutter.png");
 	private float scrollAmount;

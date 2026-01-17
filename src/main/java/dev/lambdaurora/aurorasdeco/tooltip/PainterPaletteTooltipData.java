@@ -20,7 +20,7 @@ package dev.lambdaurora.aurorasdeco.tooltip;
 import dev.lambdaurora.aurorasdeco.client.tooltip.PainterPaletteTooltipComponent;
 import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
 
 /**
@@ -31,7 +31,7 @@ import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
  * @since 1.0.0-beta.6
  */
 public record PainterPaletteTooltipData(PainterPaletteItem.PainterPaletteInventory inventory) implements ConvertibleTooltipData {
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public TooltipComponent toComponent() {
 		return new PainterPaletteTooltipComponent(this.inventory());
 	}

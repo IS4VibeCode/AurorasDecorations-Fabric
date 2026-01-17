@@ -30,14 +30,14 @@ import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class RestModelManager {
 	private final Map<WoodType, RestModelEntry> models = new Reference2ObjectOpenHashMap<>();
 

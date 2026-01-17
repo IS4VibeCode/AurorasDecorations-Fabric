@@ -22,7 +22,7 @@ import dev.lambdaurora.aurorasdeco.util.math.TriangularDistribution;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionType;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.List;
 import java.util.Random;
@@ -33,7 +33,7 @@ import java.util.Random;
  * All credits go to Fourmisain who wrote this code for Falling Leaves.
  * https://github.com/RandomMcSomethin/fallingleaves/blob/main/src/main/java/randommcsomethin/fallingleaves/util/Wind.java
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class Wind {
 	public static final long WIND_SEED = 0xa4505a;
 	private static final Random RANDOM = new Random(WIND_SEED);

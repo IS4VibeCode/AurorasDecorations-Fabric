@@ -30,7 +30,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 /**
  * Represents the blackboard tooltip component. Displays the blackboard's contents.
@@ -39,7 +39,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BlackboardTooltipComponent implements TooltipComponent {
 	private static final Identifier LOCK_ICON_TEXTURE = new Identifier("textures/gui/container/cartography_table.png");
 	private static final Identifier GLOW_TEXTURE = AurorasDeco.id("textures/gui/glowing_sprite.png");

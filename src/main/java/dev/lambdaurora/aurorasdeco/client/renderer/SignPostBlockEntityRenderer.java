@@ -33,9 +33,9 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.Axis;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SignPostBlockEntityRenderer implements BlockEntityRenderer<SignPostBlockEntity> {
 	private static final int RENDER_DISTANCE = MathHelper.square(16);
 	private static final int GLOWING_BLACK_COLOR = 0xfff0ebcc;

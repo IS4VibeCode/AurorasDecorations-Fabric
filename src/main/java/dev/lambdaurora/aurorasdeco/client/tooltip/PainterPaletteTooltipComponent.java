@@ -33,7 +33,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 /**
  * Represents the painter's palette tooltip component.
@@ -42,7 +42,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0-beta.13
  * @since 1.0.0-beta.6
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class PainterPaletteTooltipComponent implements TooltipComponent {
 	private final PainterPaletteItem.PainterPaletteInventory inventory;
 	private final Text selectedToolText;

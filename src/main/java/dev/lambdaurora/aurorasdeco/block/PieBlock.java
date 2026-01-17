@@ -39,7 +39,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 /**
  * Represents a pie block.
@@ -65,7 +65,7 @@ public class PieBlock extends Block {
 	private final FoodComponent foodComponent;
 
 	public PieBlock(FoodComponent foodComponent) {
-		this(QuiltBlockSettings.create()
+		this(AbstractBlock.Settings.create()
 						.mapColor(MapColor.NONE).pistonBehavior(PistonBehavior.DESTROY).strength(0.5f).sounds(BlockSoundGroup.WOOL),
 				foodComponent
 		);

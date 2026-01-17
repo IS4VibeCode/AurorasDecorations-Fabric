@@ -42,8 +42,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.item.Item;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -118,9 +118,9 @@ public class PetBedBlock extends Block {
 	private static void registerPetBed(DyeColor color) {
 		var block = Registry.register(Registries.BLOCK,
 				AurorasDeco.id("pet_bed/" + color.getName()),
-				new PetBedBlock(QuiltBlockSettings.create()
+				new PetBedBlock(AbstractBlock.Settings.create()
 						.mapColor(color).sounds(BlockSoundGroup.WOOD).strength(.2f)));
-		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new QuiltItemSettings()));
+		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new Item.Settings()));
 		PET_BEDS_ITEM_GROUP_NODE.add(item);
 	}
 

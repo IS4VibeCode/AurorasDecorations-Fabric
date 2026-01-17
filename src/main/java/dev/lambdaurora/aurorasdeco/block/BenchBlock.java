@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -276,10 +276,10 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 		return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	private static QuiltBlockSettings settings(WoodType woodType) {
+	private static AbstractBlock.Settings settings(WoodType woodType) {
 		var planks = woodType.getComponent(WoodType.ComponentType.PLANKS);
 		if (planks == null) throw new IllegalStateException("BenchBlock attempted to be created while the wood type is invalid.");
-		return QuiltBlockSettings.copyOf(planks.block())
+		return AbstractBlock.Settings.copy(planks.block())
 				.collidable(true)
 				.luminance(0) // Override any smart luminance stuff from other mods to avoid crashes.
 				.nonOpaque();

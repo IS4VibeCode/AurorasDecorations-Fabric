@@ -29,7 +29,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
+import net.minecraft.recipe.RecipeSerializer;
 
 /**
  * Represents a recipe made from an explosion.
@@ -56,7 +56,7 @@ public final class ExplodingRecipe extends CuttingRecipe {
 		return new ItemStack(Items.TNT);
 	}
 
-	public static class Serializer implements QuiltRecipeSerializer<ExplodingRecipe> {
+	public static class Serializer implements RecipeSerializer<ExplodingRecipe> {
 		private Serializer() {
 		}
 

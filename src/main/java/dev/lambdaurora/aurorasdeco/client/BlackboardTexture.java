@@ -23,7 +23,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -37,7 +37,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BlackboardTexture {
 	private static final BlackboardTextureLRUCache TEXTURE_CACHE = new BlackboardTextureLRUCache(64);
 	private static final Deque<BlackboardTexture> UNUSED_TEXTURE_CACHE = new ArrayDeque<>();

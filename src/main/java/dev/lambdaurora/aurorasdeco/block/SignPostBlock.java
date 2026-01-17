@@ -65,9 +65,9 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -381,8 +381,8 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		return AuroraUtil.isWaterLogged(state) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	private static QuiltBlockSettings settings(FenceBlock fenceBlock) {
-		return QuiltBlockSettings.copyOf(fenceBlock).pistonBehavior(PistonBehavior.BLOCK);
+	private static AbstractBlock.Settings settings(FenceBlock fenceBlock) {
+		return AbstractBlock.Settings.copy(fenceBlock).pistonBehavior(PistonBehavior.BLOCK);
 	}
 
 	static {
@@ -408,7 +408,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	 * <p>
 	 * It allows to emit the block quads of a fence post block without a crash.
 	 */
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static class State extends BlockState {
 		public State(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
 			super(block, immutableMap, mapCodec);

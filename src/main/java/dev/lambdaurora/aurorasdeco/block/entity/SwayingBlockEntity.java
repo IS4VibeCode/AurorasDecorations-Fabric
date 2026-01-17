@@ -27,7 +27,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.Set;
 
@@ -197,7 +197,7 @@ public abstract class SwayingBlockEntity extends BlockEntity {
 		}
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	protected void tickClient(World world) {
 		this.naturalSway = world.getLightLevel(LightType.SKY, this.pos) >= 12;
 		this.tick();

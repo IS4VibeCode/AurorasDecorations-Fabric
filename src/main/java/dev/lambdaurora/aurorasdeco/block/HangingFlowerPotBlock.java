@@ -47,7 +47,7 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -239,8 +239,8 @@ public class HangingFlowerPotBlock extends Block {
 		return block;
 	}
 
-	private static QuiltBlockSettings settings(FlowerPotBlock block) {
+	private static AbstractBlock.Settings settings(FlowerPotBlock block) {
 		CURRENT_PROXY.set(block);
-		return QuiltBlockSettings.copyOf(block).dropsLike(block);
+		return AbstractBlock.Settings.copy(block).dropsLike(block);
 	}
 }

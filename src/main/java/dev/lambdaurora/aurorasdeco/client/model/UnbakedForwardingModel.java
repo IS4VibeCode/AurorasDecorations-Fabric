@@ -24,7 +24,7 @@ import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.resource.Material;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -36,7 +36,7 @@ import java.util.function.Function;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public record UnbakedForwardingModel(UnbakedModel baseModel, Function<BakedModel, BakedModel> factory) implements AuroraUnbakedModel {
 	@Override
 	public Collection<Identifier> getModelDependencies() {

@@ -34,7 +34,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -221,7 +221,7 @@ public class Blackboard implements BlackboardHandler {
 
 	/* Rendering */
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public Mesh buildMesh(Direction facing, int light) {
 		var sprite = MinecraftClient.getInstance().getSpriteAtlas(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).apply(WHITE_SPRITE_ID);
 

@@ -58,9 +58,8 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.poi.PointOfInterestType;
 import net.minecraft.world.poi.PointOfInterestTypes;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
-import org.quiltmc.qsl.poi.api.PointOfInterestHelper;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -111,7 +110,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	private final DyeColor color;
 
 	public SleepingBagBlock(DyeColor color) {
-		super(QuiltBlockSettings.create()
+		super(AbstractBlock.Settings.create()
 				.mapColor(color.getMapColor())
 				.pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.5f)
@@ -276,7 +275,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 		for (var color : AuroraUtil.DYE_COLORS) {
 			var block = register(color);
 			var item = AurorasDecoRegistry.registerItem("sleeping_bag/" + block.getColor().getName(),
-					new BlockItem(block, new QuiltItemSettings().maxCount(1)));
+					new BlockItem(block, new Item.Settings().maxCount(1)));
 			SLEEPING_BAGS_ITEM_GROUP_NODE.add(item);
 		}
 
@@ -293,20 +292,31 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 		return block;
 	}
 
-	private static void appendToPointOfInterest(RegistryKey<PointOfInterestType> poiType) {
+	private static void appendToPointOfInterest(RegistryKey<PointOfInterestType> poiKey) {
 
-		var type = Registries.POINT_OF_INTEREST_TYPE.getHolder(poiType);
+	    var poiOptional = Registries.POINT_OF_INTEREST_TYPE.get(poiKey);
+	    if (poiOptional == null) return;
 
-		if (type.isEmpty()) {
-			return;
-		}
+	    PointOfInterestType poi = poiOptional;
 
-		Stream<BlockState> states = SleepingBagBlock.stream().flatMap(sleepingBag -> {
-			return sleepingBag.getStateManager().getStates().stream()
-					.filter(state -> state.get(SleepingBagBlock.PART) == BedPart.HEAD);
-		});
+	    List<BlockState> states = SleepingBagBlock.stream()
+	            .flatMap(sleepingBag -> sleepingBag.getStateManager().getStates().stream()
+	                    .filter(state -> state.get(SleepingBagBlock.PART) == BedPart.HEAD))
+	            .toList();
 
-		PointOfInterestHelper.addBlockStates(poiType, states.toList());
+	    Set<BlockState> combinedStates = new HashSet<>(poi.getAllStates());
+	    combinedStates.addAll(states);
+
+	    Registry.register(
+	        Registries.POINT_OF_INTEREST_TYPE,
+	        poiKey.getValue(),
+	        new PointOfInterestType(
+	                poi.getKey().getValue().toString(),
+	                combinedStates,
+	                poi.getTicketCount(),
+	                poi.getSearchDistance()
+	        )
+	    );
 	}
 
 	static {

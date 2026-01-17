@@ -44,9 +44,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Axis;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 /**
  * Represents the sign post editor screen.
@@ -55,7 +55,7 @@ import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SignPostEditScreen extends Screen {
 	private static final OrderedText END_CURSOR = OrderedText.forward("_", Style.EMPTY);
 	private final SignPostBlockEntity signPost;

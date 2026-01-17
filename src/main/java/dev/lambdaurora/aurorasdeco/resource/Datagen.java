@@ -51,7 +51,7 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.quiltmc.loader.api.QuiltLoader;
 import org.quiltmc.qsl.recipe.api.builder.VanillaRecipeBuilders;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
+import net.minecraft.recipe.RecipeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -318,10 +318,10 @@ public final class Datagen {
 
 	@SuppressWarnings("unchecked")
 	public static JsonObject recipe(Recipe<?> recipe) {
-		if (!(recipe.getSerializer() instanceof QuiltRecipeSerializer<?>))
+		if (!(recipe.getSerializer() instanceof RecipeSerializer<?>))
 			throw new UnsupportedOperationException("Cannot serialize recipe " + recipe);
 
-		return ((QuiltRecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
+		return ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
 	}
 
 	public static void registerWoodcuttingRecipesForBlockVariants(Block block) {

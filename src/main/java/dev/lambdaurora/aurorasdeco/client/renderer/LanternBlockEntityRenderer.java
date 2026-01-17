@@ -31,9 +31,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.random.LegacySimpleRandom;
 import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.util.random.RandomSeed;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class LanternBlockEntityRenderer extends SwayingBlockEntityRenderer<LanternBlockEntity> {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 	private final RandomGenerator random = new LegacySimpleRandom(RandomSeed.generateUniqueSeed());

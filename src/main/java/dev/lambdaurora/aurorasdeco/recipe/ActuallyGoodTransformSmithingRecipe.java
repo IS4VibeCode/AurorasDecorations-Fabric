@@ -31,7 +31,7 @@ import net.minecraft.recipe.TransformSmithingRecipe;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
+import net.minecraft.recipe.RecipeSerializer;
 
 import java.util.stream.Stream;
 
@@ -62,7 +62,7 @@ public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe
 		return SERIALIZER;
 	}
 
-	public static class Serializer implements QuiltRecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
+	public static class Serializer implements RecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
 		public ActuallyGoodTransformSmithingRecipe read(Identifier id, JsonObject json) {
 			Ingredient base = Ingredient.fromJson(JsonHelper.getObject(json, "base"));
 			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));

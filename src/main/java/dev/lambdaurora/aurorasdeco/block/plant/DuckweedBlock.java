@@ -43,7 +43,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
 
 	public DuckweedBlock() {
-		super(QuiltBlockSettings.copyOf(Blocks.LILY_PAD).noCollision().sounds(BlockSoundGroup.MOSS_CARPET));
+		super(AbstractBlock.Settings.copy(Blocks.LILY_PAD).noCollision().sounds(BlockSoundGroup.MOSS_CARPET));
 	}
 
 	/* Shapes */

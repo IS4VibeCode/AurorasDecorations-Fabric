@@ -28,12 +28,12 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.resource.Material;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.PlayerScreenHandler;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChimeBlockEntity> {
 	public static final EntityModelLayer WIND_CHIME_MODEL_LAYER = new EntityModelLayer(AurorasDeco.id("wind_chime"),
 			"main");

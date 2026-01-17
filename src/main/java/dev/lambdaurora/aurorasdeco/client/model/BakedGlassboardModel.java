@@ -28,12 +28,12 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.BlockRenderView;
 import org.joml.Vector3f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedGlassboardModel extends BakedBlackboardModel {
 	private final Int2ObjectMap<List<BakedModel>> models;
 

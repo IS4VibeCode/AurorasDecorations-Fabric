@@ -37,8 +37,8 @@ import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.Set;
 
@@ -51,7 +51,7 @@ import java.util.Set;
  */
 public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 		RenderAttachmentBlockEntity, BlackboardHandler {
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	private static final Set<BlackboardBlockEntity> ACTIVE_BLACKBOARDS = new ObjectOpenHashSet<>();
 	private final Blackboard blackboard = new AssignedBlackboard();
 	private @Nullable Text customName;
@@ -60,9 +60,9 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	public int lastX;
 	public int lastY;
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	private Mesh mesh = null;
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	private boolean meshDirty = true;
 
 	public BlackboardBlockEntity(BlockPos pos, BlockState state) {
@@ -196,7 +196,7 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	public void markRemoved() {
 		super.markRemoved();
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			this.markBlackboardRemoved();
 		}
 	}
@@ -205,7 +205,7 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	public void cancelRemoval() {
 		super.cancelRemoval();
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			ACTIVE_BLACKBOARDS.add(this);
 		}
 	}
@@ -219,29 +219,29 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 		return this.mesh;
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public void markMeshDirty() {
 		this.meshDirty = true;
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	private void rebuildMesh() {
 		this.meshDirty = false;
 		int light = this.blackboard.isLit() ? 0xf000f0 : 0;
 		this.mesh = this.blackboard.buildMesh(this.getCachedState().get(BlackboardBlock.FACING), light);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public void markBlackboardRemoved() {
 		ACTIVE_BLACKBOARDS.remove(this);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static void markAllMeshesDirty() {
 		ACTIVE_BLACKBOARDS.forEach(BlackboardBlockEntity::markMeshDirty);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static void onWorldChange(@Nullable ClientWorld world) {
 		ACTIVE_BLACKBOARDS.removeIf(blackboardBlockEntity -> blackboardBlockEntity.world == null
 				|| blackboardBlockEntity.world != world);

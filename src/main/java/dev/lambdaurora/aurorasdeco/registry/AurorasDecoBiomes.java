@@ -25,8 +25,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStep;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeModifications;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 
 /**
  * Contains the different biomes definitions added in Aurora's Decorations.

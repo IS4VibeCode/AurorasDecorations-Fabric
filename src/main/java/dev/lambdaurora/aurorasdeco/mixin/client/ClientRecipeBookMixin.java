@@ -21,13 +21,13 @@ import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import net.minecraft.client.recipe_book.ClientRecipeBook;
 import net.minecraft.client.recipe_book.RecipeBookGroup;
 import net.minecraft.recipe.Recipe;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(ClientRecipeBook.class)
 public class ClientRecipeBookMixin {
 	@Inject(method = "getGroupForRecipe", at = @At("HEAD"), cancellable = true)

@@ -31,9 +31,9 @@ import net.minecraft.world.gen.feature.PlacedFeature;
 import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.registry.api.event.DynamicRegistryManagerSetupContext;
 import org.quiltmc.qsl.registry.api.event.RegistryEvents;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectionContext;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import org.quiltmc.qsl.worldgen.biome.api.ModificationPhase;
 
 import java.util.List;

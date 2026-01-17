@@ -28,14 +28,14 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.random.RandomGenerator;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.minecraft.block.AbstractBlock;
 
 @SuppressWarnings("deprecation")
 public class RedstoneLanternBlock extends LanternBlock {
 	private final RedstoneLanternBehavior behavior = new RedstoneLanternBehavior(state -> state.get(HANGING) ? Direction.DOWN : Direction.UP);
 
 	public RedstoneLanternBlock() {
-		super(QuiltBlockSettings.copyOf(Blocks.LANTERN).luminance(state -> state.get(RedstoneLanternBehavior.LIT) ? 7 : 0));
+		super(AbstractBlock.Settings.copy(Blocks.LANTERN).luminance(state -> state.get(RedstoneLanternBehavior.LIT) ? 7 : 0));
 
 		this.setDefaultState(this.getDefaultState().with(RedstoneLanternBehavior.LIT, true));
 	}

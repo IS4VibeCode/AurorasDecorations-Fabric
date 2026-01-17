@@ -34,7 +34,7 @@ import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	static final int LEFT_UP_MASK = 0b00000001;

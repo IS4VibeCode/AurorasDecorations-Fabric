@@ -33,8 +33,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 
 import java.util.Map;
 import java.util.function.BiConsumer;

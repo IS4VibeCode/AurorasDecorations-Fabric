@@ -36,9 +36,8 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.block.content.registry.api.BlockContentRegistries;
-import org.quiltmc.qsl.block.content.registry.api.FlammableBlockEntry;
+import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -324,24 +323,24 @@ public final class WoodType {
 			return new Identifier(id.getNamespace(), "block/" + id.getPath() + "_top");
 		}
 
-		public @Nullable FlammableBlockEntry getFlammableEntry() {
-			return BlockContentRegistries.FLAMMABLE.getNullable(this.block());
+		public @Nullable FlammableBlockRegistry.Entry getFlammableEntry() {
+			return FlammableBlockRegistry.getDefaultInstance().get(this.block());
 		}
 
 		public void syncFlammabilityWith(Block other) {
-			BlockContentRegistries.FLAMMABLE.valueAddedEvent().register((entry, value) -> {
-				if (entry == this.block) {
-					BlockContentRegistries.FLAMMABLE.put(other, value);
-				}
-			});
+			var entry = FlammableBlockRegistry.getDefaultInstance().get(other);
+			if (entry == null) {
+				return;
+			}
+			FlammableBlockRegistry.getDefaultInstance().add(this.block(), entry);
 		}
 
-		@ClientOnly
+		@Environment(EnvType.CLIENT)
 		public BlockColorProvider getBlockColorProvider() {
 			return ColorProviderRegistry.BLOCK.get(this.block());
 		}
 
-		@ClientOnly
+		@Environment(EnvType.CLIENT)
 		public ItemColorProvider getItemColorProvider() {
 			return ColorProviderRegistry.ITEM.get(this.block());
 		}
