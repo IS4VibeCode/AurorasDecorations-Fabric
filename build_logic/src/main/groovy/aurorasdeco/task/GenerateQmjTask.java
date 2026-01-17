@@ -29,7 +29,7 @@ public abstract class GenerateQmjTask extends DefaultTask {
 
 	@TaskAction
 	public void generateQmj() throws IOException {
-		Path output = this.getOutputDir().getAsFile().get().toPath().resolve("quilt.mod.json");
+		Path output = this.getOutputDir().getAsFile().get().toPath().resolve("fabric.mod.json");
 		this.getProject().getLogger().lifecycle(output.toAbsolutePath().toString());
 
 		if (Files.exists(output)) {
@@ -39,37 +39,44 @@ public abstract class GenerateQmjTask extends DefaultTask {
 		JsonWriter writer = JsonWriter.json(output);
 
 		writer.beginObject()
-				.name("schema_version").value(1);
-		{
-			writer.name("quilt_loader").beginObject()
-					.name("group").value(this.getProject().getGroup().toString())
-					.name("id").value(Constants.NAMESPACE)
-					.name("version").value(this.getProject().getVersion().toString());
-			{
-				writer.name("metadata").beginObject()
-						.name("name").value(Constants.NAME)
-						.name("description").value(Constants.DESCRIPTION)
-						.name("contributors").beginObject();
+				.name("schemaVersion").value(1)
+				.name("id").value(Constants.NAMESPACE)
+				.name("version").value(this.getProject().getVersion().toString())
+				.name("name").value(Constants.NAME)
+				.name("description").value(Constants.DESCRIPTION)
+				.name("authors").beginArray();
 
-				for (var entry : Constants.CONTRIBUTORS) {
-					writer.name(entry.name()).value(entry.role());
-				}
-
-				writer.endObject()
-						.name("contact").beginObject();
-
-				{
-					writer.name("homepage").value(Constants.Links.WEBSITE)
-							.name("sources").value(Constants.Links.SOURCES)
-							.name("issues").value(Constants.Links.ISSUES);
-				}
-
-				writer.endObject()
-						.name("license").value(Constants.LICENSE)
-						.name("icon").value(Constants.ICON_PATH);
+		for (var entry : Constants.CONTRIBUTORS) {
+			if ("Author".equals(entry.role())) {
+				writer.value(entry.name());
 			}
-			writer.endObject()
-					.name("intermediate_mappings").value("net.fabricmc:intermediary");
+		}
+		
+		writer.endArray()
+				.name("contributors").beginArray();
+
+		for (var entry : Constants.CONTRIBUTORS) {
+			if (!("Author".equals(entry.role()))) {
+				writer.value(entry.name());
+			}
+		}
+		
+		writer.endArray()
+				.name("contact").beginObject();
+		
+		{
+			writer.name("homepage").value(Constants.Links.WEBSITE)
+					.name("sources").value(Constants.Links.SOURCES)
+					.name("issues").value(Constants.Links.ISSUES);
+		}
+		
+		writer.endObject()
+				.name("license").value(Constants.LICENSE)
+				.name("icon").value(Constants.ICON_PATH);
+		
+		{
+			//writer.name("intermediate_mappings").value("net.fabricmc:intermediary");
+			writer.name("environment").value("*");
 
 			if (!this.getAurorasDecoModule().get().getEntrypoints().isEmpty()) {
 				writer.name("entrypoints").beginObject();
@@ -88,59 +95,26 @@ public abstract class GenerateQmjTask extends DefaultTask {
 				writer.endObject();
 			}
 
-			writer.name("depends").beginArray();
+			writer.name("depends").beginObject();
 			{
-				writer.beginObject()
-						.name("id").value("minecraft")
-						.name("versions");
+				writer.name("minecraft");
 				if (Constants.MINECRAFT_VERSION.supported().isEmpty()) {
 					writer.value(Constants.MINECRAFT_VERSION.version());
 				} else {
-					writer.beginObject()
-							.name("any").beginArray();
+					writer.beginArray();
 					for (var version : Constants.MINECRAFT_VERSION.all()) {
 						writer.value("=" + version);
 					}
-					writer.endArray()
-							.endObject();
-				}
-				writer.endObject();
-
-				writer.beginObject()
-						.name("id").value("quilt_loader")
-						.name("versions").value(">=" + Constants.LOADER_VERSION)
-						.endObject();
-				writer.beginObject()
-						.name("id").value("quilted_fabric_api")
-						.name("versions").value(">=" + Constants.QFAPI_VERSION)
-						.endObject();
-				writer.beginObject()
-						.name("id").value("java")
-						.name("versions").value(">=" + Constants.JAVA_VERSION)
-						.endObject();
-				writer.beginObject()
-						.name("id").value("terraform-wood-api-v1")
-						.name("versions").value(">=" + Constants.TERRAFORM_WOOD_API_VERSION)
-						.endObject();
-
-				if (this.getAurorasDecoModule().get().getHasEmi().get()) {
-					writer.beginObject()
-							.name("id").value("emi")
-							.name("optional").value(true)
-							.endObject();
+					writer.endArray();
 				}
 
-				if (this.getAurorasDecoModule().get().getHasTrinkets().get()) {
-					writer.beginObject()
-							.name("id").value("trinkets")
-							.name("versions").value(">=" + Constants.TRINKETS_VERSION)
-							.name("optional").value(true)
-							.endObject();
-				}
+				writer.name("quilt_loader").value(">=" + Constants.LOADER_VERSION);
+				writer.name("quilted_fabric_api").value(">=" + Constants.QFAPI_VERSION);
+				writer.name("java").value(">=" + Constants.JAVA_VERSION);
+				writer.name("terraform-wood-api-v1").value(">=" + Constants.TERRAFORM_WOOD_API_VERSION);
 			}
-			writer.endArray();
+			writer.endObject();
 		}
-		writer.endObject();
 
 		writer.name("mixin").value("aurorasdeco.mixins.json");
 

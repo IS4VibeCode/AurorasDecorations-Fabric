@@ -69,9 +69,6 @@ javafx {
 }
 
 aurorasdeco {
-	hasEmi = true
-	hasTrinkets = true
-
 	entrypoints {
 		init {
 			values = [
@@ -84,12 +81,6 @@ aurorasdeco {
 					entrypoint("dev.lambdaurora.aurorasdeco.hook.TrinketsHooks", hasTrinkets.get())
 			]
 		}
-		emi {
-			values = [
-					entrypoint("dev.lambdaurora.aurorasdeco.hook.EmiHooks")
-			]
-			enabled.set(hasEmi.get())
-		}
 	}
 
 	finalizeConfiguration()
@@ -101,6 +92,7 @@ jar {
 	}
 }
 
+/*
 modrinth {
 	projectId = project.modrinth_id
 	versionName = "Aurora's Decorations ${project.mod_version} (${MINECRAFT_VERSION.version()})"
@@ -173,6 +165,7 @@ curseforge {
 	}
 }
 tasks.curseforge.setGroup("publishing")
+*/
 
 // configure the maven publication
 publishing {
