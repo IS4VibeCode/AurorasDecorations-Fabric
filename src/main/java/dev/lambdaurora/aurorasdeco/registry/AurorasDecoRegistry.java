@@ -46,7 +46,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -273,29 +272,29 @@ public final class AurorasDecoRegistry {
 					.pistonBehavior(PistonBehavior.DESTROY)
 					.sounds(BlockSoundGroup.WOOD),
 					false),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 	public static final BlackboardBlock WAXED_BLACKBOARD_BLOCK = registerWithItem("waxed_blackboard",
 			new BlackboardBlock(AbstractBlock.Settings.copy(BLACKBOARD_BLOCK), true),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 
 	public static final BlackboardBlock CHALKBOARD_BLOCK = registerWithItem("chalkboard",
 			new BlackboardBlock(AbstractBlock.Settings.copy(BLACKBOARD_BLOCK), false),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 	public static final BlackboardBlock WAXED_CHALKBOARD_BLOCK = registerWithItem("waxed_chalkboard",
 			new BlackboardBlock(AbstractBlock.Settings.copy(CHALKBOARD_BLOCK), true),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 
 	public static final BlackboardBlock GLASSBOARD_BLOCK = registerWithItem("glassboard",
 			new BlackboardBlock(AbstractBlock.Settings.copy(BLACKBOARD_BLOCK).nonOpaque().sounds(BlockSoundGroup.GLASS), false),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 	public static final BlackboardBlock WAXED_GLASSBOARD_BLOCK = registerWithItem("waxed_glassboard",
 			new BlackboardBlock(AbstractBlock.Settings.copy(GLASSBOARD_BLOCK), true),
-			new Item.Settings().equipmentSlot(stack -> EquipmentSlot.HEAD),
+			new Item.Settings(),
 			BlackboardItem::new);
 
 	public static final BlackboardPressBlock BLACKBOARD_PRESS_BLOCK = registerWithItem("blackboard_press",
