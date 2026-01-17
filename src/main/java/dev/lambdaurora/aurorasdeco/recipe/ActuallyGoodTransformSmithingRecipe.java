@@ -79,7 +79,7 @@ public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe
 			}
 		}
 
-		@Override
+		//@Override
 		public JsonObject toJson(ActuallyGoodTransformSmithingRecipe recipe) {
 			var json = new JsonObject();
 

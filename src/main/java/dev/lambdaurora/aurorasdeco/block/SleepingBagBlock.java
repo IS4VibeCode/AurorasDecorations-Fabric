@@ -65,6 +65,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 /**
@@ -304,17 +306,16 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	                    .filter(state -> state.get(SleepingBagBlock.PART) == BedPart.HEAD))
 	            .toList();
 
-	    Set<BlockState> combinedStates = new HashSet<>(poi.getAllStates());
+	    Set<BlockState> combinedStates = new HashSet<>(poi.blockStates());
 	    combinedStates.addAll(states);
 
 	    Registry.register(
 	        Registries.POINT_OF_INTEREST_TYPE,
 	        poiKey.getValue(),
 	        new PointOfInterestType(
-	                poi.getKey().getValue().toString(),
 	                combinedStates,
-	                poi.getTicketCount(),
-	                poi.getSearchDistance()
+	                poi.maxTickets(),
+	                poi.searchDistance()
 	        )
 	    );
 	}

@@ -32,6 +32,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -111,8 +112,8 @@ public class ShelfBlockEntity extends LootableContainerBlockEntity
 	public void setStack(int slot, ItemStack stack) {
 		super.setStack(slot, stack);
 
-		if (this.world != null && !this.world.isClient())
-			this.sync();
+		if (this.world instanceof ServerWorld serverWorld)
+			serverWorld.getChunkManager().markForUpdate(this.getPos());
 	}
 
 	@Override

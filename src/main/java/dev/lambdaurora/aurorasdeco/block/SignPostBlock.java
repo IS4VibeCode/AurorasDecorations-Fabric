@@ -425,7 +425,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	private record InjectedBlock(FenceBlock fenceBlock) implements BlockPropertiesInjector.InjectData {
 		@Override
 		public StateManager.Factory<Block, BlockState> getStateFactory(StateManager.Factory<Block, BlockState> existing) {
-			if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
+			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 				return State::new;
 			}
 			return existing;

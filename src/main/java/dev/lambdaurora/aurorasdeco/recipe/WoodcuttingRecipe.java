@@ -90,7 +90,7 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 			buf.writeItemStack(recipe.result);
 		}
 
-		@Override
+		//@Override
 		public JsonObject toJson(WoodcuttingRecipe recipe) {
 			var root = new JsonObject();
 			root.addProperty("type", AurorasDecoRegistry.WOODCUTTING_RECIPE_ID.toString());

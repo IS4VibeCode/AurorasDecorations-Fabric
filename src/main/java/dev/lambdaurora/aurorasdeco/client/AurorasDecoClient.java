@@ -98,7 +98,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 					.forEach(plantType -> {
 						if (plantType.isEmpty()) return;
 
-						BlockRenderLayerMap.put(RenderLayer.getCutoutMipped(), plantType.getPot());
+						BlockRenderLayerMap.INSTANCE.putBlock(plantType.getPot(), RenderLayer.getCutoutMipped());
 
 						if (plantType.getPlant() instanceof TallPlantBlock) {
 							ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) ->
@@ -112,7 +112,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 						}
 					});
 			HangingFlowerPotBlock.stream().forEach(block -> {
-				BlockRenderLayerMap.put(RenderLayer.getCutout(), block);
+				BlockRenderLayerMap.INSTANCE.putBlock(block, RenderLayer.getCutout());
 				var colorProvider = ColorProviderRegistry.BLOCK.get(block.getFlowerPot());
 				if (colorProvider != null)
 					ColorProviderRegistry.BLOCK.register(colorProvider, block);
@@ -228,9 +228,10 @@ public class AurorasDecoClient implements ClientModInitializer {
 	}
 
 	private void initBlockRenderLayers() {
-		BlockRenderLayerMap.put(RenderLayer.getCutoutMipped(),
-				AurorasDecoPlants.BURNT_VINE_BLOCK);
-		BlockRenderLayerMap.put(RenderLayer.getCutout(),
+		BlockRenderLayerMap.INSTANCE.putBlock(AurorasDecoPlants.BURNT_VINE_BLOCK,
+				RenderLayer.getCutoutMipped()
+		);
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
 				AMETHYST_LANTERN_BLOCK,
 				AZALEA_DOOR,
 				AZALEA_TRAPDOOR,
@@ -257,7 +258,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 				WIND_CHIME_BLOCK
 		);
 
-		BlockRenderLayerMap.put(RenderLayer.getCutout(), StumpBlock.streamLogStumps().toArray(Block[]::new));
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(), StumpBlock.streamLogStumps().toArray(Block[]::new));
 	}
 
 	private void registerBlackboardItemRenderer(BlackboardBlock blackboard) {

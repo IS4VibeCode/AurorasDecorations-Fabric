@@ -84,7 +84,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 
 	public BigFlowerPotBlock(PottedPlantType type) {
 		this(type, AbstractBlock.Settings.create()
-				.nonSolid(true).pistonBehavior(PistonBehavior.DESTROY)
+				.solidBlock((a, b, c) -> false).pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.1f).nonOpaque()
 		);
 	}

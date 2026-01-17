@@ -77,8 +77,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	@Override
 	public boolean setPixel(int x, int y, int color) {
 		if (this.blackboard.setPixel(x, y, color)) {
-			if (this.getWorld() instanceof ServerWorld) {
-				this.sync();
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				serverWorld.getChunkManager().markForUpdate(this.getPos());
 				this.markDirty();
 			}
 			return true;
@@ -89,8 +89,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	@Override
 	public boolean brush(int x, int y, int color) {
 		if (this.blackboard.brush(x, y, color)) {
-			if (this.getWorld() instanceof ServerWorld) {
-				this.sync();
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				serverWorld.getChunkManager().markForUpdate(this.getPos());
 				this.markDirty();
 			}
 			return true;
@@ -101,8 +101,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	@Override
 	public boolean replace(int x, int y, int color) {
 		if (this.blackboard.replace(x, y, color)) {
-			if (this.getWorld() instanceof ServerWorld) {
-				this.sync();
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				serverWorld.getChunkManager().markForUpdate(this.getPos());
 				this.markDirty();
 			}
 			return true;
@@ -113,8 +113,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	@Override
 	public boolean fill(int x, int y, int color) {
 		if (this.blackboard.fill(x, y, color)) {
-			if (this.getWorld() instanceof ServerWorld) {
-				this.sync();
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				serverWorld.getChunkManager().markForUpdate(this.getPos());
 				this.markDirty();
 			}
 			return true;
@@ -125,8 +125,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	@Override
 	public boolean line(int x1, int y1, int x2, int y2, BlackboardDrawModifier modifier) {
 		if (this.blackboard.line(x1, y1, x2, y2, modifier)) {
-			if (this.getWorld() instanceof ServerWorld) {
-				this.sync();
+			if (this.getWorld() instanceof ServerWorld serverWorld) {
+				serverWorld.getChunkManager().markForUpdate(this.getPos());
 				this.markDirty();
 			}
 			return true;
@@ -136,8 +136,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 
 	public void copy(Blackboard source) {
 		this.blackboard.copy(source);
-		if (this.getWorld() instanceof ServerWorld) {
-			this.sync();
+		if (this.getWorld() instanceof ServerWorld serverWorld) {
+			serverWorld.getChunkManager().markForUpdate(this.getPos());
 			this.markDirty();
 		}
 	}
@@ -148,8 +148,8 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	public void clear() {
 		this.blackboard.clear();
 		this.lastUser = null;
-		if (this.getWorld() instanceof ServerWorld) {
-			this.sync();
+		if (this.getWorld() instanceof ServerWorld serverWorld) {
+			serverWorld.getChunkManager().markForUpdate(this.getPos());
 			this.markDirty();
 		}
 	}

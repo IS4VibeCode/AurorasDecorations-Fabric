@@ -91,7 +91,7 @@ public final class ExplodingRecipe extends CuttingRecipe {
 			buf.writeItemStack(recipe.result);
 		}
 
-		@Override
+		//@Override
 		public JsonObject toJson(ExplodingRecipe recipe) {
 			var root = new JsonObject();
 			root.addProperty("type", AurorasDecoRegistry.EXPLODING_RECIPE_ID.toString());

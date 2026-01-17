@@ -49,7 +49,7 @@ public class AuroraFlowerBlock extends FlowerBlock implements Fertilizable {
 	public static AbstractBlock.Settings defaultSettings() {
 		return AbstractBlock.Settings.create()
 				.pistonBehavior(PistonBehavior.DESTROY)
-				.nonSolid(true)
+				.solidBlock((x, y, z) -> false)
 				.noCollision()
 				.breakInstantly()
 				.sounds(BlockSoundGroup.GRASS);

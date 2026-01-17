@@ -280,8 +280,8 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 		var planks = woodType.getComponent(WoodType.ComponentType.PLANKS);
 		if (planks == null) throw new IllegalStateException("BenchBlock attempted to be created while the wood type is invalid.");
 		return AbstractBlock.Settings.copy(planks.block())
-				.collidable(true)
-				.luminance(0) // Override any smart luminance stuff from other mods to avoid crashes.
+				//.collidable(true)
+				.luminance(x -> 0) // Override any smart luminance stuff from other mods to avoid crashes.
 				.nonOpaque();
 	}
 }

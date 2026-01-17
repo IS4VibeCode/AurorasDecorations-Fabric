@@ -22,6 +22,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 
@@ -73,9 +74,9 @@ public class BookPileBlockEntity extends BasicBlockEntity {
 	/* Sync */
 
 	private void attemptToSync() {
-		if (this.world != null && !this.world.isClient()) {
+		if (this.world instanceof ServerWorld serverWorld) {
 			this.markDirty();
-			this.sync();
+			serverWorld.getChunkManager().markForUpdate(this.getPos());
 		}
 	}
 

@@ -58,8 +58,8 @@ public class ChandelierBlock extends ExtendedCandleBlock {
 	public ChandelierBlock(CandleBlock candleBlock) {
 		super(candleBlock);
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
-			BlockRenderLayerMap.put(RenderLayer.getCutout(), this);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			BlockRenderLayerMap.INSTANCE.putBlock(this, RenderLayer.getCutout());
 		}
 	}
 

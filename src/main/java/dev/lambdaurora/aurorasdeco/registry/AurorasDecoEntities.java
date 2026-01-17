@@ -46,8 +46,7 @@ public final class AurorasDecoEntities {
 	public static final EntityType<FakeLeashKnotEntity> FAKE_LEASH_KNOT_ENTITY_TYPE = Registry.register(
 			Registries.ENTITY_TYPE,
 			id("fake_leash_knot"),
-			EntityType.Builder.<FakeLeashKnotEntity>createMob()
-					.entityFactory(FakeLeashKnotEntity::new)
+			EntityType.Builder.create(SpawnGroup.MISC, FakeLeashKnotEntity::new)
 					.setDimensions(EntityDimensions.fixed(.375f, .5f))
 					.defaultAttributes(MobEntity.createAttributes())
 					.alwaysUpdateVelocity(false)

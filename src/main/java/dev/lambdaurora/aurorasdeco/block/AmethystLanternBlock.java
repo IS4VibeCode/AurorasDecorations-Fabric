@@ -41,7 +41,7 @@ public class AmethystLanternBlock extends LanternBlock {
 	public static final int EFFECT_RADIUS = 32;
 
 	public AmethystLanternBlock() {
-		super(AbstractBlock.Settings.copy(Blocks.LANTERN).luminance(14));
+		super(AbstractBlock.Settings.copy(Blocks.LANTERN).luminance(x -> 14));
 	}
 
 	/* Visual */

@@ -168,7 +168,7 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 	private void attemptToSync() {
 		if (this.world != null && !this.world.isClient()) {
 			this.markDirty();
-			this.sync();
+			this.world.getChunkManager().markForUpdate(this.getPos());
 		}
 	}
 

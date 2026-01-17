@@ -240,7 +240,7 @@ public final class AurorasDecoRegistry {
 			"plant_air",
 			new BigFlowerPotBlock.PlantAirBlock(
 					AbstractBlock.Settings.create()
-							.solid(false)
+							.solidBlock((x, y, z) -> false)
 							.replaceable()
 							.nonOpaque()
 							.strength(-1.f, 3600000.f)

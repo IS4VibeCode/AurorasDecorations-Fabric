@@ -379,8 +379,8 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 		if (planks == null) throw new IllegalStateException("ShelfBlock attempted to be created while the wood type is invalid.");
 		return AbstractBlock.Settings.copy(planks.block())
 				.pistonBehavior(PistonBehavior.BLOCK)
-				.collidable(true)
-				.luminance(0) // Override any smart luminance stuff from other mods to avoid crashes.
+				//.collidable(true)
+				.luminance(x -> 0) // Override any smart luminance stuff from other mods to avoid crashes.
 				.nonOpaque();
 	}
 

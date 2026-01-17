@@ -26,6 +26,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -60,9 +61,9 @@ public class HoneycombItemMixin {
 			var blockEntity = AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE.get(world, pos);
 			if (blockEntity != null && aurorasdeco$blockEntityData.get() != null) {
 				blockEntity.readBlackBoardNbt(aurorasdeco$blockEntityData.get());
-				if (!world.isClient()) {
+				if (world instanceof ServerWorld serverWorld) {
 					blockEntity.markDirty();
-					blockEntity.sync();
+					serverWorld.getChunkManager().markForUpdate(blockEntity.getPos());
 				}
 				aurorasdeco$blockEntityData.remove();
 			}

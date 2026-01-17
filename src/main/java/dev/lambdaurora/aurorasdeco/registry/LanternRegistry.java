@@ -78,8 +78,8 @@ public final class LanternRegistry {
 		WALL_LANTERNS.put(wallLanternId, wallLanternBlock);
 		WALL_LANTERN_BLOCK_MAP.put(block, wallLanternBlock);
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
-			BlockRenderLayerMap.put(RenderLayer.getCutout(), wallLanternBlock);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			BlockRenderLayerMap.INSTANCE.putBlock(wallLanternBlock, RenderLayer.getCutout());
 		}
 
 		return wallLanternBlock;
