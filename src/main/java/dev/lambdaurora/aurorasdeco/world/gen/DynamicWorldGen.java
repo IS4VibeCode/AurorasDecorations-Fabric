@@ -29,8 +29,6 @@ import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.registry.api.event.DynamicRegistryManagerSetupContext;
-import org.quiltmc.qsl.registry.api.event.RegistryEvents;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;

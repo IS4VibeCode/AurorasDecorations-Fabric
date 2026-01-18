@@ -42,6 +42,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.client.color.world.BiomeColors;
@@ -53,8 +55,10 @@ import net.minecraft.client.particle.LavaEmberParticle;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profiler;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.api.EnvType; import net.fabricmc.api.Environment;
 import net.fabricmc.api.ClientModInitializer;
@@ -63,10 +67,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientWorldTickEvents;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * Represents the Aurora's Decorations client mod.
@@ -135,7 +139,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 					});
 		});
 
-		ClientWorldTickEvents.START.register((client, world) -> Wind.get().tick(world));
+		ClientTickEvents.START_WORLD_TICK.register(world -> Wind.get().tick(world));
 
 		this.registerBlackboardItemRenderer(BLACKBOARD_BLOCK);
 		this.registerBlackboardItemRenderer(CHALKBOARD_BLOCK);
@@ -157,16 +161,22 @@ public class AurorasDecoClient implements ClientModInitializer {
 
 		EntityModelLayerRegistry.registerModelLayer(WindChimeBlockEntityRenderer.WIND_CHIME_MODEL_LAYER,
 				WindChimeBlockEntityRenderer::getTexturedModelData);
+		
 
-		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
-		resourceLoader.getRegisterDefaultResourcePackEvent().register(context -> {
-			context.addResourcePack(AurorasDecoClient.RESOURCE_PACK.rebuild(ResourceType.CLIENT_RESOURCES, context.resourceManager()));
-		});
-		resourceLoader.getRegisterTopResourcePackEvent().register(AurorasDeco.id("reload/render_rules"),
-				context -> {
-					RenderRule.reload(context.resourceManager());
-				}
-		);
+		ResourceManagerHelper resourceLoader = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
+
+		resourceLoader.registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+            @Override
+            public Identifier getFabricId() {
+                return AurorasDeco.id("reload/render_rules");
+            }
+
+			@Override
+			public void reload(ResourceManager manager) {
+				AurorasDecoClient.RESOURCE_PACK.rebuild(ResourceType.CLIENT_RESOURCES, manager);
+                RenderRule.reload(manager);
+			}
+        });
 
 		ModelLoadingPlugin.register(context -> {
 			RenderRule.addModels(context);

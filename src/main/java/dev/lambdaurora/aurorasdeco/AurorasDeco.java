@@ -31,18 +31,24 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
-import org.quiltmc.qsl.base.api.util.TriState;
+import net.minecraft.util.profiler.Profiler;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.quiltmc.qsl.registry.api.event.RegistryMonitor;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
 import org.slf4j.Logger;
 
 /**
@@ -58,12 +64,11 @@ public class AurorasDeco implements ModInitializer {
 	public static final AurorasDecoPack RESOURCE_PACK = new AurorasDecoPack(ResourceType.SERVER_DATA);
 
 	@Override
-	public void onInitialize(ModContainer mod) {
+	public void onInitialize() {
 		AurorasDecoRegistry.init();
 
-		RegistryMonitor.create(Registries.ITEM).forAll(context -> {
-			Identifier id = context.id();
-			Item item = context.value();
+		RegistryEntryAddedCallback.event(Registries.ITEM).register((rawId, id, item) -> {
+			//Identifier id = item.
 
 			if (AuroraUtil.idEqual(id, "pockettools", "pocket_cactus")) {
 				Registry.register(Registries.BLOCK, id("big_flower_pot/pocket_cactus"),
@@ -85,24 +90,39 @@ public class AurorasDeco implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.PAINTER_PALETTE_SCROLL, AurorasDecoPackets::handlePainterPaletteScroll);
 
 		DynamicWorldGen.init();
+		
+		ModContainer mod = FabricLoader.INSTANCE.getModContainer("aurorasdeco").get();
+		
+		ResourceManagerHelper.registerBuiltinResourcePack(id("azalea_tree"), mod,
+				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
+						.append(Text.literal(" - ").formatted(Formatting.GRAY))
+						.append(Text.translatable("resourcepack.aurorasdeco.azalea_tree.name").formatted(Formatting.LIGHT_PURPLE)),
+				ResourcePackActivationType.DEFAULT_ENABLED
+		);
+		ResourceManagerHelper.registerBuiltinResourcePack(id("swamp_worldgen"), mod,
+				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
+						.append(Text.literal(" - ").formatted(Formatting.GRAY))
+						.append(Text.translatable("resourcepack.aurorasdeco.swamp_tweaks.name").formatted(Formatting.DARK_GREEN)),
+				ResourcePackActivationType.NORMAL
+		);
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).addReloadListener(new SimpleSynchronousResourceReloadListener()
+				{
 
-		ResourceLoader.registerBuiltinResourcePack(id("azalea_tree"), ResourcePackActivationType.DEFAULT_ENABLED,
-				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
-						.append(Text.literal(" - ").formatted(Formatting.GRAY))
-						.append(Text.translatable("resourcepack.aurorasdeco.azalea_tree.name").formatted(Formatting.LIGHT_PURPLE))
-		);
-		ResourceLoader.registerBuiltinResourcePack(id("swamp_worldgen"), ResourcePackActivationType.NORMAL,
-				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
-						.append(Text.literal(" - ").formatted(Formatting.GRAY))
-						.append(Text.translatable("resourcepack.aurorasdeco.swamp_tweaks.name").formatted(Formatting.DARK_GREEN))
-		);
-		ResourceLoader.get(ResourceType.SERVER_DATA).getRegisterDefaultResourcePackEvent().register(context -> {
-			context.addResourcePack(RESOURCE_PACK.rebuild(ResourceType.SERVER_DATA, null));
-		});
+					@Override
+					public Identifier getFabricId() {
+						return id("reload/server_data");
+					}
+
+					@Override
+					public void reload(ResourceManager manager) {
+						RESOURCE_PACK.rebuild(ResourceType.SERVER_DATA, null);
+					}
+			
+				});
 	}
 
 	public static boolean isDevMode() {
-		return QuiltLoader.isDevelopmentEnvironment() || TriState.fromProperty("aurorasdeco.debug").toBooleanOrElse(false);
+		return false;
 	}
 
 	public static void log(String message) {

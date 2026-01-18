@@ -65,11 +65,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.SignType;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.poi.PointOfInterestType;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.item.Item;
 import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
-import org.quiltmc.qsl.registry.api.event.RegistryMonitor;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -596,67 +596,63 @@ public final class AurorasDecoRegistry {
 		AurorasDecoEntities.init();
 		AurorasDecoScreenHandlers.init();
 		AurorasDecoSounds.init();
+		
+		RegistryEntryAddedCallback.event(Registries.BLOCK).register((rawId, id, block) -> {
+			if ((id.getNamespace().equals("betternether") || id.getNamespace().equals("betterend")) && (id.getPath().contains("stripped") || (id.getPath().contains("mushroom") && !id.getPath().contains("mushroom_fir")) || id.getPath().contains("amaranita")))
+				return;
+			
+			if (id.getNamespace().equals("aurorasdeco") && id.getPath().contains("sign_post"))
+				return;
+			
+			if (block instanceof FlowerPotBlock flowerPotBlock) {
+				if (flowerPotBlock == Blocks.FLOWER_POT) return;
 
-		RegistryMonitor.create(Registries.BLOCK)
-				.filter(context -> {
-					var id = context.id();
+				Registry.register(
+						Registries.BLOCK,
+						AurorasDeco.id(AuroraUtil.getIdPath("hanging_flower_pot", id, "^potted[_/]")),
+						new HangingFlowerPotBlock(flowerPotBlock)
+				);
+			} else {
+				WoodType.onBlockRegister(id, block);
+				if (block instanceof FenceBlock fenceBlock) {
+					var signPostBlock = Registry.register(
+							Registries.BLOCK,
+							AurorasDeco.id(AuroraUtil.getIdPath("sign_post", id, "_fence$")),
+							new SignPostBlock(fenceBlock)
+					);
 
-					if ((id.getNamespace().equals("betternether") || id.getNamespace().equals("betterend")) && (id.getPath().contains("stripped") || (id.getPath().contains("mushroom") && !id.getPath().contains("mushroom_fir")) || id.getPath().contains("amaranita")))
-						return false;
-					return !(id.getNamespace().equals("aurorasdeco") && id.getPath().contains("sign_post"));
-				})
-				.forAll(context -> {
-					Identifier id = context.id();
-					Block block = context.value();
+					SIGN_POST_BLOCK_ENTITY_TYPE.addSupportedBlock(signPostBlock);
+				} else LanternRegistry.tryRegisterWallLantern(Registries.BLOCK, block, id);
+			}
+		});
 
-					if (block instanceof FlowerPotBlock flowerPotBlock) {
-						if (flowerPotBlock == Blocks.FLOWER_POT) return;
+		RegistryEntryAddedCallback.event(Registries.ITEM).register((rawId, id, originalItem) -> {
+			if (!(originalItem instanceof BlockItem))
+				return;
+			var accessor = (BlockItemAccessor) originalItem;
+			var item = (BlockItem) originalItem;
+			
+			if (item.getBlock() instanceof LanternBlock) {
+				var lanternBlock = LanternRegistry.fromItem(item);
+				if (lanternBlock != null)
+					accessor.aurorasdeco$setWallBlock(lanternBlock);
+				Item.BLOCK_ITEMS.put(lanternBlock, item);
+			} else if (item.getBlock() instanceof CandleBlock candleBlock && id.getNamespace().equals("minecraft")) {
+				var wall = registerBlock(
+						"wall_" + id.getPath(),
+						new WallCandleBlock(candleBlock)
+				);
+				var chandelier = registerBlock(
+						"chandelier/" + id.getPath().replace("_candle", ""),
+						new ChandelierBlock(candleBlock)
+				);
+				accessor.aurorasdeco$setWallBlock(wall);
+				accessor.aurorasdeco$setCeilingBlock(chandelier);
 
-						context.register(
-								AurorasDeco.id(AuroraUtil.getIdPath("hanging_flower_pot", id, "^potted[_/]")),
-								new HangingFlowerPotBlock(flowerPotBlock)
-						);
-					} else {
-						WoodType.onBlockRegister(id, block);
-						if (block instanceof FenceBlock fenceBlock) {
-							var signPostBlock = Registry.register(
-									context.registry(),
-									AurorasDeco.id(AuroraUtil.getIdPath("sign_post", id, "_fence$")),
-									new SignPostBlock(fenceBlock)
-							);
-
-							SIGN_POST_BLOCK_ENTITY_TYPE.addSupportedBlock(signPostBlock);
-						} else LanternRegistry.tryRegisterWallLantern(context.registry(), block, id);
-					}
-				});
-
-		RegistryMonitor.create(Registries.ITEM).filter(context -> context.value() instanceof BlockItem item)
-				.forAll(context -> {
-					Identifier id = context.id();
-					var accessor = (BlockItemAccessor) context.value();
-					var item = (BlockItem) context.value();
-
-					if (item.getBlock() instanceof LanternBlock) {
-						var lanternBlock = LanternRegistry.fromItem(item);
-						if (lanternBlock != null)
-							accessor.aurorasdeco$setWallBlock(lanternBlock);
-						Item.BLOCK_ITEMS.put(lanternBlock, item);
-					} else if (item.getBlock() instanceof CandleBlock candleBlock && id.getNamespace().equals("minecraft")) {
-						var wall = registerBlock(
-								"wall_" + id.getPath(),
-								new WallCandleBlock(candleBlock)
-						);
-						var chandelier = registerBlock(
-								"chandelier/" + id.getPath().replace("_candle", ""),
-								new ChandelierBlock(candleBlock)
-						);
-						accessor.aurorasdeco$setWallBlock(wall);
-						accessor.aurorasdeco$setCeilingBlock(chandelier);
-
-						Item.BLOCK_ITEMS.put(wall, item);
-						Item.BLOCK_ITEMS.put(chandelier, item);
-					}
-				});
+				Item.BLOCK_ITEMS.put(wall, item);
+				Item.BLOCK_ITEMS.put(chandelier, item);
+			}
+		});
 
 		var colors = DyeColor.values();
 
