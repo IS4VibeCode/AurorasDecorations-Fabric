@@ -116,9 +116,9 @@ public abstract class GenerateQmjTask extends DefaultTask {
 			writer.endObject();
 		}
 
-		writer.name("mixin").value("aurorasdeco.mixins.json");
+		writer.name("mixins").beginArray().value("aurorasdeco.mixins.json").endArray();
 
-		writer.name("modmenu").beginObject();
+		/*writer.name("modmenu").beginObject();
 		{
 			writer.name("links").beginObject();
 			{
@@ -130,7 +130,7 @@ public abstract class GenerateQmjTask extends DefaultTask {
 			}
 			writer.endObject();
 		}
-		writer.endObject();
+		writer.endObject();*/
 
 		writer.endObject();
 		writer.flush();

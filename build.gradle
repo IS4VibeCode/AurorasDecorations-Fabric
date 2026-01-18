@@ -11,9 +11,6 @@ group = project.maven_group
 version = "${project.mod_version}+${MINECRAFT_VERSION.version()}"
 base.archivesName = project.archives_base_name
 
-if (!(System.getenv("CURSEFORGE_TOKEN") || System.getenv("MODRINTH_TOKEN"))) {
-	version += "-local"
-}
 logger.lifecycle("Preparing version ${version}...")
 
 boolean isMCVersionNonRelease() {
@@ -70,12 +67,12 @@ javafx {
 
 aurorasdeco {
 	entrypoints {
-		init {
+		main {
 			values = [
 					entrypoint("dev.lambdaurora.aurorasdeco.AurorasDeco")
 			]
 		}
-		client_init {
+		client {
 			values = [
 					entrypoint("dev.lambdaurora.aurorasdeco.client.AurorasDecoClient"),
 					entrypoint("dev.lambdaurora.aurorasdeco.hook.TrinketsHooks", hasTrinkets.get())
