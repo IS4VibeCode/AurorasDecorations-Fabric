@@ -35,6 +35,7 @@ import dev.lambdaurora.aurorasdeco.registry.WoodType;
 import dev.lambdaurora.aurorasdeco.resource.datagen.*;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import dev.lambdaurora.aurorasdeco.util.ColorUtil;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
@@ -50,8 +51,6 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.recipe.api.builder.VanillaRecipeBuilders;
 import net.minecraft.recipe.RecipeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,7 +334,7 @@ public final class Datagen {
 
 			tryRegisterWoodcuttingRecipeFor(block, basePath, "wood", 1, "building_blocks");
 
-			if (QuiltLoader.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
+			if (FabricLoader.INSTANCE.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
 				tryRegisterWoodcuttingRecipeFor(block, "blockus", basePath,
 						"small_logs", 1, "building_blocks");
 			}
@@ -346,7 +345,7 @@ public final class Datagen {
 			basePath += separator;
 
 			tryRegisterWoodcuttingRecipeFor(block, basePath, "hyphae", 1, "building_blocks");
-			if (QuiltLoader.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
+			if (FabricLoader.INSTANCE.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
 				tryRegisterWoodcuttingRecipeFor(block, "blockus", basePath,
 						"small_stems", 1, "building_blocks");
 			}
@@ -354,7 +353,7 @@ public final class Datagen {
 	}
 
 	public static void registerDefaultRecipes() {
-		{
+		/*{
 			var sulfurItem = Registries.ITEM.get(new Identifier("sulfurpotassiummod", "sulfur"));
 			if (sulfurItem != Items.AIR) {
 				registerRecipe(VanillaRecipeBuilders.shapelessRecipe(new ItemStack(AurorasDecoRegistry.COPPER_SULFATE_ITEM))
@@ -362,7 +361,7 @@ public final class Datagen {
 						.ingredient(Items.RAW_COPPER)
 						.build(id("copper_sulfate_from_sulfurpotassiummod"), ""), "misc");
 			}
-		}
+		}*/
 	}
 
 	public static void registerDefaultWoodcuttingRecipes() {
@@ -415,7 +414,7 @@ public final class Datagen {
 					new ItemStack(block));
 			registerRecipe(recipe, "decorations");
 
-			var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
+			/*var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
 			if (slabComponent != null) {
 				var slab = Ingredient.ofItems(slabComponent.item());
 				var stick = Ingredient.ofItems(Items.STICK);
@@ -424,7 +423,7 @@ public final class Datagen {
 						.ingredient('S', stick)
 						.output(new ItemStack(block, 2))
 						.build(id("bench/" + block.getWoodType().getPathName()), "bench"), "decorations");
-			}
+			}*/
 		});
 
 		SeatRestItem.streamSeatRests().forEach(item -> {
@@ -453,13 +452,13 @@ public final class Datagen {
 					new ItemStack(block));
 			registerRecipe(recipe, "decorations");
 
-			var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
+			/*var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
 			if (slabComponent != null) {
 				registerRecipe(VanillaRecipeBuilders.shapedRecipe("SS")
 						.ingredient('S', slabComponent.item())
 						.output(new ItemStack(block, 2))
 						.build(id("shelf/" + block.getWoodType().getPathName()), "shelf"), "decorations");
-			}
+			}*/
 		});
 
 		SmallLogPileBlock.stream().forEach(block -> {

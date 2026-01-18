@@ -18,6 +18,8 @@
 package dev.lambdaurora.aurorasdeco.resource;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -30,7 +32,6 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.pack.DefaultResourcePackBuilder;
 import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.util.Identifier;
-import org.quiltmc.qsl.resource.loader.impl.ResourceLoaderImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +69,8 @@ public class ModTagReader {
 	private ResourceManager createResourceManager() {
 		var resourcePacks = new ArrayList<ResourcePack>();
 		resourcePacks.add(new DefaultResourcePackBuilder().withNamespaces(Identifier.DEFAULT_NAMESPACE).withDefaultPaths().build());
-		ResourceLoaderImpl.appendModResourcePacks(resourcePacks, ResourceType.SERVER_DATA, null);
+		
+		//ResourceLoaderImpl.appendModResourcePacks(resourcePacks, ResourceType.SERVER_DATA, null);
 
 		return new MultiPackResourceManager(ResourceType.SERVER_DATA, resourcePacks);
 	}

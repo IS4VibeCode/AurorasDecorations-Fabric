@@ -31,14 +31,13 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.resource.loader.api.InMemoryResourcePack;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.stream.Stream;
 
-public class AurorasDecoPack extends InMemoryResourcePack {
+public class AurorasDecoPack {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private final ResourceType type;
@@ -124,16 +123,20 @@ public class AurorasDecoPack extends InMemoryResourcePack {
 		this.putText(type, id, stringWriter.toString());
 	}
 
+	private void putText(ResourceType type, Identifier id, String string) {
+		
+	}
+
 	public void putImage(Identifier id, NativeImage image) {
-		if (!id.getPath().endsWith(".png")) id = new Identifier(id.getNamespace(), "textures/" + id.getPath() + ".png");
+		/*if (!id.getPath().endsWith(".png")) id = new Identifier(id.getNamespace(), "textures/" + id.getPath() + ".png");
 		try {
 			super.putImage(id, image);
 		} catch (IOException e) {
 			LOGGER.warn("Could not close output channel for texture " + id + ".", e);
-		}
+		}*/
 	}
 
-	@Override
+	//@Override
 	public String getName() {
 		return "Aurora's Decorations Virtual Pack";
 	}

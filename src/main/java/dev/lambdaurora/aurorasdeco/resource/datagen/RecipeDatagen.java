@@ -18,12 +18,12 @@
 package dev.lambdaurora.aurorasdeco.resource.datagen;
 
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeManager;
 import net.minecraft.util.Identifier;
-import org.quiltmc.qsl.recipe.api.RecipeManagerHelper;
 
 public final class RecipeDatagen {
 	public static Recipe<?> registerRecipe(Recipe<?> recipe, String category) {
-		RecipeManagerHelper.registerStaticRecipe(recipe);
+		//RecipeManagerHelper.registerStaticRecipe(recipe);
 
 		var advancementId = new Identifier(recipe.getId().getNamespace(), "recipes/" + category + "/" + recipe.getId().getPath());
 		AdvancementDatagen.register(advancementId, () -> AdvancementDatagen.simpleRecipeUnlock(recipe));
