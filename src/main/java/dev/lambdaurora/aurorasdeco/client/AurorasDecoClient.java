@@ -62,6 +62,8 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
+import org.quiltmc.qsl.lifecycle.api.client.event.ClientWorldTickEvents;
 import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
 
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
@@ -80,7 +82,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 			"inventory");
 
 	@Override
-	public void onInitializeClient(ModContainer mod) {
+	public void onInitializeClient() {
 		this.initBlockEntityRenderers();
 		this.initEntityRenderers();
 		this.initBlockRenderLayers();
@@ -93,7 +95,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 		/* Signs */
 		ClientPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SIGN_POST_OPEN_GUI, AurorasDecoPackets.Client::handleSignPostOpenGuiPacket);
 
-		ClientLifecycleEvents.READY.register(client -> {
+		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			PottedPlantType.stream()
 					.forEach(plantType -> {
 						if (plantType.isEmpty()) return;

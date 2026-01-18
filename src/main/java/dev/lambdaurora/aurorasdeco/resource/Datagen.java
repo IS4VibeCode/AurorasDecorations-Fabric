@@ -28,6 +28,7 @@ import dev.lambdaurora.aurorasdeco.client.AurorasDecoClient;
 import dev.lambdaurora.aurorasdeco.item.SeatRestItem;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
 import dev.lambdaurora.aurorasdeco.recipe.WoodcuttingRecipe;
+import dev.lambdaurora.aurorasdeco.recipe.AuroraRecipeSerializer;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.registry.LanternRegistry;
 import dev.lambdaurora.aurorasdeco.registry.WoodType;
@@ -318,10 +319,10 @@ public final class Datagen {
 
 	@SuppressWarnings("unchecked")
 	public static JsonObject recipe(Recipe<?> recipe) {
-		if (!(recipe.getSerializer() instanceof RecipeSerializer<?>))
+		if (!(recipe.getSerializer() instanceof AuroraRecipeSerializer<?>))
 			throw new UnsupportedOperationException("Cannot serialize recipe " + recipe);
 
-		return ((RecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
+		return ((AuroraRecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
 	}
 
 	public static void registerWoodcuttingRecipesForBlockVariants(Block block) {

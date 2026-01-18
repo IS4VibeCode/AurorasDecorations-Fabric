@@ -56,7 +56,7 @@ public final class ExplodingRecipe extends CuttingRecipe {
 		return new ItemStack(Items.TNT);
 	}
 
-	public static class Serializer implements RecipeSerializer<ExplodingRecipe> {
+	public static class Serializer implements AuroraRecipeSerializer<ExplodingRecipe> {
 		private Serializer() {
 		}
 
@@ -91,7 +91,7 @@ public final class ExplodingRecipe extends CuttingRecipe {
 			buf.writeItemStack(recipe.result);
 		}
 
-		//@Override
+		@Override
 		public JsonObject toJson(ExplodingRecipe recipe) {
 			var root = new JsonObject();
 			root.addProperty("type", AurorasDecoRegistry.EXPLODING_RECIPE_ID.toString());

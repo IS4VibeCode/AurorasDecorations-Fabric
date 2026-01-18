@@ -62,7 +62,7 @@ public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe
 		return SERIALIZER;
 	}
 
-	public static class Serializer implements RecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
+	public static class Serializer implements AuroraRecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
 		public ActuallyGoodTransformSmithingRecipe read(Identifier id, JsonObject json) {
 			Ingredient base = Ingredient.fromJson(JsonHelper.getObject(json, "base"));
 			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));
@@ -79,7 +79,7 @@ public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe
 			}
 		}
 
-		//@Override
+		@Override
 		public JsonObject toJson(ActuallyGoodTransformSmithingRecipe recipe) {
 			var json = new JsonObject();
 

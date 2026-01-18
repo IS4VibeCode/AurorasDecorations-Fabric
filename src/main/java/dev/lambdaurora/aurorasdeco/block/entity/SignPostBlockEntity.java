@@ -28,6 +28,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -166,9 +167,9 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 	/* Sync */
 
 	private void attemptToSync() {
-		if (this.world != null && !this.world.isClient()) {
+		if (this.world instanceof ServerWorld serverWorld) {
 			this.markDirty();
-			this.world.getChunkManager().markForUpdate(this.getPos());
+			serverWorld.getChunkManager().markForUpdate(this.getPos());
 		}
 	}
 

@@ -517,7 +517,7 @@ public final class AurorasDecoRegistry {
 
 	/* POI */
 
-	public static final RegistryKey<PointOfInterestType> AMETHYST_LANTERN_POI = PointOfInterestHelper.register(
+	public static final PointOfInterestType AMETHYST_LANTERN_POI = PointOfInterestHelper.register(
 			id("amethyst_lantern"),
 			0, 2,
 			AMETHYST_LANTERN_BLOCK, AMETHYST_WALL_LANTERN_BLOCK
@@ -568,7 +568,7 @@ public final class AurorasDecoRegistry {
 	private static <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(String name,
 			BlockEntityType.BlockEntityFactory<T> factory,
 			Block... blocks) {
-		return Registry.register(Registries.BLOCK_ENTITY_TYPE, id(name), FabricBlockEntityTypeBuilder.create(factory, blocks).build());
+		return Registry.register(Registries.BLOCK_ENTITY_TYPE, id(name), FabricBlockEntityTypeBuilder.create(factory::create, blocks).build());
 	}
 
 	private static <R extends Recipe<?>, T extends RecipeSerializer<R>> T register(String name, T recipe) {

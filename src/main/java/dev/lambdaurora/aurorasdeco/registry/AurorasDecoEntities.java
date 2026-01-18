@@ -46,23 +46,23 @@ public final class AurorasDecoEntities {
 	public static final EntityType<FakeLeashKnotEntity> FAKE_LEASH_KNOT_ENTITY_TYPE = Registry.register(
 			Registries.ENTITY_TYPE,
 			id("fake_leash_knot"),
-			EntityType.Builder.create(SpawnGroup.MISC, FakeLeashKnotEntity::new)
-					.setDimensions(EntityDimensions.fixed(.375f, .5f))
-					.defaultAttributes(MobEntity.createAttributes())
-					.alwaysUpdateVelocity(false)
-					.maxChunkTrackingRange(10)
+			EntityType.Builder.create(FakeLeashKnotEntity::new, SpawnGroup.MISC)
+					.setDimensions(.375f, .5f)
+					//.defaultAttributes(MobEntity.createAttributes())
+					//.alwaysUpdateVelocity(false)
+					.maxTrackingRange(10)
 					.trackingTickInterval(Integer.MAX_VALUE)
-					.build()
+					.build("fake_leash_knot")
 	);
 	public static final EntityType<SeatEntity> SEAT_ENTITY_TYPE = Registry.register(
 			Registries.ENTITY_TYPE,
 			id("seat"),
-			EntityType.Builder.create(SpawnGroup.MISC, SeatEntity::new)
-					.setDimensions(EntityDimensions.fixed(0.f, 0.f))
+			EntityType.Builder.create(SeatEntity::new, SpawnGroup.MISC)
+					.setDimensions(0.f, 0.f)
 					.disableSaving()
 					.disableSummon()
-					.maxChunkTrackingRange(10)
-					.build()
+					.maxTrackingRange(10)
+					.build("seat")
 	);
 
 	static void init() {}

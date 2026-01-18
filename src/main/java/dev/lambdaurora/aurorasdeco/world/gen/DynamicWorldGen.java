@@ -32,9 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import org.quiltmc.qsl.registry.api.event.DynamicRegistryManagerSetupContext;
 import org.quiltmc.qsl.registry.api.event.RegistryEvents;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectionContext;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import org.quiltmc.qsl.worldgen.biome.api.ModificationPhase;
+import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +65,7 @@ public class DynamicWorldGen{
 		var waySigns = BiomeModifications.create(AurorasDeco.id("way_signs"));
 		for (var waySign : WAY_SIGNS) {
 			waySigns.add(ModificationPhase.ADDITIONS,
-					BiomeSelectors.isIn(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/way_sign/" + waySign))),
+					BiomeSelectors.tag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/way_sign/" + waySign))),
 					(selectionContext, context) -> {
 						context.getGenerationSettings().addFeature(GenerationStep.Feature.SURFACE_STRUCTURES,
 								RegistryKey.of(RegistryKeys.PLACED_FEATURE, AurorasDeco.id("way_sign/" + waySign))

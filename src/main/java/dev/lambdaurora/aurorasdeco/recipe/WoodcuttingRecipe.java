@@ -55,7 +55,7 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 		return new ItemStack(AurorasDecoRegistry.SAWMILL_BLOCK);
 	}
 
-	public static class Serializer implements RecipeSerializer<WoodcuttingRecipe> {
+	public static class Serializer implements AuroraRecipeSerializer<WoodcuttingRecipe> {
 		private Serializer() {
 		}
 
@@ -90,7 +90,7 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 			buf.writeItemStack(recipe.result);
 		}
 
-		//@Override
+		@Override
 		public JsonObject toJson(WoodcuttingRecipe recipe) {
 			var root = new JsonObject();
 			root.addProperty("type", AurorasDecoRegistry.WOODCUTTING_RECIPE_ID.toString());
