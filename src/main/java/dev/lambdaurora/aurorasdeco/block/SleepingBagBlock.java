@@ -296,7 +296,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 
 	private static void appendToPointOfInterest(RegistryKey<PointOfInterestType> poiKey) {
 
-	    var poiOptional = Registries.POINT_OF_INTEREST_TYPE.get(poiKey);
+	    /*var poiOptional = Registries.POINT_OF_INTEREST_TYPE.get(poiKey);
 	    if (poiOptional == null) return;
 
 	    PointOfInterestType poi = poiOptional;
@@ -317,7 +317,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	                poi.maxTickets(),
 	                poi.searchDistance()
 	        )
-	    );
+	    );*/
 	}
 
 	static {
