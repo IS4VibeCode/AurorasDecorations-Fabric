@@ -208,6 +208,14 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 					if (start == -1) {
 						start = i;
 					}
+					// The matching run may extend all the way to the last node, with nothing after it
+					// to "close" the range -- without this, end would stay -1 and a real match would be
+					// discarded as if nothing had matched at all (confirmed as a real bug: with this
+					// modpack's item ordering, ItemTags.SMALL_FLOWERS' matching run was exactly this
+					// case, and every caller of this method treats a null return as "nothing to do"
+					// rather than an error, so it silently vanished -- until a caller that dereferences
+					// the result unconditionally, like ItemTree.modifyNaturalBlocks, hit a real NPE).
+					end = i;
 				} else if (start != -1) {
 					end = i - 1;
 					break;

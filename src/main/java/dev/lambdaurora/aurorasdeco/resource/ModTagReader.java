@@ -87,6 +87,17 @@ public class ModTagReader {
 
 		for (var mod : FabricLoader.getInstance().getAllMods()) {
 			for (var root : mod.getRootPaths()) {
+				// Most of the ~300+ mods in a real pack have no "data" directory at all (client-only
+				// visual/rendering mods, resource-pack-only mods, ...). Wrapping them as a
+				// DirectoryResourcePack anyway is harmless in principle, but Quilt Loader's own mapped
+				// jar filesystem (QuiltMapFileSystemProvider) throws NotDirectoryException rather than
+				// NoSuchFileException when probing a path that simply doesn't exist -- vanilla catches
+				// it and logs an ERROR with a full stack trace per mod instead of silently skipping,
+				// confirmed as pure log noise (~540 occurrences in a real load, one per data-less mod)
+				// with zero effect on tag loading correctness. Skip mods with no "data" directory
+				// outright to avoid manufacturing this noise ourselves.
+				if (!java.nio.file.Files.isDirectory(root.resolve("data"))) continue;
+
 				resourcePacks.add(new DirectoryResourcePack(mod.getMetadata().getId(), root, false));
 			}
 		}
