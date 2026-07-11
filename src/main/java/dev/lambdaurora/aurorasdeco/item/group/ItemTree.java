@@ -196,8 +196,17 @@ public class ItemTree extends ItemTreeGroupNode {
 		var smallFlowers = tree.collectItemsAsGroup(new Identifier("minecraft", "small_flowers"),
 				stack -> stack.isIn(ItemTags.SMALL_FLOWERS)
 		);
-		smallFlowers.add(AurorasDecoPlants.DAFFODIL.item());
-		smallFlowers.add(AurorasDecoPlants.LAVENDER.item());
+		// Unlike this file's other predicate-based groupings (lanterns, campfires, signs, boats -- all
+		// plain instanceof checks), this one depends on ItemTags.SMALL_FLOWERS actually being populated.
+		// Confirmed null in a real load: REI eagerly collects every creative tab's entries during its
+		// own REI-ReloadPlugins pass, which can run before tag data has loaded, so the predicate matches
+		// nothing and collectItemsAsGroup correctly returns null per its @Nullable contract. Skip rather
+		// than crash -- an uncaught NPE here previously aborted the rest of this method, silently
+		// dropping the duckweed insertion below too, not just the two flowers.
+		if (smallFlowers != null) {
+			smallFlowers.add(AurorasDecoPlants.DAFFODIL.item());
+			smallFlowers.add(AurorasDecoPlants.LAVENDER.item());
+		}
 
 		tree.addAfter(Items.LILY_PAD, AurorasDecoPlants.DUCKWEED.item());
 	}
