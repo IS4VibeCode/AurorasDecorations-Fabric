@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -217,11 +216,31 @@ public class AurorasDecoPack implements ResourcePack {
 		});
 	}
 
+	/**
+	 * The full set of namespaces this pack can ever contribute content under, regardless of whether
+	 * {@link #rebuild} has populated any content for them yet.
+	 * <p>
+	 * {@code getNamespaces} must NOT derive this from the current, possibly-still-empty contents of
+	 * {@link #assets}/{@link #data} -- {@link net.minecraft.resource.LifecycledResourceManagerImpl}'s
+	 * constructor calls it exactly once, synchronously, at the moment a reload's {@code ResourceManager}
+	 * is assembled, which happens <em>before</em> any {@link net.minecraft.resource.ResourceReloader}
+	 * (including the listener that actually calls {@link #rebuild}) has run. On a fresh client launch
+	 * this pack's maps are still empty at that instant, so a derived answer would be the empty set --
+	 * permanently, for that whole reload cycle, since namespace-to-pack routing is frozen at
+	 * construction while only each pack's own content stays mutable afterward. Confirmed as the actual
+	 * cause of every dynamically-generated block (benches, stumps, wall lanterns, ...) rendering as the
+	 * missing-model placeholder on a real load test: the pack's content was correctly generated, and
+	 * even included in the reload's pack list, but registered under zero namespaces, so nothing was ever
+	 * routed to it. A fixed, namespace-timing-independent answer sidesteps the race entirely: this pack
+	 * always writes under {@code aurorasdeco} (via {@link Datagen}) and vanilla-namespaced tag overrides
+	 * (via {@link #registerTag}, e.g. {@code minecraft:tags/blocks/flower_pots.json}), so those two are
+	 * always claimed regardless of generation timing.
+	 */
+	private static final Set<String> NAMESPACES = Set.of(AurorasDeco.NAMESPACE, "minecraft");
+
 	@Override
 	public Set<String> getNamespaces(ResourceType type) {
-		return this.getResourceMap(type).keySet().stream()
-				.map(Identifier::getNamespace)
-				.collect(Collectors.toUnmodifiableSet());
+		return NAMESPACES;
 	}
 
 	@Override
