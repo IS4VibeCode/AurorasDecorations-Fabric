@@ -41,7 +41,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +136,7 @@ public class SmallLogPileBlock extends Block implements Waterloggable {
 					state = state.with(TYPE, PartType.BOTTOM);
 			}
 
-			return state.with(FACING, ctx.getPlayerFacing());
+			return state.with(FACING, ctx.getPlayerLookDirection());
 		}
 	}
 
@@ -182,7 +182,7 @@ public class SmallLogPileBlock extends Block implements Waterloggable {
 
 	private static Settings settings(WoodType woodType) {
 		var log = woodType.getComponent(WoodType.ComponentType.LOG);
-		return QuiltBlockSettings.create()
+		return FabricBlockSettings.of()
 				.mapColor(log.mapColor())
 				.sounds(log.blockSoundGroup())
 				.strength(2.f)

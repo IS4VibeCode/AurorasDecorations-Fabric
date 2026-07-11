@@ -25,7 +25,7 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
@@ -46,7 +46,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 	}
 
 	@Override
-	public boolean place(FeatureContext<FallenTreeFeatureConfig> context) {
+	public boolean generate(FeatureContext<FallenTreeFeatureConfig> context) {
 		var config = context.getConfig();
 		var random = context.getRandom();
 
@@ -84,7 +84,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 		);
 	}
 
-	private boolean generate(StructureWorldAccess world, RandomGenerator random, BlockPos origin, int length, Direction direction,
+	private boolean generate(StructureWorldAccess world, Random random, BlockPos origin, int length, Direction direction,
 			FallenTreeFeatureConfig config) {
 		Direction.Axis axis = direction.getAxis();
 		BlockPos.Mutable pos = origin.mutableCopy();
@@ -130,7 +130,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 		}
 
 		// First log
-		this.setBlockState(world, pos, config.trunkProvider().getBlockState(random, pos).with(PillarBlock.AXIS, Direction.Axis.Y));
+		this.setBlockState(world, pos, config.trunkProvider().get(random, pos).with(PillarBlock.AXIS, Direction.Axis.Y));
 		this.setBlockState(world, pos.move(0, -1, 0), Blocks.ROOTED_DIRT.getDefaultState());
 		pos.move(0, 1, 0);
 		if (config.layerType() != FallenTreeFeatureConfig.LayerType.SNOW) {
@@ -140,7 +140,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 				if (random.nextBoolean() && this.isAirOrVegetation(world, origin.offset(tmp))) {
 					var offset = origin.offset(tmp);
 					this.setBlockState(world, offset,
-							config.vineProvider().getBlockState(random, offset)
+							config.vineProvider().get(random, offset)
 									.with(VineBlock.getFacingProperty(tmp.getOpposite()), true)
 					);
 				}
@@ -148,7 +148,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 		}
 
 		for (var block : blocks) {
-			this.setBlockState(world, block, config.trunkProvider().getBlockState(random, pos).with(PillarBlock.AXIS, axis));
+			this.setBlockState(world, block, config.trunkProvider().get(random, pos).with(PillarBlock.AXIS, axis));
 
 			BlockPos offset = block.down();
 			if (isSoil(world, offset)) {
@@ -166,7 +166,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 					var offset = placeTo.offset(vineDirection);
 
 					if (this.isAirOrVegetation(world, offset)) {
-						var vineState = config.vineProvider().getBlockState(random, offset)
+						var vineState = config.vineProvider().get(random, offset)
 								.with(VineBlock.getFacingProperty(vineDirection.getOpposite()), true);
 
 						if (world.testFluidState(offset, fluidState -> fluidState.isIn(FluidTags.WATER))) {
@@ -196,7 +196,7 @@ public class FallenTreeFeature extends Feature<FallenTreeFeatureConfig> {
 
 				var value = random.nextInt(4);
 				if (value == 0) {
-					var mushroomBlock = config.mushroomProvider().getBlockState(random, offset);
+					var mushroomBlock = config.mushroomProvider().get(random, offset);
 					if (!mushroomBlock.isAir()) {
 						world.setBlockState(offset, mushroomBlock, Block.NOTIFY_LISTENERS);
 					}

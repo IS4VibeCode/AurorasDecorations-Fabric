@@ -44,7 +44,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 /**
  * Represents a sawmill block. Used to craft wood-related blocks.
@@ -60,7 +60,7 @@ public final class SawmillBlock extends Block {
 	private static final VoxelShape SHAPE;
 
 	public SawmillBlock() {
-		super(QuiltBlockSettings.create().mapColor(MapColor.WOOD).nonOpaque().strength(2.5f).sounds(BlockSoundGroup.WOOD));
+		super(FabricBlockSettings.of().mapColor(MapColor.OAK_TAN).nonOpaque().strength(2.5f).sounds(BlockSoundGroup.WOOD));
 
 		this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH));
 	}
@@ -91,7 +91,7 @@ public final class SawmillBlock extends Block {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return this.getDefaultState().with(FACING, ctx.getPlayerFacing().getOpposite());
+		return this.getDefaultState().with(FACING, ctx.getPlayerLookDirection().getOpposite());
 	}
 
 	@Override

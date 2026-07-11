@@ -36,7 +36,8 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
 
 import java.io.InputStreamReader;
@@ -54,7 +55,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public record RenderRule(List<Model> models) {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final Map<Identifier, RenderRule> ITEM_RULES = new Object2ObjectOpenHashMap<>();
@@ -113,7 +114,7 @@ public record RenderRule(List<Model> models) {
 			model = rule.getModel(stack, state, seed);
 
 		if (model == null)
-			return MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(stack, world, null, 0);
+			return MinecraftClient.getInstance().getItemRenderer().getModel(stack, world, null, 0);
 		return model;
 	}
 
@@ -127,7 +128,7 @@ public record RenderRule(List<Model> models) {
 		TAG_RULES.clear();
 
 		manager.findResources("aurorasdeco/render_rules", path -> path.getPath().endsWith(".json")).forEach((id, resource) -> {
-			try (var reader = new InputStreamReader(resource.open())) {
+			try (var reader = new InputStreamReader(resource.getInputStream())) {
 				var element = JsonParser.parseReader(reader);
 				if (element.isJsonObject()) {
 					var root = element.getAsJsonObject();

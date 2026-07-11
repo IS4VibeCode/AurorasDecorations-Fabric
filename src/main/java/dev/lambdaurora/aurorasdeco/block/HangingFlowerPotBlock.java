@@ -38,7 +38,7 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -47,7 +47,7 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -217,7 +217,7 @@ public class HangingFlowerPotBlock extends Block {
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
+	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		this.flowerPot.randomTick(state, world, pos, random);
 	}
 
@@ -239,8 +239,8 @@ public class HangingFlowerPotBlock extends Block {
 		return block;
 	}
 
-	private static QuiltBlockSettings settings(FlowerPotBlock block) {
+	private static FabricBlockSettings settings(FlowerPotBlock block) {
 		CURRENT_PROXY.set(block);
-		return QuiltBlockSettings.copyOf(block).dropsLike(block);
+		return FabricBlockSettings.copyOf(block).dropsLike(block);
 	}
 }

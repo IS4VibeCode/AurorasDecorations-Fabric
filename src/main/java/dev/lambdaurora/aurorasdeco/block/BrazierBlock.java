@@ -38,7 +38,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 /**
  * Represents a brazier.
@@ -78,10 +78,10 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	private final int fireDamage;
 
 	public BrazierBlock(MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
-		this(QuiltBlockSettings.create(), color, fireDamage, luminance, particle);
+		this(FabricBlockSettings.of(), color, fireDamage, luminance, particle);
 	}
 
-	public BrazierBlock(QuiltBlockSettings settings, MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
+	public BrazierBlock(FabricBlockSettings settings, MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
 		this(settings.mapColor(color)
 						.strength(2.f)
 						.nonOpaque()
@@ -90,7 +90,7 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 				fireDamage, particle);
 	}
 
-	public BrazierBlock(QuiltBlockSettings settings, int fireDamage, ParticleEffect particle) {
+	public BrazierBlock(FabricBlockSettings settings, int fireDamage, ParticleEffect particle) {
 		super(settings);
 
 		this.fireDamage = fireDamage;
@@ -185,7 +185,7 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	/* Client */
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		if (state.get(LIT)) {
 			if (random.nextInt(10) == 0) {
 				world.playSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
@@ -224,10 +224,10 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	}
 
 	public static boolean canBeLit(BlockState state) {
-		return state.isInAndMatches(AurorasDecoTags.BRAZIERS, s -> s.contains(LIT) && !state.get(LIT));
+		return state.isIn(AurorasDecoTags.BRAZIERS, s -> s.contains(LIT) && !state.get(LIT));
 	}
 
 	public static boolean canBeUnlit(BlockState state) {
-		return state.isInAndMatches(AurorasDecoTags.BRAZIERS, s -> s.contains(LIT) && state.get(LIT));
+		return state.isIn(AurorasDecoTags.BRAZIERS, s -> s.contains(LIT) && state.get(LIT));
 	}
 }

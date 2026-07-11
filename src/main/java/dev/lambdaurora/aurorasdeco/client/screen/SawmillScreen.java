@@ -18,7 +18,7 @@
 package dev.lambdaurora.aurorasdeco.client.screen;
 
 import dev.lambdaurora.aurorasdeco.screen.SawmillScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.player.PlayerInventory;
@@ -26,7 +26,8 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * Represents the sawmill screen.
@@ -35,7 +36,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 	private static final Identifier TEXTURE = new Identifier("textures/gui/container/stonecutter.png");
 	private float scrollAmount;
@@ -50,13 +51,13 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
 		this.drawMouseoverTooltip(graphics, mouseX, mouseY);
 	}
 
 	@Override
-	protected void drawBackground(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+	protected void drawBackground(DrawContext graphics, float delta, int mouseX, int mouseY) {
 		this.renderBackground(graphics);
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		graphics.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
@@ -72,7 +73,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 	}
 
 	@Override
-	protected void drawMouseoverTooltip(GuiGraphics graphics, int x, int y) {
+	protected void drawMouseoverTooltip(DrawContext graphics, int x, int y) {
 		super.drawMouseoverTooltip(graphics, x, y);
 		if (this.canCraft) {
 			int i = this.x + 52;
@@ -85,13 +86,13 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 				int n = i + m % 4 * 16;
 				int o = j + m / 4 * 18 + 2;
 				if (x >= n && x < n + 16 && y >= o && y < o + 18) {
-					graphics.drawTooltip(this.textRenderer, list.get(l).getResult(this.client.world.getRegistryManager()), x, y);
+					graphics.drawItemTooltip(this.textRenderer, list.get(l).getOutput(this.client.world.getRegistryManager()), x, y);
 				}
 			}
 		}
 	}
 
-	private void renderRecipeBackground(GuiGraphics graphics, int mouseX, int mouseY, int x, int y, int scrollOffset) {
+	private void renderRecipeBackground(DrawContext graphics, int mouseX, int mouseY, int x, int y, int scrollOffset) {
 		for (int i = this.scrollOffset; i < scrollOffset && i < this.handler.getAvailableRecipeCount(); ++i) {
 			int offset = i - this.scrollOffset;
 			int recipeX = x + offset % 4 * 16;
@@ -108,7 +109,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 		}
 	}
 
-	private void renderRecipeIcons(GuiGraphics graphics, int x, int y, int scrollOffset) {
+	private void renderRecipeIcons(DrawContext graphics, int x, int y, int scrollOffset) {
 		var list = this.handler.getAvailableRecipes();
 
 		for (int i = this.scrollOffset; i < scrollOffset && i < this.handler.getAvailableRecipeCount(); ++i) {
@@ -116,7 +117,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 			int recipeX = x + offset % 4 * 16;
 			int line = offset / 4;
 			int recipeY = y + line * 18 + 2;
-			graphics.drawItem(list.get(i).getResult(this.client.world.getRegistryManager()), recipeX, recipeY);
+			graphics.drawItem(list.get(i).getOutput(this.client.world.getRegistryManager()), recipeX, recipeY);
 		}
 	}
 

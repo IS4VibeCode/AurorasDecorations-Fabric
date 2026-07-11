@@ -19,40 +19,43 @@ package dev.lambdaurora.aurorasdeco.mixin.world;
 
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoBiomes;
 import dev.lambdaurora.aurorasdeco.world.gen.DynamicWorldGen;
-import net.minecraft.registry.HolderLookup;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.registry.RegistrySetBuilder;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.util.MultiNoiseBiomeSourceParameterList;
+import net.minecraft.world.biome.source.MultiNoiseBiomeSourceParameterList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Under Quilt Mappings the constructor's second parameter type splits into an enumerable
+ * {@code HolderLookup} (exposing a {@code .holders()} stream) versus a raw {@code HolderProvider}.
+ * Confirmed via javap/bytecode disassembly against the real 1.20.1 Yarn jar that there's only one
+ * interface here under Yarn, {@code RegistryEntryLookup} -- also confirmed the real package moved
+ * from {@code net.minecraft.world.biome.util} to {@code net.minecraft.world.biome.source}, and
+ * {@code RegistrySetBuilder} is Yarn's {@code RegistryBuilder}. {@code RegistryEntryLookup} has no
+ * stream-all method, but its {@code getOptional(RegistryKey)} directly and safely answers "does this
+ * specific key exist" without needing to enumerate everything first, so the old dual-branch logic
+ * (enumerable lookup vs. try/catch on a raw provider) collapses into one path.
+ */
 @Mixin(MultiNoiseBiomeSourceParameterList.class)
 public class MultiNoiseBiomeSourceParameterListMixin {
 	@Inject(
 			method = "<init>",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/biome/util/MultiNoiseBiomeSourceParameterList$Preset$C_pttrytil;apply(Ljava/util/function/Function;)Lnet/minecraft/world/biome/source/util/MultiNoiseUtil$ParameterRangeList;"
+					target = "Lnet/minecraft/world/biome/source/MultiNoiseBiomeSourceParameterList$Preset$BiomeSourceFunction;apply(Ljava/util/function/Function;)Lnet/minecraft/world/biome/source/util/MultiNoiseUtil$Entries;"
 			)
 	)
-	private void aurorasdeco$onInitHead(MultiNoiseBiomeSourceParameterList.Preset preset, HolderProvider<Biome> holderProvider, CallbackInfo ci) {
-		if (holderProvider instanceof HolderLookup<Biome> lookup) {
-			DynamicWorldGen.markCanInjectBiomes(lookup.holders().anyMatch(holder -> holder.isRegistryKey(AurorasDecoBiomes.LAVENDER_PLAINS)));
-		} else if (!holderProvider.getClass().getName().contains(RegistrySetBuilder.class.getName())) {
-			try {
-				holderProvider.getHolderOrThrow(AurorasDecoBiomes.LAVENDER_PLAINS);
-				DynamicWorldGen.markCanInjectBiomes(true);
-			} catch (IllegalStateException e) {
-				/* Ignored */
-			}
+	private void aurorasdeco$onInitHead(MultiNoiseBiomeSourceParameterList.Preset preset, RegistryEntryLookup<Biome> lookup, CallbackInfo ci) {
+		if (!lookup.getClass().getName().contains(RegistryBuilder.class.getName())) {
+			DynamicWorldGen.markCanInjectBiomes(lookup.getOptional(AurorasDecoBiomes.LAVENDER_PLAINS).isPresent());
 		}
 	}
 
 	@Inject(method = "<init>", at = @At("TAIL"))
-	private void aurorasdeco$onInitTail(MultiNoiseBiomeSourceParameterList.Preset preset, HolderProvider<Biome> holderProvider, CallbackInfo ci) {
+	private void aurorasdeco$onInitTail(MultiNoiseBiomeSourceParameterList.Preset preset, RegistryEntryLookup<Biome> lookup, CallbackInfo ci) {
 		DynamicWorldGen.unmarkCanInjectBiomes();
 	}
 }

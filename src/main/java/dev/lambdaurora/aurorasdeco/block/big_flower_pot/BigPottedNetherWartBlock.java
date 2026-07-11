@@ -26,7 +26,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
@@ -51,7 +51,7 @@ public class BigPottedNetherWartBlock extends BigPottedProxyBlock {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
+	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		this.getPlant().randomTick(state, world, pos, random);
 	}
 
@@ -69,7 +69,7 @@ public class BigPottedNetherWartBlock extends BigPottedProxyBlock {
 			if (!world.isClient()) {
 				dropStacks(this.getPlantState(state), world, pos, null, player, handStack);
 				world.setBlockState(pos, state.with(NetherWartBlock.AGE, 0), NOTIFY_ALL);
-				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.create(player, state));
+				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(player, state));
 			}
 
 			return ActionResult.success(world.isClient());

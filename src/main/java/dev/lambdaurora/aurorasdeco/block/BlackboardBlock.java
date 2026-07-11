@@ -125,7 +125,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 		var world = ctx.getWorld();
 		var directions = ctx.getPlacementDirections();
 
-		var nbt = BlockItem.getBlockEntityNbtFromStack(ctx.getStack());
+		var nbt = BlockItem.getBlockEntityNbt(ctx.getStack());
 		if (nbt != null && nbt.contains("lit")) {
 			state = state.with(LIT, nbt.getBoolean("lit"));
 		}
@@ -170,7 +170,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 				blackboard.setCustomName(stack.getName());
 			}
 
-			var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+			var nbt = BlockItem.getBlockEntityNbt(stack);
 			if (state.get(WATERLOGGED) && !this.isLocked())
 				return;
 
@@ -283,7 +283,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 
 					Blackboard.DrawAction action = Blackboard.DrawAction.DEFAULT;
 					for (var possibleAction : Blackboard.DrawAction.ACTIONS) {
-						Item offHandTool = possibleAction.getOffHandTool(world.getEnabledFlags());
+						Item offHandTool = possibleAction.getOffHandTool(world.getEnabledFeatures());
 
 						if (offHandTool != null && offhand.isOf(offHandTool)) {
 							action = possibleAction;
@@ -428,7 +428,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 			}
 
 			if (shouldEmitEvent) {
-				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.create(newState));
+				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(newState));
 			}
 
 			return true;

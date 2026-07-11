@@ -25,17 +25,18 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.util.ColorUtil;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SignPostBlockEntityRenderer implements BlockEntityRenderer<SignPostBlockEntity> {
 	private static final int RENDER_DISTANCE = MathHelper.square(16);
 	private static final int GLOWING_BLACK_COLOR = 0xfff0ebcc;
@@ -77,11 +78,11 @@ public class SignPostBlockEntityRenderer implements BlockEntityRenderer<SignPost
 
 		matrices.translate(0, yOffset, 0);
 
-		matrices.multiply(Axis.Y_POSITIVE.rotationDegrees(sign.getYaw() - 90));
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(sign.getYaw() - 90));
 
 		matrices.push();
 		if (!sign.isLeft()) {
-			matrices.multiply(Axis.Y_NEGATIVE.rotationDegrees(180));
+			matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 		} else
 			matrices.translate(0, 0, 5 / 16.0);
 
@@ -108,9 +109,9 @@ public class SignPostBlockEntityRenderer implements BlockEntityRenderer<SignPost
 			var text = list.isEmpty() ? OrderedText.EMPTY : list.get(0);
 			float x = -this.textRenderer.getWidth(text) / 2.f;
 			if (shouldRenderGlow) {
-				this.textRenderer.drawWithOutline(text, x, 0, color, backgroundColor, matrices.peek().getModel(), vertexConsumers, textLight);
+				this.textRenderer.drawWithOutline(text, x, 0, color, backgroundColor, matrices.peek().getPositionMatrix(), vertexConsumers, textLight);
 			} else {
-				this.textRenderer.draw(text, x, 0, color, false, matrices.peek().getModel(), vertexConsumers,
+				this.textRenderer.draw(text, x, 0, color, false, matrices.peek().getPositionMatrix(), vertexConsumers,
 						TextRenderer.TextLayerType.NORMAL, 0, textLight);
 			}
 		}
@@ -122,12 +123,12 @@ public class SignPostBlockEntityRenderer implements BlockEntityRenderer<SignPost
 		int signColor = sign.getColor().getSignColor();
 		// Why is it darkened?
 		double d = 0.7;
-		int red = (int) (ColorUtil.ABGR32.getRed(signColor) * d);
-		int green = (int) (ColorUtil.ABGR32.getGreen(signColor) * d);
-		int blue = (int) (ColorUtil.ABGR32.getBlue(signColor) * d);
+		int red = (int) (ColorHelper.Abgr.getRed(signColor) * d);
+		int green = (int) (ColorHelper.Abgr.getGreen(signColor) * d);
+		int blue = (int) (ColorHelper.Abgr.getBlue(signColor) * d);
 		return signColor == DyeColor.BLACK.getSignColor() && sign.isGlowing()
 				? GLOWING_BLACK_COLOR
-				: ColorUtil.ABGR32.getColor(0, blue, green, red);
+				: ColorHelper.Abgr.getAbgr(0, blue, green, red);
 	}
 
 	private boolean shouldRender(SignPostBlockEntity sign, int signColor) {

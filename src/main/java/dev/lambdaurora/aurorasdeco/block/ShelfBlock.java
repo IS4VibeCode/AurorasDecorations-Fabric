@@ -52,7 +52,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.*;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -374,10 +374,10 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 		return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
 	}
 
-	private static QuiltBlockSettings settings(WoodType woodType) {
+	private static FabricBlockSettings settings(WoodType woodType) {
 		var planks = woodType.getComponent(WoodType.ComponentType.PLANKS);
 		if (planks == null) throw new IllegalStateException("ShelfBlock attempted to be created while the wood type is invalid.");
-		return QuiltBlockSettings.copyOf(planks.block())
+		return FabricBlockSettings.copyOf(planks.block())
 				.pistonBehavior(PistonBehavior.BLOCK)
 				.collidable(true)
 				.luminance(0) // Override any smart luminance stuff from other mods to avoid crashes.

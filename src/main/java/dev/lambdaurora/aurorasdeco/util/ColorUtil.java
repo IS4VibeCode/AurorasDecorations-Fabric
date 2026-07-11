@@ -17,11 +17,11 @@
 
 package dev.lambdaurora.aurorasdeco.util;
 
-import com.mojang.blaze3d.texture.NativeImage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Range;
 
@@ -242,7 +242,7 @@ public final class ColorUtil {
 
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
-				int color = image.getPixelColor(x, y);
+				int color = image.getColor(x, y);
 
 				if (argbUnpackAlpha(color) == 255) {
 					colors.add(color);

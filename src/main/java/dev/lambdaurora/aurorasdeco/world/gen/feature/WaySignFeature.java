@@ -37,24 +37,28 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FenceBlock;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Holder;
-import net.minecraft.registry.HolderSet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.int_provider.IntProvider;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.intprovider.IntProvider;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.gen.chunk.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.gen.chunk.placement.StructurePlacement;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
+import net.minecraft.world.gen.structure.Structure;
 
 import java.util.*;
 
@@ -72,7 +76,7 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 	}
 
 	@Override
-	public boolean place(FeatureContext<Config> context) {
+	public boolean generate(FeatureContext<Config> context) {
 		var config = context.getConfig();
 		var random = context.getRandom();
 		var world = context.getWorld();
@@ -95,7 +99,7 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 
 		pos.set(context.getOrigin());
 
-		this.setBlockState(world, pos, config.base().getBlockState(random, pos));
+		this.setBlockState(world, pos, config.base().get(random, pos));
 		pos.move(Direction.UP);
 		this.setBlockState(world, pos, config.getSignPostState());
 
@@ -116,7 +120,7 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 		pos.move(Direction.DOWN);
 
 		var path = config.path();
-		this.setBlockState(world, pos, path.state().getBlockState(random, pos));
+		this.setBlockState(world, pos, path.state().get(random, pos));
 		WorldGenUtils.generateCircle(world, random, pos, path.radius().get(random), path.state(), path.additionFactor(), path.removalFactor(),
 				start -> {
 					var top = world.getTopPosition(Heightmap.Type.WORLD_SURFACE_WG, start);
@@ -150,14 +154,14 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 
 		/* Search for structures */
 		var serverWorld = (ServerWorld) world;
-		var plausibleTag = serverWorld.getRegistryManager().get(RegistryKeys.STRUCTURE_FEATURE)
-				.getTag(AurorasDecoTags.WAY_SIGN_DESTINATION_STRUCTURES);
-		HolderSet<StructureFeature> tag;
+		var plausibleTag = serverWorld.getRegistryManager().get(RegistryKeys.STRUCTURE)
+				.getEntryList(AurorasDecoTags.WAY_SIGN_DESTINATION_STRUCTURES);
+		RegistryEntryList<Structure> tag;
 
 		if (plausibleTag.isPresent()) {
 			tag = plausibleTag.get();
 		} else {
-			tag = HolderSet.createDirect();
+			tag = RegistryEntryList.of();
 		}
 
 		var places = findClosest(serverWorld, tag, pos, 100, false);
@@ -183,18 +187,18 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 		}
 	}
 
-	private static List<FoundFeatureEntry> findClosest(ServerWorld world, HolderSet<StructureFeature> structures, BlockPos origin,
+	private static List<FoundFeatureEntry> findClosest(ServerWorld world, RegistryEntryList<Structure> structures, BlockPos origin,
 			int range, boolean skipExistingChunks) {
-		if (!world.getStructureManager().shouldGenerate()) {
+		if (!world.getStructureAccessor().shouldGenerateStructures()) {
 			return Collections.emptyList();
 		}
 
 		var chunkGenerator = (ChunkGeneratorAccessor) world.getChunkManager().getChunkGenerator();
-		ConcentricRingPlacementCalculator concentricRingPlacementCalculator = world.getChunkManager().getConcentricRingPlacementCalculator();
-		var structurePlacements = new Object2ObjectArrayMap<StructurePlacement, Set<Holder<StructureFeature>>>();
+		StructurePlacementCalculator structurePlacementCalculator = world.getChunkManager().getStructurePlacementCalculator();
+		var structurePlacements = new Object2ObjectArrayMap<StructurePlacement, Set<RegistryEntry<Structure>>>();
 
 		for (var holder : structures) {
-			for (StructurePlacement structurePlacement : concentricRingPlacementCalculator.getFeaturePlacements(holder)) {
+			for (StructurePlacement structurePlacement : structurePlacementCalculator.getPlacements(holder)) {
 				structurePlacements.computeIfAbsent(structurePlacement, sP -> new ObjectArraySet<>()).add(holder);
 			}
 		}
@@ -204,14 +208,14 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 		} else {
 			var results = new ArrayList<FoundFeatureEntry>();
 
-			StructureManager structureManager = world.getStructureManager();
-			var list = new ArrayList<Map.Entry<StructurePlacement, Set<Holder<StructureFeature>>>>(structurePlacements.size());
+			StructureAccessor structureAccessor = world.getStructureAccessor();
+			var list = new ArrayList<Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>>>(structurePlacements.size());
 
 			for (var entry : structurePlacements.entrySet()) {
 				StructurePlacement structurePlacement2 = entry.getKey();
 				if (structurePlacement2 instanceof ConcentricRingsStructurePlacement concentricRingsStructurePlacement) {
-					Pair<BlockPos, Holder<StructureFeature>> foundStructure = chunkGenerator.invokeFindStructures(
-							entry.getValue(), world, structureManager, origin, skipExistingChunks, concentricRingsStructurePlacement
+					Pair<BlockPos, RegistryEntry<Structure>> foundStructure = chunkGenerator.invokeFindStructures(
+							entry.getValue(), world, structureAccessor, origin, skipExistingChunks, concentricRingsStructurePlacement
 					);
 
 					if (foundStructure != null) {
@@ -228,10 +232,10 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 
 				// Progressively explore from the closest to furthest.
 				for (int chunkDist = 0; chunkDist <= range; ++chunkDist) {
-					for (Map.Entry<StructurePlacement, Set<Holder<StructureFeature>>> entry2 : list) {
+					for (Map.Entry<StructurePlacement, Set<RegistryEntry<Structure>>> entry2 : list) {
 						RandomSpreadStructurePlacement randomSpreadStructurePlacement = (RandomSpreadStructurePlacement) entry2.getKey();
 						var foundStructures = getNearestGeneratedStructures(
-								entry2.getValue(), world, structureManager, origin, chunkX, chunkZ, chunkDist, skipExistingChunks,
+								entry2.getValue(), world, structureAccessor, origin, chunkX, chunkZ, chunkDist, skipExistingChunks,
 								world.getSeed(), randomSpreadStructurePlacement, 2
 						);
 
@@ -251,7 +255,7 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 	}
 
 	private static List<FoundFeatureEntry> getNearestGeneratedStructures(
-			Set<Holder<StructureFeature>> structures, WorldView world, StructureManager structureManager, BlockPos origin,
+			Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, BlockPos origin,
 			int chunkX, int chunkZ, int chunkDist, boolean skipExistingChunks, long seed, RandomSpreadStructurePlacement placement,
 			int limit
 	) {
@@ -267,9 +271,9 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 				if (edgeX || edgeZ) {
 					int startChunkX = chunkX + spacing * distX;
 					int startChunkZ = chunkZ + spacing * distZ;
-					ChunkPos chunkPos = placement.getPotentialStartChunk(seed, startChunkX, startChunkZ);
+					ChunkPos chunkPos = placement.getStartChunk(seed, startChunkX, startChunkZ);
 
-					Pair<BlockPos, Holder<StructureFeature>> found = ChunkGeneratorAccessor.invokeMethod_41522(structures, world, structureManager,
+					Pair<BlockPos, RegistryEntry<Structure>> found = ChunkGeneratorAccessor.invokeLocateStructure(structures, world, structureAccessor,
 							skipExistingChunks, placement, chunkPos);
 					if (found != null) {
 						BlockPos structurePos = found.getFirst();
@@ -291,7 +295,7 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 		return result;
 	}
 
-	private static void compareAndAdd(BlockPos origin, Pair<BlockPos, Holder<StructureFeature>> foundStructure, List<FoundFeatureEntry> results) {
+	private static void compareAndAdd(BlockPos origin, Pair<BlockPos, RegistryEntry<Structure>> foundStructure, List<FoundFeatureEntry> results) {
 		BlockPos structurePos = foundStructure.getFirst();
 		double xDist = origin.getX() - structurePos.getX();
 		double zDist = origin.getZ() - structurePos.getZ();
@@ -318,8 +322,8 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 		}
 	}
 
-	private record FoundFeatureEntry(double distance, BlockPos pos, Holder<StructureFeature> feature) {
-		public void makeSignTarget(SignPostBlockEntity.Sign sign, Direction facing, RandomGenerator random) {
+	private record FoundFeatureEntry(double distance, BlockPos pos, RegistryEntry<Structure> feature) {
+		public void makeSignTarget(SignPostBlockEntity.Sign sign, Direction facing, Random random) {
 			// I am honestly not sure *why* I need to invert the logic on the X axis, but it works so whatever...
 			if (facing.getAxis() == Direction.Axis.X) facing = facing.getOpposite();
 

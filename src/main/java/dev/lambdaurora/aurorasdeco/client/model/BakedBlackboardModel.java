@@ -30,13 +30,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.function.Supplier;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedBlackboardModel extends ForwardingBakedModel {
 	public BakedBlackboardModel(BakedModel baseModel) {
 		this.wrapped = baseModel;
@@ -48,7 +49,7 @@ public class BakedBlackboardModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<RandomGenerator> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
 
 		this.emitBlockMesh(blockView, pos, context);
@@ -62,10 +63,10 @@ public class BakedBlackboardModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitItemQuads(ItemStack stack, Supplier<RandomGenerator> randomSupplier, RenderContext context) {
+	public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
 		super.emitItemQuads(stack, randomSupplier, context);
 
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt != null && nbt.contains("pixels", NbtElement.BYTE_ARRAY_TYPE)) {
 			var blackboard = Blackboard.fromNbt(nbt);
 			blackboard.buildMesh(Direction.NORTH, blackboard.isLit() ? LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE : 0)

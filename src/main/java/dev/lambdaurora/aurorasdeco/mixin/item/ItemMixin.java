@@ -27,7 +27,7 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.ActionResult;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,7 +51,7 @@ public class ItemMixin implements ItemExtensions {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void makePlaceable(Block block, boolean requireSneaking) {
-		this.aurorasdeco$placeable = new BlockItem(block, new QuiltItemSettings()
+		this.aurorasdeco$placeable = new BlockItem(block, new FabricItemSettings()
 				.food(this.foodComponent));
 		this.aurorasdeco$requireSneaking = requireSneaking;
 

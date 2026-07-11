@@ -27,11 +27,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.TransformSmithingRecipe;
+import net.minecraft.recipe.SmithingTransformRecipe;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
 
 import java.util.stream.Stream;
 
@@ -44,7 +43,7 @@ import java.util.stream.Stream;
  * @version 1.0.0-beta.13
  * @since 1.0.0-beta.13
  */
-public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe {
+public class ActuallyGoodTransformSmithingRecipe extends SmithingTransformRecipe {
 	public static final Serializer SERIALIZER = new Serializer();
 
 	public ActuallyGoodTransformSmithingRecipe(Identifier id, Ingredient base, Ingredient addition, ItemStack result) {
@@ -62,7 +61,7 @@ public class ActuallyGoodTransformSmithingRecipe extends TransformSmithingRecipe
 		return SERIALIZER;
 	}
 
-	public static class Serializer implements QuiltRecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
+	public static class Serializer implements JsonSerializableRecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
 		public ActuallyGoodTransformSmithingRecipe read(Identifier id, JsonObject json) {
 			Ingredient base = Ingredient.fromJson(JsonHelper.getObject(json, "base"));
 			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));

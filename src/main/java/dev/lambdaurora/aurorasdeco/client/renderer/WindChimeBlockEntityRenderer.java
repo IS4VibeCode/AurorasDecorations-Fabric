@@ -25,19 +25,20 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.PlayerScreenHandler;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChimeBlockEntity> {
 	public static final EntityModelLayer WIND_CHIME_MODEL_LAYER = new EntityModelLayer(AurorasDeco.id("wind_chime"),
 			"main");
-	public static final Material WIND_CHIME_TEXTURE = new Material(
+	public static final SpriteIdentifier WIND_CHIME_TEXTURE = new SpriteIdentifier(
 			PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
 			AurorasDeco.id("block/wind_chime")
 	);

@@ -26,7 +26,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Direction;
 
 /**
@@ -46,10 +46,10 @@ public class ShelfBlockEntityRenderer implements BlockEntityRenderer<ShelfBlockE
 
 		matrices.push();
 		matrices.translate(0.5, 0.8, 0.5);
-		matrices.multiply(Axis.Y_POSITIVE.rotationDegrees(facing.asRotation()));
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(facing.asRotation()));
 
 		if (facing.getAxis() == Direction.Axis.Z) {
-			matrices.multiply(Axis.Y_POSITIVE.rotationDegrees(180));
+			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 		}
 		matrices.translate(0.35, 0, 0.38);
 

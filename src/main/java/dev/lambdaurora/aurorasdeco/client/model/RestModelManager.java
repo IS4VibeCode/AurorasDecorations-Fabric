@@ -30,14 +30,15 @@ import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class RestModelManager {
 	private final Map<WoodType, RestModelEntry> models = new Reference2ObjectOpenHashMap<>();
 
@@ -85,7 +86,7 @@ public class RestModelManager {
 			if (resource.isEmpty()) {
 				AurorasDeco.warn("Failed to load the bench rest models for the {} wood type. Could not locate the model.", woodType);
 			} else {
-				try (var reader = new InputStreamReader(resource.get().open())) {
+				try (var reader = new InputStreamReader(resource.get().getInputStream())) {
 					var deserializationContext = new ModelVariantMap.DeserializationContext();
 					deserializationContext.setStateFactory(benchBlock.getStateManager());
 					var map = ModelVariantMap.fromJson(deserializationContext, reader);

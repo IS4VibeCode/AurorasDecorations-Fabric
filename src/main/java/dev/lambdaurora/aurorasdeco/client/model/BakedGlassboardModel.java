@@ -25,15 +25,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 import org.joml.Vector3f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedGlassboardModel extends BakedBlackboardModel {
 	private final Int2ObjectMap<List<BakedModel>> models;
 
@@ -59,7 +60,7 @@ public class BakedGlassboardModel extends BakedBlackboardModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<RandomGenerator> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		var facing = state.get(BlackboardBlock.FACING);
 		int mask = 0;
 		BlockPos.Mutable neighborPos = pos.mutableCopy();

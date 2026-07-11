@@ -107,7 +107,7 @@ public class BlackboardPressBlock extends BlockWithEntity {
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		var state = super.getPlacementState(ctx);
 		if (state != null)
-			return state.with(FACING, ctx.getPlayerFacing().getOpposite());
+			return state.with(FACING, ctx.getPlayerLookDirection().getOpposite());
 		return null;
 	}
 

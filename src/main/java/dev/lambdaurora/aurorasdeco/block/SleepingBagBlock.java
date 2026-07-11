@@ -58,9 +58,8 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.poi.PointOfInterestType;
 import net.minecraft.world.poi.PointOfInterestTypes;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
-import org.quiltmc.qsl.poi.api.PointOfInterestHelper;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -111,7 +110,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	private final DyeColor color;
 
 	public SleepingBagBlock(DyeColor color) {
-		super(QuiltBlockSettings.create()
+		super(FabricBlockSettings.of()
 				.mapColor(color.getMapColor())
 				.pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.5f)
@@ -142,7 +141,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		var direction = ctx.getPlayerFacing();
+		var direction = ctx.getPlayerLookDirection();
 		var pos = ctx.getBlockPos();
 		var headPos = pos.offset(direction);
 		return ctx.getWorld().getBlockState(headPos).canReplace(ctx) ? this.getDefaultState().with(FACING, direction) : null;
@@ -206,7 +205,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 			} else {
 				player.trySleep(pos).ifLeft((sleepFailureReason) -> {
 					if (sleepFailureReason != null) {
-						player.sendMessage(sleepFailureReason.toText(), true);
+						player.sendMessage(sleepFailureReason.getMessage(), true);
 					}
 
 				});
@@ -276,7 +275,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 		for (var color : AuroraUtil.DYE_COLORS) {
 			var block = register(color);
 			var item = AurorasDecoRegistry.registerItem("sleeping_bag/" + block.getColor().getName(),
-					new BlockItem(block, new QuiltItemSettings().maxCount(1)));
+					new BlockItem(block, new FabricItemSettings().maxCount(1)));
 			SLEEPING_BAGS_ITEM_GROUP_NODE.add(item);
 		}
 
@@ -295,7 +294,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 
 	private static void appendToPointOfInterest(RegistryKey<PointOfInterestType> poiType) {
 
-		var type = Registries.POINT_OF_INTEREST_TYPE.getHolder(poiType);
+		var type = Registries.POINT_OF_INTEREST_TYPE.getEntry(poiType);
 
 		if (type.isEmpty()) {
 			return;
@@ -306,7 +305,11 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 					.filter(state -> state.get(SleepingBagBlock.PART) == BedPart.HEAD);
 		});
 
-		PointOfInterestHelper.addBlockStates(poiType, states.toList());
+		var poi = type.get().value();
+		var accessor = (dev.lambdaurora.aurorasdeco.mixin.PointOfInterestTypeAccessor) (Object) poi;
+		var newBlockStates = new java.util.HashSet<>(poi.blockStates());
+		newBlockStates.addAll(states.toList());
+		accessor.setBlockStates(newBlockStates);
 	}
 
 	static {

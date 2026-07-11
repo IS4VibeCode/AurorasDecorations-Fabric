@@ -17,7 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.item.group;
 
-import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
@@ -25,15 +25,15 @@ import java.util.Collection;
 
 public class ItemTreeItemNode implements ItemTreeNode {
 	private final ItemStack stack;
-	private ItemGroup.Visibility visibility;
+	private ItemGroup.StackVisibility visibility;
 
-	public ItemTreeItemNode(ItemStack stack, ItemGroup.Visibility visibility) {
+	public ItemTreeItemNode(ItemStack stack, ItemGroup.StackVisibility visibility) {
 		this.stack = stack;
 		this.visibility = visibility;
 	}
 
 	public ItemTreeItemNode(ItemStack stack) {
-		this(stack, ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+		this(stack, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 	}
 
 	public ItemStack stack() {
@@ -41,18 +41,18 @@ public class ItemTreeItemNode implements ItemTreeNode {
 	}
 
 	@Override
-	public ItemGroup.Visibility getVisibility() {
+	public ItemGroup.StackVisibility getVisibility() {
 		return this.visibility;
 	}
 
-	public void setVisibility(ItemGroup.Visibility visibility) {
+	public void setVisibility(ItemGroup.StackVisibility visibility) {
 		this.visibility = visibility;
 	}
 
 	@Override
-	public void build(Collection<ItemStack> stacks, FeatureFlagBitSet enabledFeatures, ItemGroup.Visibility visibility) {
-		if ((this.visibility == ItemGroup.Visibility.PARENT_AND_SEARCH_TABS || this.visibility == visibility)
-				&& this.stack.getItem().enabledIn(enabledFeatures)) {
+	public void build(Collection<ItemStack> stacks, FeatureSet enabledFeatures, ItemGroup.StackVisibility visibility) {
+		if ((this.visibility == ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS || this.visibility == visibility)
+				&& this.stack.getItem().getRequiredFeatures().isSubsetOf(enabledFeatures)) {
 			stacks.add(this.stack);
 		}
 	}

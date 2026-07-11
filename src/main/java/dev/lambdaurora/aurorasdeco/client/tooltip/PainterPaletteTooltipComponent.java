@@ -22,7 +22,7 @@ import dev.lambdaurora.aurorasdeco.blackboard.BlackboardColor;
 import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
@@ -33,7 +33,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * Represents the painter's palette tooltip component.
@@ -42,14 +43,14 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0-beta.13
  * @since 1.0.0-beta.6
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class PainterPaletteTooltipComponent implements TooltipComponent {
 	private final PainterPaletteItem.PainterPaletteInventory inventory;
 	private final Text selectedToolText;
 
 	public PainterPaletteTooltipComponent(PainterPaletteItem.PainterPaletteInventory inventory) {
 		this.inventory = inventory;
-		var enabledFlags = MinecraftClient.getInstance().world.getEnabledFlags();
+		var enabledFlags = MinecraftClient.getInstance().world.getEnabledFeatures();
 		this.selectedToolText = PainterPaletteItem.getSelectedToolMessage(inventory, enabledFlags).formatted(Formatting.GRAY);
 	}
 
@@ -83,7 +84,7 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		ItemStack primaryColorStack = this.inventory.getSelectedColor();
 
 		if (primaryColorStack.isEmpty()) return;
@@ -109,7 +110,7 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 	}
 
 	private void drawSlot(
-			GuiGraphics graphics, TextRenderer textRenderer, ItemStack stack,
+			DrawContext graphics, TextRenderer textRenderer, ItemStack stack,
 			int index, boolean start, boolean end
 	) {
 		this.drawSlotPart(graphics, 1, 1, 0, 0, 0, 18, 20);
@@ -132,7 +133,7 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 		}
 	}
 
-	private void drawColorOverlay(GuiGraphics graphics, ItemStack stack) {
+	private void drawColorOverlay(DrawContext graphics, ItemStack stack) {
 		var color = BlackboardColor.fromItem(stack.getItem());
 		if (color != null) {
 			graphics.getMatrices().push();
@@ -142,7 +143,7 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 		}
 	}
 
-	private void drawSlotPart(GuiGraphics graphics, int x, int y, int z, float u, float v, int width, int height) {
+	private void drawSlotPart(DrawContext graphics, int x, int y, int z, float u, float v, int width, int height) {
 		RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		RenderSystem.setShaderTexture(0, BundleTooltipComponent.TEXTURE);
 		graphics.drawTexture(BundleTooltipComponent.TEXTURE, x, y, 0, u, v, width, height, 128, 128);

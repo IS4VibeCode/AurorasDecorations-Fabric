@@ -17,16 +17,21 @@
 
 package dev.lambdaurora.aurorasdeco.mixin;
 
-import net.minecraft.registry.Holder;
 import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.registry.entry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.Map;
 
+/**
+ * Quilt Mappings names this field {@code entryToIntrusiveHolder}; the real Yarn field (confirmed via
+ * javap against the real 1.20.1 Yarn jar) is {@code intrusiveValueToEntry}, of the equivalent type
+ * {@code Map<T, RegistryEntry.Reference<T>>} (Yarn's {@code RegistryEntry} is Quilt's {@code Holder}).
+ */
 @Mixin(SimpleRegistry.class)
 public interface SimpleRegistryAccessor<T> {
-	@Accessor
-	@Nullable Map<T, Holder.Reference<T>> getEntryToIntrusiveHolder();
+	@Accessor("intrusiveValueToEntry")
+	@Nullable Map<T, RegistryEntry.Reference<T>> getEntryToIntrusiveHolder();
 }

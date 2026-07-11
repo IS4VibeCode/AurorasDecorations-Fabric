@@ -25,18 +25,19 @@ import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.random.LegacySimpleRandom;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.util.random.RandomSeed;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.minecraft.util.math.random.CheckedRandom;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.math.random.RandomSeed;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class LanternBlockEntityRenderer extends SwayingBlockEntityRenderer<LanternBlockEntity> {
 	private final MinecraftClient client = MinecraftClient.getInstance();
-	private final RandomGenerator random = new LegacySimpleRandom(RandomSeed.generateUniqueSeed());
+	private final Random random = new CheckedRandom(RandomSeed.getSeed());
 
 	public LanternBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
 
@@ -72,9 +73,9 @@ public class LanternBlockEntityRenderer extends SwayingBlockEntityRenderer<Lante
 
 		matrices.translate(8.f / 16.f, 12.f / 16.f, 8.f / 16.f);
 		if (roll != 0.f)
-			matrices.multiply(Axis.Z_POSITIVE.rotation(roll));
+			matrices.multiply(RotationAxis.POSITIVE_Z.rotation(roll));
 		if (pitch != 0.f)
-			matrices.multiply(Axis.X_POSITIVE.rotation(pitch));
+			matrices.multiply(RotationAxis.POSITIVE_X.rotation(pitch));
 
 		var facing = lantern.getCachedState().get(WallLanternBlock.FACING);
 		int lanternRotation = switch (facing) {
@@ -89,7 +90,7 @@ public class LanternBlockEntityRenderer extends SwayingBlockEntityRenderer<Lante
 				0.f,
 				(-facing.getOffsetZ() * extension) / 16.f);
 
-		matrices.multiply(Axis.Y_NEGATIVE.rotationDegrees(lanternRotation));
+		matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(lanternRotation));
 
 		var lanternShape = lanternState.getOutlineShape(lantern.getWorld(), pos);
 		var lanternShapeMaxY = lanternShape.getMax(Direction.Axis.Y);

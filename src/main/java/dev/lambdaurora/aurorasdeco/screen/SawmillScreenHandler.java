@@ -35,7 +35,8 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.List;
 
@@ -100,22 +101,22 @@ public final class SawmillScreenHandler extends ScreenHandler {
 		this.addProperty(this.selectedRecipe);
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public int getSelectedRecipe() {
 		return this.selectedRecipe.get();
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public List<WoodcuttingRecipe> getAvailableRecipes() {
 		return this.availableRecipes;
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public int getAvailableRecipeCount() {
 		return this.availableRecipes.size();
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public boolean canCraft() {
 		return this.inputSlot.hasStack() && !this.availableRecipes.isEmpty();
 	}
@@ -169,7 +170,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 		this.sendContentUpdates();
 	}
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public void setContentsChangedListener(Runnable runnable) {
 		this.contentsChangedListener = runnable;
 	}
@@ -180,7 +181,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public ItemStack quickTransfer(PlayerEntity player, int fromIndex) {
+	public ItemStack quickMove(PlayerEntity player, int fromIndex) {
 		var outputStack = ItemStack.EMPTY;
 		var slot = this.slots.get(fromIndex);
 		if (slot.hasStack()) {
@@ -228,8 +229,8 @@ public final class SawmillScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public void close(PlayerEntity player) {
-		super.close(player);
+	public void onClosed(PlayerEntity player) {
+		super.onClosed(player);
 		this.output.removeStack(1);
 		this.context.run((world, pos) -> {
 			this.dropInventory(player, this.input);

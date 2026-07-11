@@ -33,8 +33,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -72,14 +72,14 @@ public final class LanternRegistry {
 			wallLanternBlock = (WallLanternBlock<L>) Registry.register(registry, wallLanternId, new RedstoneWallLanternBlock(redstoneLanternBlock));
 		} else {
 			wallLanternBlock = Registry.register(registry, wallLanternId, new WallLanternBlock<>(block));
-			AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE.addSupportedBlock(wallLanternBlock);
+			AurorasDecoRegistry.addSupportedBlock(AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE, wallLanternBlock);
 		}
 
 		WALL_LANTERNS.put(wallLanternId, wallLanternBlock);
 		WALL_LANTERN_BLOCK_MAP.put(block, wallLanternBlock);
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
-			BlockRenderLayerMap.put(RenderLayer.getCutout(), wallLanternBlock);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			BlockRenderLayerMap.INSTANCE.putBlock(wallLanternBlock, RenderLayer.getCutout());
 		}
 
 		return wallLanternBlock;

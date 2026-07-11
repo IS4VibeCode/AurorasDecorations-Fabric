@@ -42,8 +42,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -95,7 +95,7 @@ public class PetBedBlock extends Block {
 
 	@Override
 	public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-		var direction = ctx.getPlayerFacing();
+		var direction = ctx.getPlayerLookDirection();
 		return this.getDefaultState().with(FACING, direction.getOpposite());
 	}
 
@@ -118,9 +118,9 @@ public class PetBedBlock extends Block {
 	private static void registerPetBed(DyeColor color) {
 		var block = Registry.register(Registries.BLOCK,
 				AurorasDeco.id("pet_bed/" + color.getName()),
-				new PetBedBlock(QuiltBlockSettings.create()
+				new PetBedBlock(FabricBlockSettings.of()
 						.mapColor(color).sounds(BlockSoundGroup.WOOD).strength(.2f)));
-		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new QuiltItemSettings()));
+		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new FabricItemSettings()));
 		PET_BEDS_ITEM_GROUP_NODE.add(item);
 	}
 

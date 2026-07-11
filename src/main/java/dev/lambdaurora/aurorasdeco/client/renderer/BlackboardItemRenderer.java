@@ -30,7 +30,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * Represents the dynamic item renderer of blackboards.
@@ -39,7 +40,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BlackboardItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 	private final ModelIdentifier modelId;
 
@@ -63,7 +64,7 @@ public class BlackboardItemRenderer implements BuiltinItemRendererRegistry.Dynam
 		}
 
 		matrices.push();
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt != null && nbt.contains("pixels", NbtElement.BYTE_ARRAY_TYPE)) {
 			float z = .933f;
 			if (mode == ModelTransformationMode.HEAD) {
@@ -93,7 +94,7 @@ public class BlackboardItemRenderer implements BuiltinItemRendererRegistry.Dynam
 			var blackboard = Blackboard.fromNbt(nbt);
 			BlackboardTexture.fromBlackboard(blackboard)
 					.render(
-							matrices.peek().getModel(), vertexConsumers,
+							matrices.peek().getPositionMatrix(), vertexConsumers,
 							blackboard.isLit() ? LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE : light,
 							false
 					);
@@ -101,7 +102,7 @@ public class BlackboardItemRenderer implements BuiltinItemRendererRegistry.Dynam
 			if (stack.getTranslationKey().contains("glass")) {
 				BlackboardTexture.fromBlackboard(blackboard)
 						.render(
-								matrices.peek().getModel(), vertexConsumers,
+								matrices.peek().getPositionMatrix(), vertexConsumers,
 								blackboard.isLit() ? LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE : light,
 								true
 						);

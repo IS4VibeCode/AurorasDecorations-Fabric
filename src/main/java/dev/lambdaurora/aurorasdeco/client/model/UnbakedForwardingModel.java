@@ -19,12 +19,13 @@ package dev.lambdaurora.aurorasdeco.client.model;
 
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.ModelBaker;
+import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -36,7 +37,7 @@ import java.util.function.Function;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public record UnbakedForwardingModel(UnbakedModel baseModel, Function<BakedModel, BakedModel> factory) implements AuroraUnbakedModel {
 	@Override
 	public Collection<Identifier> getModelDependencies() {
@@ -44,13 +45,13 @@ public record UnbakedForwardingModel(UnbakedModel baseModel, Function<BakedModel
 	}
 
 	@Override
-	public void resolveParents(Function<Identifier, UnbakedModel> models) {
-		this.baseModel.resolveParents(models);
+	public void setParents(Function<Identifier, UnbakedModel> models) {
+		this.baseModel.setParents(models);
 	}
 
 	@Override
 	public BakedModel bake(
-			ModelBaker loader, Function<Material, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
 	) {
 		return this.factory.apply(this.baseModel.bake(loader, textureGetter, rotationContainer, modelId));
 	}

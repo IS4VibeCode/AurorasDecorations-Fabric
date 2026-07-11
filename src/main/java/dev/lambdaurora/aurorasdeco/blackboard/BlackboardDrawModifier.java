@@ -41,7 +41,7 @@ public abstract class BlackboardDrawModifier {
 		@Override
 		@SuppressWarnings("deprecated")
 		public boolean matchItem(Item item) {
-			return item.getBuiltInRegistryHolder().isIn(ItemTags.COALS);
+			return item.getRegistryEntry().isIn(ItemTags.COALS);
 		}
 
 		@Override

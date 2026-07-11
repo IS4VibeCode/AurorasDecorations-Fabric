@@ -20,7 +20,7 @@ package dev.lambdaurora.aurorasdeco.block.sapling;
 import dev.lambdaurora.aurorasdeco.world.gen.feature.AurorasDecoTreeConfiguredFeatures;
 import net.minecraft.block.sapling.SaplingGenerator;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class JacarandaSaplingGenerator extends SaplingGenerator {
 	@Override
-	protected @Nullable RegistryKey<ConfiguredFeature<?, ?>> getTreeFeature(RandomGenerator random, boolean bees) {
+	protected @Nullable RegistryKey<ConfiguredFeature<?, ?>> getTreeFeature(Random random, boolean bees) {
 		if (random.nextBoolean()) {
 			return bees ? AurorasDecoTreeConfiguredFeatures.JACARANDA_TREE_BEES_015 : AurorasDecoTreeConfiguredFeatures.JACARANDA_TREE;
 		} else {

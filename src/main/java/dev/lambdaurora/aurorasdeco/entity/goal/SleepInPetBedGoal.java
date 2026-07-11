@@ -85,7 +85,7 @@ public abstract class SleepInPetBedGoal extends MoveToTargetPosGoal {
 	public void tick() {
 		boolean reached;
 		var targetPos = this.getTargetPos().down();
-		if (!targetPos.isWithinDistance(this.mob.getBlockPos(), this.getDesiredSquaredDistanceToTarget())) {
+		if (!targetPos.isWithinDistance(this.mob.getBlockPos(), this.getDesiredDistanceToTarget())) {
 			reached = false;
 			++this.tryingTime;
 			if (this.shouldResetPath()) {

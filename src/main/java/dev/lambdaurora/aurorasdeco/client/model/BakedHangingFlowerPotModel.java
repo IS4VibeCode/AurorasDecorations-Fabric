@@ -25,9 +25,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.function.Supplier;
 
@@ -38,7 +39,7 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedHangingFlowerPotModel extends ForwardingBakedModel {
 	private final MinecraftClient client = MinecraftClient.getInstance();
 
@@ -47,7 +48,7 @@ public class BakedHangingFlowerPotModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<RandomGenerator> randomSupplier, RenderContext context) {
+	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
 		super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
 
 		if (state.getBlock() instanceof HangingFlowerPotBlock hangingFlowerPotBlock) {

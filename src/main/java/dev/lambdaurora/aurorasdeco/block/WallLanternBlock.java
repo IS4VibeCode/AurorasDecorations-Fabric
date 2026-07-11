@@ -53,7 +53,7 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -61,9 +61,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
-import net.minecraft.world.logic.RedstoneSignalLevels;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.Map;
 
@@ -133,11 +132,6 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 	@Override
 	public String getTranslationKey() {
 		return this.lanternBlock.getTranslationKey();
-	}
-
-	@Override
-	public boolean isTranslucent(BlockState state, BlockView world, BlockPos pos) {
-		return state.getFluidState().isEmpty();
 	}
 
 	/* Shapes */
@@ -361,8 +355,8 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 	/* Redstone */
 
 	@Override
-	public boolean isRedstonePowerSource(BlockState state) {
-		return this.lanternBlock.isRedstonePowerSource(state);
+	public boolean emitsRedstonePower(BlockState state) {
+		return this.lanternBlock.emitsRedstonePower(state);
 	}
 
 	@Override
@@ -375,7 +369,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 		var lantern = AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE.get(world, pos);
 		if (lantern != null) {
 			if (lantern.isColliding()) {
-				return RedstoneSignalLevels.SIGNAL_MAX;
+				return 15;
 			} else if (lantern.isSwinging()) {
 				int max = lantern.getMaxSwingTicks();
 				float progress = (max - lantern.getSwingTicks()) / (float) max;
@@ -383,19 +377,19 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 			}
 		}
 
-		return RedstoneSignalLevels.SIGNAL_NONE;
+		return 0;
 	}
 
 	/* Visual */
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		this.getLanternBlock().randomDisplayTick(this.getLanternState(state), world, pos, random);
 	}
 
 	private static Settings settings(LanternBlock lanternBlock) {
 		ASSOCIATED_LANTERN_INIT.set(lanternBlock);
-		return QuiltBlockSettings.copyOf(lanternBlock).pistonBehavior(PistonBehavior.DESTROY).dropsLike(lanternBlock);
+		return FabricBlockSettings.copyOf(lanternBlock).pistonBehavior(PistonBehavior.DESTROY).dropsLike(lanternBlock);
 	}
 
 	static {

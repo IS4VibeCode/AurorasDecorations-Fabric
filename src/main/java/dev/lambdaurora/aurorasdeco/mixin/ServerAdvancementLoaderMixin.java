@@ -40,7 +40,7 @@ public class ServerAdvancementLoaderMixin {
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private void onApply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci,
-			Map<Identifier, Advancement.Task> builder) {
+			Map<Identifier, Advancement.Builder> builder) {
 		AdvancementDatagen.applyAdvancements(builder);
 	}
 }

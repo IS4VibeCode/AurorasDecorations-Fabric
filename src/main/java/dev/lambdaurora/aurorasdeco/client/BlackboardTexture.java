@@ -23,7 +23,8 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -37,7 +38,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BlackboardTexture {
 	private static final BlackboardTextureLRUCache TEXTURE_CACHE = new BlackboardTextureLRUCache(64);
 	private static final Deque<BlackboardTexture> UNUSED_TEXTURE_CACHE = new ArrayDeque<>();
@@ -79,22 +80,22 @@ public class BlackboardTexture {
 		var vertices = vertexConsumers.getBuffer(this.renderLayer);
 		vertices.vertex(model, mirror ? 1.f : 0.f, 1.f, 0.f)
 				.color(255, 255, 255, 255)
-				.uv(mirror ? 1.f : 0.f, 1.f).light(light).next();
+				.texture(mirror ? 1.f : 0.f, 1.f).light(light).next();
 		vertices.vertex(model, mirror ? 0.f : 1.f, 1.f, 0.f)
 				.color(255, 255, 255, 255)
-				.uv(mirror ? 0.f : 1.f, 1.f).light(light).next();
+				.texture(mirror ? 0.f : 1.f, 1.f).light(light).next();
 		vertices.vertex(model, mirror ? 0.f : 1.f, 0.f, 0.f)
 				.color(255, 255, 255, 255)
-				.uv(mirror ? 0.f : 1.f, 0.f).light(light).next();
+				.texture(mirror ? 0.f : 1.f, 0.f).light(light).next();
 		vertices.vertex(model, mirror ? 1.f : 0.f, 0.f, 0.f)
 				.color(255, 255, 255, 255)
-				.uv(mirror ? 1.f : 0.f, 0.f).light(light).next();
+				.texture(mirror ? 1.f : 0.f, 0.f).light(light).next();
 	}
 
 	public void update(Blackboard blackboard) {
 		for (int y = 0; y < 16; y++) {
 			for (int x = 0; x < 16; x++) {
-				this.texture.getImage().setPixelColor(x, y, blackboard.getColor(x, y));
+				this.texture.getImage().setColor(x, y, blackboard.getColor(x, y));
 			}
 		}
 		this.texture.upload();

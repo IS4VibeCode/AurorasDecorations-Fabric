@@ -17,36 +17,41 @@
 
 package dev.lambdaurora.aurorasdeco.client.screen;
 
-import com.mojang.blaze3d.lighting.DiffuseLighting;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import dev.lambdaurora.aurorasdeco.block.entity.SignPostBlockEntity;
 import dev.lambdaurora.aurorasdeco.client.renderer.SignPostBlockEntityRenderer;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoPackets;
 import dev.lambdaurora.aurorasdeco.util.ColorUtil;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.SelectionManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.CommonTexts;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 /**
  * Represents the sign post editor screen.
@@ -55,9 +60,9 @@ import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SignPostEditScreen extends Screen {
-	private static final OrderedText END_CURSOR = OrderedText.forward("_", Style.EMPTY);
+	private static final OrderedText END_CURSOR = OrderedText.styledForwardsVisitedString("_", Style.EMPTY);
 	private final SignPostBlockEntity signPost;
 	private int ticksSinceOpened;
 	private int currentRow;
@@ -79,8 +84,9 @@ public class SignPostEditScreen extends Screen {
 	@Override
 	protected void init() {
 		this.addDrawableChild(
-				ButtonWidget.builder(CommonTexts.DONE, button -> this.finishEditing())
-						.positionAndSize(this.width / 2 - 100, this.height / 4 + 120, 200, 20)
+				ButtonWidget.builder(ScreenTexts.DONE, button -> this.finishEditing())
+						.position(this.width / 2 - 100, this.height / 4 + 120)
+						.size(200, 20)
 						.build()
 		);
 		this.selectionManager = new SelectionManager(() -> this.text[this.currentRow], text -> this.text[this.currentRow] = text,
@@ -125,7 +131,7 @@ public class SignPostEditScreen extends Screen {
 	}
 
 	@Override
-	public void closeScreen() {
+	public void close() {
 		this.finishEditing();
 	}
 
@@ -167,14 +173,14 @@ public class SignPostEditScreen extends Screen {
 	/* Rendering */
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
 		MatrixStack matrices = graphics.getMatrices();
 		var upData = this.signPost.getUp();
 		var downData = this.signPost.getDown();
 
-		DiffuseLighting.setupFlatGuiLighting();
+		DiffuseLighting.disableGuiDepthLighting();
 		this.renderBackground(graphics);
-		graphics.drawCenteredShadowedText(this.textRenderer, this.title, this.width / 2, 40, ColorUtil.TEXT_COLOR);
+		graphics.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, ColorUtil.TEXT_COLOR);
 		matrices.push();
 		matrices.translate(this.width / 2.f, 0.0, 50.0);
 		float f = 93.75f;
@@ -192,12 +198,12 @@ public class SignPostEditScreen extends Screen {
 					LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
 
 		matrices.pop();
-		DiffuseLighting.setup3DGuiLighting();
+		DiffuseLighting.enableGuiDepthLighting();
 		super.render(graphics, mouseX, mouseY, delta);
 	}
 
 	private void renderSign(SignPostBlockEntity.Sign sign, int row, float yOffset,
-			GuiGraphics graphics, VertexConsumerProvider.Immediate vertexConsumers,
+			DrawContext graphics, VertexConsumerProvider.Immediate vertexConsumers,
 			int light, int overlay) {
 		MatrixStack matrices = graphics.getMatrices();
 		matrices.push();
@@ -207,7 +213,7 @@ public class SignPostEditScreen extends Screen {
 		matrices.push();
 		matrices.translate(0, 0, 2 / 16.0);
 		if (!sign.isLeft()) {
-			matrices.multiply(Axis.Y_NEGATIVE.rotationDegrees(180));
+			matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 		}
 
 		matrices.translate(-2 / 16.0, -.5 / 16.0, 0);
@@ -233,12 +239,12 @@ public class SignPostEditScreen extends Screen {
 				rowText = this.textRenderer.mirror(rowText);
 			}
 
-			var text = OrderedText.forward(rowText, Style.EMPTY);
+			var text = OrderedText.styledForwardsVisitedString(rowText, Style.EMPTY);
 			float x = -this.textRenderer.getWidth(text) / 2.f;
 			if (glowing) {
-				this.textRenderer.drawWithOutline(text, x, 0, color, backgroundColor, matrices.peek().getModel(), vertexConsumers, light);
+				this.textRenderer.drawWithOutline(text, x, 0, color, backgroundColor, matrices.peek().getPositionMatrix(), vertexConsumers, light);
 			} else {
-				this.textRenderer.draw(text, x, 0, color, false, matrices.peek().getModel(), vertexConsumers,
+				this.textRenderer.draw(text, x, 0, color, false, matrices.peek().getPositionMatrix(), vertexConsumers,
 						TextRenderer.TextLayerType.NORMAL, 0, light);
 			}
 
@@ -254,9 +260,9 @@ public class SignPostEditScreen extends Screen {
 					int cursorX = o + (int) x;
 					if (selectionStart >= rowText.length()) {
 						if (glowing) {
-							this.textRenderer.drawWithOutline(END_CURSOR, cursorX, 0, color, backgroundColor, matrices.peek().getModel(), vertexConsumers, light);
+							this.textRenderer.drawWithOutline(END_CURSOR, cursorX, 0, color, backgroundColor, matrices.peek().getPositionMatrix(), vertexConsumers, light);
 						} else {
-							this.textRenderer.draw(END_CURSOR, cursorX, 0, color, false, matrices.peek().getModel(), vertexConsumers,
+							this.textRenderer.draw(END_CURSOR, cursorX, 0, color, false, matrices.peek().getPositionMatrix(), vertexConsumers,
 									TextRenderer.TextLayerType.NORMAL, 0, light);
 						}
 						vertexConsumers.draw();
@@ -269,7 +275,7 @@ public class SignPostEditScreen extends Screen {
 				}
 
 				if (selectionStart != selectionEnd) {
-					var model = matrices.peek().getModel();
+					var model = matrices.peek().getPositionMatrix();
 
 					int start = Math.min(selectionStart, selectionEnd);
 					int end = Math.max(selectionStart, selectionEnd);
@@ -278,8 +284,8 @@ public class SignPostEditScreen extends Screen {
 					int startX = Math.min(v, w) - 1;
 					int endX = Math.max(v, w);
 					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder buffer = tessellator.getBufferBuilder();
-					RenderSystem.setShader(GameRenderer::getPositionColorShader);
+					BufferBuilder buffer = tessellator.getBuffer();
+					RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 					RenderSystem.enableColorLogicOp();
 					RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
 					buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);

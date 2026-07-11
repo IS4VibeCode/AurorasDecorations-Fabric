@@ -36,14 +36,14 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	private static final VoxelShape SHAPE = Block.createCuboidShape(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
 
 	public DuckweedBlock() {
-		super(QuiltBlockSettings.copyOf(Blocks.LILY_PAD).noCollision().sounds(BlockSoundGroup.MOSS_CARPET));
+		super(FabricBlockSettings.copyOf(Blocks.LILY_PAD).noCollision().sounds(BlockSoundGroup.MOSS_CARPET));
 	}
 
 	/* Shapes */
@@ -140,13 +140,13 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	}
 
 	@Override
-	public boolean canFertilize(World world, RandomGenerator random, BlockPos pos, BlockState state) {
+	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	public void fertilize(ServerWorld world, RandomGenerator random, BlockPos pos, BlockState state) {
-		var list = Util.toShuffledList(AuroraUtil.HORIZONTAL_DIRECTIONS.stream(), random);
+	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
+		var list = Util.copyShuffled(AuroraUtil.HORIZONTAL_DIRECTIONS.stream(), random);
 
 		for (var direction : list) {
 			BlockPos neighborPos = pos.offset(direction);

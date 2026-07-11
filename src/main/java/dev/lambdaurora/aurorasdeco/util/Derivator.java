@@ -24,8 +24,8 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 
 import static dev.lambdaurora.aurorasdeco.AurorasDeco.id;
 
@@ -67,46 +67,46 @@ public class Derivator {
 	public Block mossy() {
 		var derivative = new Derivative("mossy", true);
 		return registerWithItem(this.normalBaseName, derivative,
-				new Block(QuiltBlockSettings.copyOf(this.base.getBlock())),
-				new QuiltItemSettings(), null);
+				new Block(FabricBlockSettings.copyOf(this.base.getBlock())),
+				new FabricItemSettings(), null);
 	}
 
 	public Block cracked() {
 		var derivative = new Derivative("cracked", true);
 		var item = base.getBlock().asItem();
 		return registerWithItem(this.normalBaseName, derivative,
-				new Block(QuiltBlockSettings.copyOf(this.base.getBlock())),
-				new QuiltItemSettings(), this.groupNode);
+				new Block(FabricBlockSettings.copyOf(this.base.getBlock())),
+				new FabricItemSettings(), this.groupNode);
 	}
 
 	public Block chiseled() {
 		var derivative = new Derivative("chiseled", true);
 		var item = base.getBlock().asItem();
 		return registerWithItem(this.normalBaseName, derivative,
-				new Block(QuiltBlockSettings.copyOf(this.base.getBlock())),
-				new QuiltItemSettings(), this.groupNode);
+				new Block(FabricBlockSettings.copyOf(this.base.getBlock())),
+				new FabricItemSettings(), this.groupNode);
 	}
 
 	public WallBlock wall() {
 		var derivative = new Derivative("wall", false);
 		var name = derivative.apply(this.singularBaseName);
-		var block = register(name, new WallBlock(QuiltBlockSettings.copyOf(this.base.getBlock())));
-		this.groupNode.add(register(name, new BlockItem(block, new QuiltItemSettings())));
+		var block = register(name, new WallBlock(FabricBlockSettings.copyOf(this.base.getBlock())));
+		this.groupNode.add(register(name, new BlockItem(block, new FabricItemSettings())));
 		return block;
 	}
 
 	public SlabBlock slab() {
 		var derivative = new Derivative("slab", false);
 		return registerWithItem(this.singularBaseName, derivative,
-				new SlabBlock(QuiltBlockSettings.copyOf(this.base.getBlock())),
-				new QuiltItemSettings(), this.groupNode);
+				new SlabBlock(FabricBlockSettings.copyOf(this.base.getBlock())),
+				new FabricItemSettings(), this.groupNode);
 	}
 
 	public StairsBlock stairs() {
 		var derivative = new Derivative("stairs", false);
 		return registerWithItem(this.singularBaseName, derivative, new StairsBlock(this.base,
-						QuiltBlockSettings.copyOf(this.base.getBlock())),
-				new QuiltItemSettings(), this.groupNode);
+						FabricBlockSettings.copyOf(this.base.getBlock())),
+				new FabricItemSettings(), this.groupNode);
 	}
 
 	private static <T extends Block> T register(String name, T block) {

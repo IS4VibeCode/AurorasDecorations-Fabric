@@ -23,7 +23,7 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -34,7 +34,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -221,7 +222,7 @@ public class Blackboard implements BlackboardHandler {
 
 	/* Rendering */
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public Mesh buildMesh(Direction facing, int light) {
 		var sprite = MinecraftClient.getInstance().getSpriteAtlas(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).apply(WHITE_SPRITE_ID);
 
@@ -370,7 +371,7 @@ public class Blackboard implements BlackboardHandler {
 	public enum DrawAction {
 		DEFAULT("aurorasdeco.blackboard.tool.pixel") {
 			@Override
-			public @Nullable Item getOffHandTool(FeatureFlagBitSet enabledFeatures) {
+			public @Nullable Item getOffHandTool(FeatureSet enabledFeatures) {
 				return null;
 			}
 
@@ -382,7 +383,7 @@ public class Blackboard implements BlackboardHandler {
 		},
 		BRUSH("aurorasdeco.blackboard.tool.brush") {
 			@Override
-			public @Nullable Item getOffHandTool(FeatureFlagBitSet enabledFeatures) {
+			public @Nullable Item getOffHandTool(FeatureSet enabledFeatures) {
 				return Items.BRUSH;
 			}
 
@@ -394,7 +395,7 @@ public class Blackboard implements BlackboardHandler {
 		},
 		FILL("aurorasdeco.blackboard.tool.fill") {
 			@Override
-			public @Nullable Item getOffHandTool(FeatureFlagBitSet enabledFeatures) {
+			public @Nullable Item getOffHandTool(FeatureSet enabledFeatures) {
 				return Items.BUCKET;
 			}
 
@@ -406,7 +407,7 @@ public class Blackboard implements BlackboardHandler {
 		},
 		REPLACE("aurorasdeco.blackboard.tool.replace") {
 			@Override
-			public @Nullable Item getOffHandTool(FeatureFlagBitSet enabledFeatures) {
+			public @Nullable Item getOffHandTool(FeatureSet enabledFeatures) {
 				return Items.ENDER_PEARL;
 			}
 
@@ -429,7 +430,7 @@ public class Blackboard implements BlackboardHandler {
 			return Text.translatable(this.translationKey);
 		}
 
-		public abstract @Nullable Item getOffHandTool(FeatureFlagBitSet enabledFeatures);
+		public abstract @Nullable Item getOffHandTool(FeatureSet enabledFeatures);
 
 		public abstract boolean execute(BlackboardHandler blackboard, int x, int y, BlackboardDrawModifier modifier);
 	}

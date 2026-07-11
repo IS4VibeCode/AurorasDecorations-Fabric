@@ -26,7 +26,7 @@ import dev.lambdaurora.aurorasdeco.screen.PainterPaletteScreenHandler;
 import dev.lambdaurora.aurorasdeco.tooltip.PainterPaletteTooltipData;
 import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
@@ -46,8 +46,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import java.util.Optional;
 
@@ -78,7 +78,7 @@ public class PainterPaletteItem extends Item {
 		return inventory.getSelectedTool();
 	}
 
-	public static MutableText getSelectedToolMessage(PainterPaletteInventory inventory, FeatureFlagBitSet enabledFeatures) {
+	public static MutableText getSelectedToolMessage(PainterPaletteInventory inventory, FeatureSet enabledFeatures) {
 		Text toolName = Blackboard.DrawAction.ACTIONS.stream()
 				.filter(drawAction -> {
 					var offHandTool = drawAction.getOffHandTool(enabledFeatures);
@@ -182,7 +182,7 @@ public class PainterPaletteItem extends Item {
 					else paletteStack.removeSubNbt("inventory");
 					player.playerScreenHandler.sendContentUpdates();
 
-					var message = getSelectedToolMessage(inventory, player.getWorld().getEnabledFlags());
+					var message = getSelectedToolMessage(inventory, player.getWorld().getEnabledFeatures());
 					BlackboardColor primaryColor = BlackboardColor.fromItem(inventory.getSelectedColor().getItem());
 
 					if (primaryColor != null && primaryColor != BlackboardColor.EMPTY) message.styled(style -> style.withColor(primaryColor.getColor()));

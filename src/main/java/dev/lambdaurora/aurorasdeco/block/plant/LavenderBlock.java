@@ -23,7 +23,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -52,7 +52,7 @@ public final class LavenderBlock extends AuroraFlowerBlock {
 	/* Visual */
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		if (!world.getDimension().hasCeiling() && world.isSkyVisible(pos)) {
 			if (random.nextBoolean()) {
 				double x = pos.getX() + random.nextFloat() * 5;

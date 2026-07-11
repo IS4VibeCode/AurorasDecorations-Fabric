@@ -26,12 +26,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import org.quiltmc.qsl.block.content.registry.api.BlockContentRegistries;
-import org.quiltmc.qsl.block.content.registry.api.FlammableBlockEntry;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
 /**
  * Represents an Aurora's Decorations flower block. This mod's flower blocks can be reproduced using bone meal.
@@ -44,13 +43,13 @@ public class AuroraFlowerBlock extends FlowerBlock implements Fertilizable {
 	public AuroraFlowerBlock(StatusEffect statusEffect, int effectInStewDuration, Settings settings) {
 		super(statusEffect, effectInStewDuration, settings);
 
-		BlockContentRegistries.FLAMMABLE.put(this, new FlammableBlockEntry(60, 100));
+		FlammableBlockRegistry.getDefaultInstance().add(this, 60, 100);
 	}
 
-	public static QuiltBlockSettings defaultSettings() {
-		return QuiltBlockSettings.create()
+	public static FabricBlockSettings defaultSettings() {
+		return FabricBlockSettings.of()
 				.pistonBehavior(PistonBehavior.DESTROY)
-				.nonSolid(true)
+				.notSolid()
 				.noCollision()
 				.breakInstantly()
 				.sounds(BlockSoundGroup.GRASS);
@@ -64,12 +63,12 @@ public class AuroraFlowerBlock extends FlowerBlock implements Fertilizable {
 	}
 
 	@Override
-	public boolean canFertilize(World world, RandomGenerator random, BlockPos pos, BlockState state) {
+	public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
 		return true;
 	}
 
 	@Override
-	public void fertilize(ServerWorld world, RandomGenerator random, BlockPos pos, BlockState state) {
+	public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
 		dropStack(world, pos, new ItemStack(this));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 LambdAurora <email@lambdaurora.dev>
+ * Copyright (c) 2021 - 2023 LambdAurora <email@lambdaurora.dev>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +17,61 @@
 
 package dev.lambdaurora.aurorasdeco.resource.datagen;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.qsl.recipe.api.RecipeManagerHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Restored from the mod's own pre-Quilt Fabric history (git {@code 6a16db7~1}) as the counterpart to
+ * the restored {@code RecipeManagerMixin} -- see that class for why. Recipes registered here are held
+ * until {@code RecipeManagerMixin} injects them into whatever {@code RecipeManager} is being (re)built.
+ */
 public final class RecipeDatagen {
+	public static final Logger LOGGER = LogManager.getLogger("aurorasdeco:datagen/recipe");
+
+	private static final Map<RecipeType<?>, List<Recipe<?>>> RECIPES = new Object2ObjectOpenHashMap<>();
+	private static final Map<Recipe<?>, String> RECIPES_CATEGORIES = new Object2ObjectOpenHashMap<>();
+
+	private RecipeDatagen() {
+		throw new UnsupportedOperationException("RecipeDatagen only contains static definitions.");
+	}
+
+	public static void applyRecipes(Map<Identifier, JsonElement> map,
+	                                Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> builderMap) {
+		var recipeCount = new int[]{0};
+		RECIPES.forEach((key, recipes) -> {
+			var recipeBuilder = builderMap.computeIfAbsent(key, o -> ImmutableMap.builder());
+
+			recipes.forEach(recipe -> {
+				if (!map.containsKey(recipe.getId())) {
+					recipeBuilder.put(recipe.getId(), recipe);
+					recipeCount[0]++;
+				}
+			});
+		});
+
+		LOGGER.info("Loaded {} additional recipes", recipeCount[0]);
+	}
+
 	public static Recipe<?> registerRecipe(Recipe<?> recipe, String category) {
-		RecipeManagerHelper.registerStaticRecipe(recipe);
+		var recipes = RECIPES.computeIfAbsent(recipe.getType(), recipeType -> new ArrayList<>());
+
+		for (var other : recipes) {
+			if (other.getId().equals(recipe.getId()))
+				return other;
+		}
+
+		recipes.add(recipe);
+		RECIPES_CATEGORIES.put(recipe, category);
 
 		var advancementId = new Identifier(recipe.getId().getNamespace(), "recipes/" + category + "/" + recipe.getId().getPath());
 		AdvancementDatagen.register(advancementId, () -> AdvancementDatagen.simpleRecipeUnlock(recipe));

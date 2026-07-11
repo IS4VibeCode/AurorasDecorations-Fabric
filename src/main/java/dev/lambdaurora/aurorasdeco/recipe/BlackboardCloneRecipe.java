@@ -25,7 +25,7 @@ import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.recipe.CraftingCategory;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
@@ -43,14 +43,14 @@ import net.minecraft.world.World;
  * @since 1.0.0
  */
 public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
-	private static final Ingredient INPUT = Ingredient.ofTag(AurorasDecoTags.BLACKBOARD_ITEMS);
+	private static final Ingredient INPUT = Ingredient.fromTag(AurorasDecoTags.BLACKBOARD_ITEMS);
 	private static final Ingredient OUTPUT = Ingredient.ofItems(
 			AurorasDecoRegistry.BLACKBOARD_BLOCK,
 			AurorasDecoRegistry.CHALKBOARD_BLOCK,
 			AurorasDecoRegistry.GLASSBOARD_BLOCK
 	);
 
-	public BlackboardCloneRecipe(Identifier id, CraftingCategory craftingCategory) {
+	public BlackboardCloneRecipe(Identifier id, CraftingRecipeCategory craftingCategory) {
 		super(id, craftingCategory);
 	}
 
@@ -85,7 +85,7 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 				if (OUTPUT.test(craftStack) && !this.isInput(craftStack)) {
 					output = craftStack;
 				} else if (this.isInput(craftStack)) {
-					var nbt = BlockItem.getBlockEntityNbtFromStack(craftStack);
+					var nbt = BlockItem.getBlockEntityNbt(craftStack);
 					blackboard = Blackboard.fromNbt(nbt);
 					if (craftStack.hasCustomName())
 						customName = craftStack.getName();
@@ -106,7 +106,7 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 	}
 
 	private boolean isInput(ItemStack stack) {
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt != null) {
 			if (nbt.contains("pixels", NbtElement.BYTE_ARRAY_TYPE)) {
 				byte[] pixels = nbt.getByteArray("pixels");

@@ -45,7 +45,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,10 +151,10 @@ public class StumpBlock extends Block implements SeatBlock, Waterloggable {
 		return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	private static QuiltBlockSettings settings(WoodType woodType) {
+	private static FabricBlockSettings settings(WoodType woodType) {
 		var log = woodType.getComponent(WoodType.ComponentType.LOG);
 		if (log == null) throw new IllegalStateException("StumpBlock attempted to be created while the wood type is invalid.");
-		return QuiltBlockSettings.copyOf(log.block())
+		return FabricBlockSettings.copyOf(log.block())
 				.mapColor(log.mapColor())
 				.nonOpaque();
 	}

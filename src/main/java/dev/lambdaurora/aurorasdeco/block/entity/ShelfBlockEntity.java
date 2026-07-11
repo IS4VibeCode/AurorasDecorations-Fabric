@@ -35,7 +35,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import org.quiltmc.qsl.block.entity.api.QuiltBlockEntity;
 
 /**
  * Represents the shelf block entity.
@@ -45,7 +44,7 @@ import org.quiltmc.qsl.block.entity.api.QuiltBlockEntity;
  * @since 1.0.0
  */
 public class ShelfBlockEntity extends LootableContainerBlockEntity
-		implements ExtendedScreenHandlerFactory, QuiltBlockEntity {
+		implements ExtendedScreenHandlerFactory, SyncableBlockEntity {
 	private DefaultedList<ItemStack> inventory;
 	private boolean locked;
 
@@ -92,13 +91,13 @@ public class ShelfBlockEntity extends LootableContainerBlockEntity
 	}
 
 	@Override
-	public NbtCompound toSyncedNbt() {
-		return this.toNbt();
+	public NbtCompound toInitialChunkDataNbt() {
+		return this.createNbt();
 	}
 
 	@Override
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return BlockEntityUpdateS2CPacket.of(this);
+		return BlockEntityUpdateS2CPacket.create(this);
 	}
 
 	/* Inventory */

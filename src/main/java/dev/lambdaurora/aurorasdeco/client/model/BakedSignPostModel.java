@@ -25,9 +25,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.function.Supplier;
 
@@ -38,7 +39,7 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BakedSignPostModel extends ForwardingBakedModel {
 	public BakedSignPostModel(BakedModel fenceModel) {
 		this.wrapped = fenceModel;
@@ -50,7 +51,7 @@ public class BakedSignPostModel extends ForwardingBakedModel {
 	}
 
 	@Override
-	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<RandomGenerator> randomSupplier,
+	public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier,
 			RenderContext context) {
 		if (state.getBlock() instanceof SignPostBlock signPostBlock) {
 			this.wrapped.emitBlockQuads(blockView, signPostBlock.getFenceState(state), pos, randomSupplier, context);

@@ -34,8 +34,8 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 
 import java.util.List;
 
@@ -58,8 +58,8 @@ public class ChandelierBlock extends ExtendedCandleBlock {
 	public ChandelierBlock(CandleBlock candleBlock) {
 		super(candleBlock);
 
-		if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
-			BlockRenderLayerMap.put(RenderLayer.getCutout(), this);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			BlockRenderLayerMap.INSTANCE.putBlock(this, RenderLayer.getCutout());
 		}
 	}
 

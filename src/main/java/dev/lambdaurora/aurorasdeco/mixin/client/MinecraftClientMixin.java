@@ -21,13 +21,14 @@ import dev.lambdaurora.aurorasdeco.block.entity.BlackboardBlockEntity;
 import dev.lambdaurora.aurorasdeco.client.Wind;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
 	@Inject(method = "setWorld", at = @At("HEAD"))

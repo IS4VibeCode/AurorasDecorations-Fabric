@@ -44,7 +44,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.Map;
 
@@ -62,7 +62,7 @@ public class BigPottedSeaPickleBlock extends BigFlowerPotBlock implements Waterl
 	private final Map<BlockState, VoxelShape> shapeCache = new Object2ObjectOpenHashMap<>();
 
 	public BigPottedSeaPickleBlock(PottedPlantType type) {
-		super(type, QuiltBlockSettings.create().pistonBehavior(PistonBehavior.DESTROY).nonSolid().strength(.1f).nonOpaque());
+		super(type, FabricBlockSettings.of().pistonBehavior(PistonBehavior.DESTROY).notSolid().strength(.1f).nonOpaque());
 
 		var plantSettings = ((AbstractBlockAccessor) type.getPlant()).getSettings();
 		((AbstractBlockAccessor) this).getSettings()

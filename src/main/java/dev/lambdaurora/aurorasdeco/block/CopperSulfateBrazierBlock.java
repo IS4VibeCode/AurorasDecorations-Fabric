@@ -20,7 +20,7 @@ package dev.lambdaurora.aurorasdeco.block;
 import dev.lambdaurora.aurorasdeco.block.behavior.CopperSulfateBehavior;
 import net.minecraft.block.MapColor;
 import net.minecraft.particle.ParticleEffect;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 /**
  * Represents a copper sulfate brazier brazier.
@@ -31,7 +31,7 @@ import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
  */
 public class CopperSulfateBrazierBlock extends BrazierBlock {
 	public CopperSulfateBrazierBlock(MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
-		super(QuiltBlockSettings.create().ticksRandomly(), color, fireDamage, luminance, particle);
+		super(FabricBlockSettings.of().ticksRandomly(), color, fireDamage, luminance, particle);
 		this.tickComponent = new CopperSulfateBehavior(20);
 	}
 }

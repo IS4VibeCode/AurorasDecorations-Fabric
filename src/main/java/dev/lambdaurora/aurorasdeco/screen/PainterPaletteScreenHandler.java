@@ -59,7 +59,7 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 
 		for (int row = 0; row < 4; ++row) {
 			this.addSlot(new BlackboardToolSlot(
-					inventory, playerInventory.player.getWorld().getEnabledFlags(), (inventory.size() - 4) + row, -16, 18 + row * 18
+					inventory, playerInventory.player.getWorld().getEnabledFeatures(), (inventory.size() - 4) + row, -16, 18 + row * 18
 			));
 		}
 
@@ -92,7 +92,7 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 	}
 
 	@Override
-	public ItemStack quickTransfer(PlayerEntity player, int fromIndex) {
+	public ItemStack quickMove(PlayerEntity player, int fromIndex) {
 		var itemStack = ItemStack.EMPTY;
 		var slot = this.slots.get(fromIndex);
 

@@ -3,6 +3,11 @@
   "package": "dev.lambdaurora.aurorasdeco.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BlockEntityTypeAccessor",
+    "PointOfInterestTypeAccessor",
+    "RecipeManagerMixin",
+    "ResourcePackManagerAccessor",
+    "ResourcePackManagerMixin",
     "ServerAdvancementLoaderMixin",
     "SimpleRegistryAccessor",
     "SpawnHelperMixin",
@@ -43,8 +48,7 @@
     "item.ShovelItemMixin",
     "world.ChunkGeneratorAccessor",
     "world.FoliagePlacerTypeAccessor",
-    "world.MultiNoiseBiomeSourceParameterListMixin",
-    "world.OverworldBiomeParametersMixin"
+    "world.MultiNoiseBiomeSourceParameterListMixin"
   ],
   "client": [
     "client.BedBlockClientMixin",

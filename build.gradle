@@ -1,98 +1,71 @@
-import static aurorasdeco.Constants.*
-
 plugins {
-	id 'aurorasdeco.common'
-	id 'com.modrinth.minotaur' version '2.+'
-	id 'com.matthewprenger.cursegradle' version '1.4.+'
-	id 'org.openjfx.javafxplugin' version '0.0.13'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'maven-publish'
 }
 
+version = project.mod_version
 group = project.maven_group
-version = "${project.mod_version}+${MINECRAFT_VERSION.version()}"
-base.archivesName = project.archives_base_name
 
-if (!(System.getenv("CURSEFORGE_TOKEN") || System.getenv("MODRINTH_TOKEN"))) {
-	version += "-local"
-}
-logger.lifecycle("Preparing version ${version}...")
-
-boolean isMCVersionNonRelease() {
-	return MINECRAFT_VERSION.version().matches('^\\d\\dw\\d\\d[a-z]$')
-			|| MINECRAFT_VERSION.version().matches('\\d+\\.\\d+-(pre|rc)(\\d+)')
+base {
+	archivesName = project.archives_base_name
 }
 
-String parseReadme() {
-	def linkRegex = /!\[([A-z_ ]+)]\((images\/[A-z.\/_]+)\)/
-
-	def readme = (String) file('README.md').text
-	readme = readme.replaceAll(linkRegex, '![$1](https://lambdaurora.dev/AurorasDecorations/$2)')
-	return readme
-}
-
-String fetchChangelog() {
-	def changelogText = file('CHANGELOG.md').text
-	def regexVersion = ((String) project.mod_version).replace('.', '\\.').replace('+', '\\+')
-	def changelogRegex = ~"###? ${regexVersion}(?: - .+)?\\n\\n(( *- .+\\n)+)"
-	def matcher = changelogText =~ changelogRegex
-
-	if (matcher.find()) {
-		String changelogContent = matcher.group(1)
-
-		def changelogLines = changelogText.split('\n')
-		def linkRefRegex = ~'^\\[([A-z\\d _\\-/+.]+)]: '
-		for (int i = changelogLines.length - 1; i > 0; i--) {
-			def line = changelogLines[i]
-			if ((line =~ linkRefRegex).find())
-				changelogContent += '\n' + line
-			else break
+repositories {
+	maven {
+		name = 'Ladysnake Libs'
+		url = 'https://maven.ladysnake.org/releases'
+	}
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/'
+		content {
+			includeGroup 'dev.emi'
+			includeGroup 'com.llamalad7.mixinextras'
+			includeGroup 'com.terraformersmc'
+			includeGroup 'com.terraformersmc.terraform-api'
 		}
-
-		return changelogContent
-	} else {
-		return null
 	}
 }
 
-String getVersionType() {
-	if (isMCVersionNonRelease() || version.contains("-alpha.")) {
-		return "alpha"
-	} else if (version.contains("-beta.")) {
-		return "beta"
-	} else {
-		return "release"
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	// Optional integrations -- both enabled in the original Quilt build (hasEmi/hasTrinkets = true).
+	modImplementation "dev.emi:emi-fabric:${project.emi_version}"
+	modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+
+	include(modImplementation("com.terraformersmc.terraform-api:terraform-wood-api-v1:${project.terraform_wood_api_version}") {
+		exclude group: 'net.fabricmc'
+		exclude group: 'net.fabricmc.fabric-api'
+		exclude group: 'org.terraformersmc'
+	})
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
 	}
 }
 
-javafx {
-	version = '17'
-	modules = [ 'javafx.media', 'javafx.swing' ]
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = 'UTF-8'
+	it.options.deprecation(true)
+	it.options.release = 17
 }
 
-aurorasdeco {
-	hasEmi = true
-	hasTrinkets = true
+java {
+	withSourcesJar()
 
-	entrypoints {
-		init {
-			values = [
-					entrypoint("dev.lambdaurora.aurorasdeco.AurorasDeco")
-			]
-		}
-		client_init {
-			values = [
-					entrypoint("dev.lambdaurora.aurorasdeco.client.AurorasDecoClient"),
-					entrypoint("dev.lambdaurora.aurorasdeco.hook.TrinketsHooks", hasTrinkets.get())
-			]
-		}
-		emi {
-			values = [
-					entrypoint("dev.lambdaurora.aurorasdeco.hook.EmiHooks")
-			]
-			enabled.set(hasEmi.get())
-		}
-	}
-
-	finalizeConfiguration()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
@@ -100,79 +73,6 @@ jar {
 		rename { "${it}_${base.archivesName.get()}" }
 	}
 }
-
-modrinth {
-	projectId = project.modrinth_id
-	versionName = "Aurora's Decorations ${project.mod_version} (${MINECRAFT_VERSION.version()})"
-	gameVersions = MINECRAFT_VERSION.all()
-	loaders = ["quilt"]
-	versionType = this.getVersionType()
-	uploadFile = tasks.remapJar
-	syncBodyFrom = parseReadme()
-
-	dependencies {
-		required.project "qsl"
-		optional.project "trinkets"
-		optional.project "emi"
-	}
-
-	// Changelog fetching
-	def changelogContent = fetchChangelog()
-
-	if (changelogContent) {
-		changelog = changelogContent
-	} else {
-		afterEvaluate {
-			tasks.modrinth.setEnabled(false)
-		}
-	}
-}
-tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
-
-curseforge {
-	if (System.getenv("CURSEFORGE_TOKEN")) {
-		apiKey = System.getenv("CURSEFORGE_TOKEN")
-	}
-
-	project {
-		id = project.curseforge_id
-		releaseType = this.getVersionType()
-		MINECRAFT_VERSION.all().forEach {
-			addGameVersion it
-		}
-		addGameVersion "Quilt"
-		addGameVersion "Java 17"
-		addGameVersion "Java 18"
-
-		// Changelog fetching
-		def changelogContent = fetchChangelog()
-
-		if (changelogContent) {
-			changelogType = "markdown"
-			changelog = "Changelog:\n\n${changelogContent}"
-		} else {
-			afterEvaluate {
-				uploadTask.setEnabled(false)
-			}
-		}
-
-		mainArtifact(remapJar) {
-			displayName = "Aurora's Decorations ${project.mod_version} (${MINECRAFT_VERSION.version()})"
-
-			relations {
-				requiredDependency "qsl"
-				optionalDependency "trinkets"
-				optionalDependency "emi"
-			}
-		}
-
-		afterEvaluate {
-			uploadTask.setGroup("publishing")
-			uploadTask.dependsOn("remapJar")
-		}
-	}
-}
-tasks.curseforge.setGroup("publishing")
 
 // configure the maven publication
 publishing {
@@ -182,9 +82,6 @@ publishing {
 		}
 	}
 
-	// select the repositories you want to publish to
 	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
 	}
 }

@@ -25,7 +25,6 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
-import org.quiltmc.qsl.block.entity.api.QuiltBlockEntity;
 
 /**
  * Represents a basic block entity with common serialization and update packet code.
@@ -34,18 +33,18 @@ import org.quiltmc.qsl.block.entity.api.QuiltBlockEntity;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class BasicBlockEntity extends BlockEntity implements QuiltBlockEntity {
+public class BasicBlockEntity extends BlockEntity implements SyncableBlockEntity {
 	public BasicBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
 		super(blockEntityType, blockPos, blockState);
 	}
 
 	@Override
-	public NbtCompound toSyncedNbt() {
-		return this.toNbt();
+	public NbtCompound toInitialChunkDataNbt() {
+		return this.createNbt();
 	}
 
 	@Override
 	public Packet<ClientPlayPacketListener> toUpdatePacket() {
-		return BlockEntityUpdateS2CPacket.of(this);
+		return BlockEntityUpdateS2CPacket.create(this);
 	}
 }

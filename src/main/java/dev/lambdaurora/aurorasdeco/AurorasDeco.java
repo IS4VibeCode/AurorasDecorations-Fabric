@@ -35,14 +35,12 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
-import org.quiltmc.qsl.base.api.util.TriState;
-import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
-import org.quiltmc.qsl.registry.api.event.RegistryMonitor;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
-import org.quiltmc.qsl.resource.loader.api.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import org.slf4j.Logger;
 
 /**
@@ -58,25 +56,18 @@ public class AurorasDeco implements ModInitializer {
 	public static final AurorasDecoPack RESOURCE_PACK = new AurorasDecoPack(ResourceType.SERVER_DATA);
 
 	@Override
-	public void onInitialize(ModContainer mod) {
+	public void onInitialize() {
 		AurorasDecoRegistry.init();
 
-		RegistryMonitor.create(Registries.ITEM).forAll(context -> {
-			Identifier id = context.id();
-			Item item = context.value();
-
-			if (AuroraUtil.idEqual(id, "pockettools", "pocket_cactus")) {
-				Registry.register(Registries.BLOCK, id("big_flower_pot/pocket_cactus"),
-						PottedPlantType.register("pocket_cactus", Blocks.POTTED_CACTUS, item,
-								type -> new BigPottedCactusBlock(type, BigPottedCactusBlock.POCKET_CACTUS_SHAPE)));
-			} else if (PottedPlantType.isValidPlant(item)) {
-				var potBlock = PottedPlantType.registerFromItem(item);
-				if (potBlock != null)
-					Registry.register(Registries.BLOCK, id("big_flower_pot/" + potBlock.getPlantType().getId()), potBlock);
-			}
-
-			BlackboardColor.tryRegisterColorFromItem(id, item);
-		});
+		// QSL's RegistryMonitor.forAll() both sweeps entries already registered AND subscribes to
+		// future ones in a single call. Fabric's RegistryEntryAddedCallback only covers future ones,
+		// so an explicit initial sweep is needed alongside it -- see java/CLAUDE.md §3c, this exact
+		// pattern was already confirmed to work (including reactively, against real NeoForge-native
+		// mods observed through Connector) by the aurorasdeco-registry-spike experiment.
+		for (var id : Registries.ITEM.getIds()) {
+			onItemRegistered(id, Registries.ITEM.get(id));
+		}
+		RegistryEntryAddedCallback.event(Registries.ITEM).register((rawId, id, item) -> onItemRegistered(id, item));
 
 		ItemTree.init();
 
@@ -86,23 +77,41 @@ public class AurorasDeco implements ModInitializer {
 
 		DynamicWorldGen.init();
 
-		ResourceLoader.registerBuiltinResourcePack(id("azalea_tree"), ResourcePackActivationType.DEFAULT_ENABLED,
+		var modContainer = FabricLoader.getInstance().getModContainer(NAMESPACE).orElseThrow();
+		ResourceManagerHelper.registerBuiltinResourcePack(id("azalea_tree"), modContainer,
 				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
 						.append(Text.literal(" - ").formatted(Formatting.GRAY))
-						.append(Text.translatable("resourcepack.aurorasdeco.azalea_tree.name").formatted(Formatting.LIGHT_PURPLE))
+						.append(Text.translatable("resourcepack.aurorasdeco.azalea_tree.name").formatted(Formatting.LIGHT_PURPLE)),
+				ResourcePackActivationType.DEFAULT_ENABLED
 		);
-		ResourceLoader.registerBuiltinResourcePack(id("swamp_worldgen"), ResourcePackActivationType.NORMAL,
+		ResourceManagerHelper.registerBuiltinResourcePack(id("swamp_worldgen"), modContainer,
 				Text.literal("Aurora's Deco").formatted(Formatting.GOLD)
 						.append(Text.literal(" - ").formatted(Formatting.GRAY))
-						.append(Text.translatable("resourcepack.aurorasdeco.swamp_tweaks.name").formatted(Formatting.DARK_GREEN))
+						.append(Text.translatable("resourcepack.aurorasdeco.swamp_tweaks.name").formatted(Formatting.DARK_GREEN)),
+				ResourcePackActivationType.NORMAL
 		);
-		ResourceLoader.get(ResourceType.SERVER_DATA).getRegisterDefaultResourcePackEvent().register(context -> {
-			context.addResourcePack(RESOURCE_PACK.rebuild(ResourceType.SERVER_DATA, null));
-		});
+		// RESOURCE_PACK (the dynamically-generated, always-active pack) is wired up in
+		// AurorasDecoPack itself -- see that class for how it gets injected, since Fabric has no
+		// registerDefaultResourcePackEvent equivalent (java/CLAUDE.md §3a/§3c Task #18).
+		AurorasDecoPack.registerAsDefaultPack(RESOURCE_PACK);
+	}
+
+	private static void onItemRegistered(Identifier id, Item item) {
+		if (AuroraUtil.idEqual(id, "pockettools", "pocket_cactus")) {
+			Registry.register(Registries.BLOCK, id("big_flower_pot/pocket_cactus"),
+					PottedPlantType.register("pocket_cactus", Blocks.POTTED_CACTUS, item,
+							type -> new BigPottedCactusBlock(type, BigPottedCactusBlock.POCKET_CACTUS_SHAPE)));
+		} else if (PottedPlantType.isValidPlant(item)) {
+			var potBlock = PottedPlantType.registerFromItem(item);
+			if (potBlock != null)
+				Registry.register(Registries.BLOCK, id("big_flower_pot/" + potBlock.getPlantType().getId()), potBlock);
+		}
+
+		BlackboardColor.tryRegisterColorFromItem(id, item);
 	}
 
 	public static boolean isDevMode() {
-		return QuiltLoader.isDevelopmentEnvironment() || TriState.fromProperty("aurorasdeco.debug").toBooleanOrElse(false);
+		return FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("aurorasdeco.debug");
 	}
 
 	public static void log(String message) {

@@ -22,7 +22,7 @@ import dev.lambdaurora.aurorasdeco.blackboard.Blackboard;
 import dev.lambdaurora.aurorasdeco.client.BlackboardTexture;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
@@ -30,7 +30,8 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * Represents the blackboard tooltip component. Displays the blackboard's contents.
@@ -39,7 +40,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class BlackboardTooltipComponent implements TooltipComponent {
 	private static final Identifier LOCK_ICON_TEXTURE = new Identifier("textures/gui/container/cartography_table.png");
 	private static final Identifier GLOW_TEXTURE = AurorasDeco.id("textures/gui/glowing_sprite.png");
@@ -68,14 +69,14 @@ public class BlackboardTooltipComponent implements TooltipComponent {
 	}
 
 	@Override
-	public void drawItems(TextRenderer textRenderer, int x, int y, GuiGraphics graphics) {
+	public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext graphics) {
 		MatrixStack matrices = graphics.getMatrices();
 		var vertexConsumers = this.client.getBufferBuilders().getEntityVertexConsumers();
 		matrices.push();
 		matrices.translate(x, y, 0);
 		matrices.scale(128.f, 128.f, 1);
 
-		var model = matrices.peek().getModel();
+		var model = matrices.peek().getPositionMatrix();
 
 		this.quad(this.background, 0.f, 0.f, 1.f, 1.f, model, vertexConsumers, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 
@@ -85,7 +86,7 @@ public class BlackboardTooltipComponent implements TooltipComponent {
 		if (this.blackboard.isLit()) {
 			matrices.push();
 			matrices.translate(0, 0, 1);
-			model = matrices.peek().getModel();
+			model = matrices.peek().getPositionMatrix();
 
 			var glow = RenderLayer.getText(GLOW_TEXTURE);
 
@@ -103,7 +104,7 @@ public class BlackboardTooltipComponent implements TooltipComponent {
 		if (this.locked) {
 			matrices.translate(.5f, .5f, 1);
 			matrices.scale(.5f, .5f, 1.f);
-			model = matrices.peek().getModel();
+			model = matrices.peek().getPositionMatrix();
 			RenderLayer locked = RenderLayer.getText(LOCK_ICON_TEXTURE);
 			this.quad(locked, 0.f, .6484375f, .2421875f, .890625f, model, vertexConsumers, LightmapTextureManager.MAX_LIGHT_COORDINATE);
 		}
@@ -116,12 +117,12 @@ public class BlackboardTooltipComponent implements TooltipComponent {
 			Matrix4f model, VertexConsumerProvider vertexConsumers, int light) {
 		var vertices = vertexConsumers.getBuffer(renderLayer);
 		vertices.vertex(model, 0.f, 1.f, 0.f).color(255, 255, 255, 255)
-				.uv(uMin, vMax).light(light).next();
+				.texture(uMin, vMax).light(light).next();
 		vertices.vertex(model, 1.f, 1.f, 0.f).color(255, 255, 255, 255)
-				.uv(uMax, vMax).light(light).next();
+				.texture(uMax, vMax).light(light).next();
 		vertices.vertex(model, 1.f, 0.f, 0.f).color(255, 255, 255, 255)
-				.uv(uMax, vMin).light(light).next();
+				.texture(uMax, vMin).light(light).next();
 		vertices.vertex(model, 0.f, 0.f, 0.f).color(255, 255, 255, 255)
-				.uv(uMin, vMin).light(light).next();
+				.texture(uMin, vMin).light(light).next();
 	}
 }

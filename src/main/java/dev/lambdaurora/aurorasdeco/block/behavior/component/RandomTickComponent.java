@@ -20,10 +20,10 @@ package dev.lambdaurora.aurorasdeco.block.behavior.component;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 
 public interface RandomTickComponent {
 	boolean hasRandomTicks(BlockState state);
 
-	void randomTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random);
+	void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random);
 }

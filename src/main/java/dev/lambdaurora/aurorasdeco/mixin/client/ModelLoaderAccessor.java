@@ -20,14 +20,15 @@ package dev.lambdaurora.aurorasdeco.mixin.client;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.Map;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 @Mixin(value = ModelLoader.class)
 public interface ModelLoaderAccessor {
 	@Accessor

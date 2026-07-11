@@ -53,11 +53,11 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.dynamic.GlobalPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -65,9 +65,9 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.loader.api.minecraft.MinecraftQuiltLoader;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,12 +163,12 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
+	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		this.fenceBlock.randomTick(state, world, pos, random);
 	}
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		this.fenceBlock.randomDisplayTick(state, world, pos, random);
 	}
 
@@ -229,7 +229,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		if (stack.isOf(Items.HONEYCOMB)) {
 			signPost.setWaxed(true);
 			world.syncWorldEvent(null, WorldEvents.BLOCK_WAXED, signPost.getPos(), 0);
-			world.emitGameEvent(GameEvent.BLOCK_CHANGE, signPost.getPos(), GameEvent.Context.create(player, signPost.getCachedState()));
+			world.emitGameEvent(GameEvent.BLOCK_CHANGE, signPost.getPos(), GameEvent.Emitter.of(player, signPost.getCachedState()));
 			player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
 			return ActionResult.SUCCESS;
 		}
@@ -309,7 +309,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	private @Nullable BlockPos getLodestonePos(World world, NbtCompound nbt) {
-		GlobalPos lodestonePos = CompassItem.getLodestonePosition(nbt);
+		GlobalPos lodestonePos = CompassItem.createLodestonePos(nbt);
 		if (lodestonePos != null && world.getRegistryKey() == lodestonePos.getDimension()) {
 			return lodestonePos.getPos();
 		}
@@ -317,7 +317,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	private @Nullable BlockPos getWorldSpawnPos(World world) {
-		var properties = world.getProperties();
+		var properties = world.getLevelProperties();
 		return world.getDimension().natural()
 				? new BlockPos(properties.getSpawnX(), properties.getSpawnY(), properties.getSpawnZ())
 				: null;
@@ -342,7 +342,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
 		var stacks = new ArrayList<>(this.getFenceState(state).getDroppedStacks(builder));
 
-		var blockEntity = builder.getParameter(LootContextParameters.BLOCK_ENTITY);
+		var blockEntity = builder.get(LootContextParameters.BLOCK_ENTITY);
 		if (blockEntity instanceof SignPostBlockEntity signPost) {
 			var upSign = signPost.getUp();
 			var downSign = signPost.getDown();
@@ -381,8 +381,8 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		return AuroraUtil.isWaterLogged(state) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	private static QuiltBlockSettings settings(FenceBlock fenceBlock) {
-		return QuiltBlockSettings.copyOf(fenceBlock).pistonBehavior(PistonBehavior.BLOCK);
+	private static FabricBlockSettings settings(FenceBlock fenceBlock) {
+		return FabricBlockSettings.copyOf(fenceBlock).pistonBehavior(PistonBehavior.BLOCK);
 	}
 
 	static {
@@ -408,7 +408,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	 * <p>
 	 * It allows to emit the block quads of a fence post block without a crash.
 	 */
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public static class State extends BlockState {
 		public State(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
 			super(block, immutableMap, mapCodec);
@@ -425,7 +425,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	private record InjectedBlock(FenceBlock fenceBlock) implements BlockPropertiesInjector.InjectData {
 		@Override
 		public StateManager.Factory<Block, BlockState> getStateFactory(StateManager.Factory<Block, BlockState> existing) {
-			if (MinecraftQuiltLoader.getEnvironmentType() == EnvType.CLIENT) {
+			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 				return State::new;
 			}
 			return existing;

@@ -18,24 +18,26 @@
 package dev.lambdaurora.aurorasdeco.resource;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagGroupLoader;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.registry.tag.TagManagerLoader;
-import net.minecraft.resource.MultiPackResourceManager;
+import net.minecraft.resource.DirectoryResourcePack;
+import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.pack.DefaultResourcePackBuilder;
-import net.minecraft.resource.pack.ResourcePack;
 import net.minecraft.util.Identifier;
-import org.quiltmc.qsl.resource.loader.impl.ResourceLoaderImpl;
+import net.minecraft.util.Unit;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Mojang removed Material, so I will read tags, I am a menace.
@@ -54,7 +56,7 @@ public class ModTagReader {
 	}
 
 	public <T> void loadTags(RegistryKey<Registry<T>> registryKey) {
-		var groupLoader = new TagGroupLoader<>(Optional::of, TagManagerLoader.getRegistryDirectory(registryKey));
+		var groupLoader = new TagGroupLoader<>(Optional::of, TagManagerLoader.getPath(registryKey));
 		groupLoader.load(this.getResourceManager()).forEach((id, values) -> {
 			this.tags.put(TagKey.of(registryKey, id), values);
 		});
@@ -65,12 +67,34 @@ public class ModTagReader {
 		return this.tags.get(tagKey);
 	}
 
+	/**
+	 * QSL's {@code ResourceLoaderImpl.appendModResourcePacks} has no Fabric equivalent -- rebuilt here
+	 * using {@code FabricLoader.getAllMods()}, which includes a synthetic "minecraft" container for the
+	 * game itself, so this covers vanilla's own tag files the same way it covers every other mod's,
+	 * with no separate "default pack" builder needed. Each mod's own root path(s) get wrapped as a
+	 * {@link DirectoryResourcePack} -- works for both loose directories (dev environment) and real
+	 * jars, since Fabric Loader's NIO paths transparently work either way.
+	 * <p>
+	 * Quilt Mappings' {@code MultiPackResourceManager(ResourceType, List)} one-liner has no real Yarn
+	 * equivalent -- {@code ReloadableResourceManagerImpl} takes only a {@code ResourceType} and needs
+	 * an explicit, otherwise-async {@code reload(...)} call to attach packs. No {@code ResourceReloader}s
+	 * are registered here (only raw pack-backed resource lookup is needed, not any data-processing
+	 * reload listener), and {@code Runnable::run} as both executors makes the reload run synchronously
+	 * on the calling thread, so blocking on {@code whenComplete()} is safe and immediate.
+	 */
 	private ResourceManager createResourceManager() {
 		var resourcePacks = new ArrayList<ResourcePack>();
-		resourcePacks.add(new DefaultResourcePackBuilder().withNamespaces(Identifier.DEFAULT_NAMESPACE).withDefaultPaths().build());
-		ResourceLoaderImpl.appendModResourcePacks(resourcePacks, ResourceType.SERVER_DATA, null);
 
-		return new MultiPackResourceManager(ResourceType.SERVER_DATA, resourcePacks);
+		for (var mod : FabricLoader.getInstance().getAllMods()) {
+			for (var root : mod.getRootPaths()) {
+				resourcePacks.add(new DirectoryResourcePack(mod.getMetadata().getId(), root, false));
+			}
+		}
+
+		var manager = new ReloadableResourceManagerImpl(ResourceType.SERVER_DATA);
+		manager.reload(Runnable::run, Runnable::run, CompletableFuture.completedFuture(Unit.INSTANCE), resourcePacks)
+				.whenComplete().join();
+		return manager;
 	}
 
 	private ResourceManager getResourceManager() {

@@ -181,9 +181,9 @@ public class BookPileBlock extends BlockWithEntity implements Waterloggable {
 
 	@Override
 	public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-		var blockEntity = builder.getParameter(LootContextParameters.BLOCK_ENTITY);
+		var blockEntity = builder.get(LootContextParameters.BLOCK_ENTITY);
 		if (blockEntity instanceof BookPileBlockEntity bookPile) {
-			builder.withDynamicDrop(BOOKS_LOOT_ID, (consumer) -> {
+			builder.addDynamicDrop(BOOKS_LOOT_ID, (consumer) -> {
 				for (var stack : bookPile.getBooks()) {
 					if (!stack.isEmpty()) consumer.accept(stack.copy());
 				}

@@ -23,9 +23,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.ModelBaker;
+import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
@@ -61,13 +61,13 @@ public class UnbakedVariantModel<T extends UnbakedModel> implements UnbakedModel
 	}
 
 	@Override
-	public void resolveParents(Function<Identifier, UnbakedModel> models) {
-		this.unbakedVariantMap.values().forEach(model -> model.resolveParents(models));
+	public void setParents(Function<Identifier, UnbakedModel> models) {
+		this.unbakedVariantMap.values().forEach(model -> model.setParents(models));
 	}
 
 	@Override
 	public BakedModel bake(
-			ModelBaker modelBaker, Function<Material, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
 	) {
 		var map = new Object2ReferenceOpenHashMap<String, BlockState>();
 		var models = new Reference2ObjectOpenHashMap<BlockState, BakedModel>();

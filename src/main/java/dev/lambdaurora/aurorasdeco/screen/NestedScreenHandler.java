@@ -58,8 +58,8 @@ public abstract class NestedScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public void close(PlayerEntity player) {
-		super.close(player);
+	public void onClosed(PlayerEntity player) {
+		super.onClosed(player);
 
 		if (!player.getWorld().isClient()) {
 			var affectedInventory = switch (this.originType) {

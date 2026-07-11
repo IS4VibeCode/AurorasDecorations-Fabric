@@ -19,7 +19,6 @@ package dev.lambdaurora.aurorasdeco.resource;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.texture.NativeImage;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.block.*;
 import dev.lambdaurora.aurorasdeco.block.big_flower_pot.BigFlowerPotBlock;
@@ -37,6 +36,7 @@ import dev.lambdaurora.aurorasdeco.util.ColorUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
@@ -49,9 +49,8 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.recipe.api.builder.VanillaRecipeBuilders;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
+import net.fabricmc.loader.api.FabricLoader;
+import dev.lambdaurora.aurorasdeco.recipe.AuroraRecipeBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -318,10 +317,10 @@ public final class Datagen {
 
 	@SuppressWarnings("unchecked")
 	public static JsonObject recipe(Recipe<?> recipe) {
-		if (!(recipe.getSerializer() instanceof QuiltRecipeSerializer<?>))
+		if (!(recipe.getSerializer() instanceof dev.lambdaurora.aurorasdeco.recipe.JsonSerializableRecipeSerializer<?>))
 			throw new UnsupportedOperationException("Cannot serialize recipe " + recipe);
 
-		return ((QuiltRecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
+		return ((dev.lambdaurora.aurorasdeco.recipe.JsonSerializableRecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
 	}
 
 	public static void registerWoodcuttingRecipesForBlockVariants(Block block) {
@@ -334,7 +333,7 @@ public final class Datagen {
 
 			tryRegisterWoodcuttingRecipeFor(block, basePath, "wood", 1, "building_blocks");
 
-			if (QuiltLoader.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
+			if (FabricLoader.getInstance().isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
 				tryRegisterWoodcuttingRecipeFor(block, "blockus", basePath,
 						"small_logs", 1, "building_blocks");
 			}
@@ -345,7 +344,7 @@ public final class Datagen {
 			basePath += separator;
 
 			tryRegisterWoodcuttingRecipeFor(block, basePath, "hyphae", 1, "building_blocks");
-			if (QuiltLoader.isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
+			if (FabricLoader.getInstance().isModLoaded("blockus") && blockId.getNamespace().equals("blockus")) {
 				tryRegisterWoodcuttingRecipeFor(block, "blockus", basePath,
 						"small_stems", 1, "building_blocks");
 			}
@@ -356,7 +355,7 @@ public final class Datagen {
 		{
 			var sulfurItem = Registries.ITEM.get(new Identifier("sulfurpotassiummod", "sulfur"));
 			if (sulfurItem != Items.AIR) {
-				registerRecipe(VanillaRecipeBuilders.shapelessRecipe(new ItemStack(AurorasDecoRegistry.COPPER_SULFATE_ITEM))
+				registerRecipe(AuroraRecipeBuilders.shapelessRecipe(new ItemStack(AurorasDecoRegistry.COPPER_SULFATE_ITEM))
 						.ingredient(sulfurItem)
 						.ingredient(Items.RAW_COPPER)
 						.build(id("copper_sulfate_from_sulfurpotassiummod"), ""), "misc");
@@ -392,7 +391,7 @@ public final class Datagen {
 				var planksId = planks.getItemId();
 				registerRecipe(new WoodcuttingRecipe(AuroraUtil.appendWithNamespace("woodcutting", planksId),
 								"planks",
-								Ingredient.ofTag(TagKey.of(
+								Ingredient.fromTag(TagKey.of(
 										RegistryKeys.ITEM,
 										new Identifier(log.id().getNamespace(), log.id().getPath() + "s")
 								)),
@@ -418,7 +417,7 @@ public final class Datagen {
 			if (slabComponent != null) {
 				var slab = Ingredient.ofItems(slabComponent.item());
 				var stick = Ingredient.ofItems(Items.STICK);
-				registerRecipe(VanillaRecipeBuilders.shapedRecipe("---", "S S")
+				registerRecipe(AuroraRecipeBuilders.shapedRecipe("---", "S S")
 						.ingredient('-', slab)
 						.ingredient('S', stick)
 						.output(new ItemStack(block, 2))
@@ -454,7 +453,7 @@ public final class Datagen {
 
 			var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
 			if (slabComponent != null) {
-				registerRecipe(VanillaRecipeBuilders.shapedRecipe("SS")
+				registerRecipe(AuroraRecipeBuilders.shapedRecipe("SS")
 						.ingredient('S', slabComponent.item())
 						.output(new ItemStack(block, 2))
 						.build(id("shelf/" + block.getWoodType().getPathName()), "shelf"), "decorations");
@@ -665,7 +664,7 @@ public final class Datagen {
 	private static void generateDirectionalSignsClientData(ResourceManager resourceManager) {
 		final NativeImage defaultTexture = resourceManager.getResource(SignPostItem.ABSOLUTE_OAK_SIGN_POST_TEXTURE)
 				.map(resource1 -> {
-					try (InputStream is = resource1.open()) {
+					try (InputStream is = resource1.getInputStream()) {
 						return NativeImage.read(is);
 					} catch (IOException e1) {
 						LOGGER.error("Cannot read the default texture of the directional sign.", e1);
@@ -693,7 +692,7 @@ public final class Datagen {
 			var resource = resourceManager.getResource(texturePath);
 
 			if (resource.isPresent()) {
-				try (InputStream is = resource.get().open()) {
+				try (InputStream is = resource.get().getInputStream()) {
 					var image = NativeImage.read(is);
 
 					var woodPalette = ColorUtil.getPaletteFromImage(image, 8);
@@ -701,14 +700,14 @@ public final class Datagen {
 
 					for (int y = 0; y < defaultTexture.getHeight(); y++) {
 						for (int x = 0; x < defaultTexture.getWidth(); x++) {
-							var paletteIndex = defaultPalette.indexOf(defaultTexture.getPixelColor(x, y));
+							var paletteIndex = defaultPalette.indexOf(defaultTexture.getColor(x, y));
 
 							if (paletteIndex < 0)
 								continue;
 							else if (paletteIndex >= woodPalette.size())
 								paletteIndex = woodPalette.size() - 1;
 
-							outputImage.setPixelColor(x, y, woodPalette.getInt(paletteIndex));
+							outputImage.setColor(x, y, woodPalette.getInt(paletteIndex));
 						}
 					}
 

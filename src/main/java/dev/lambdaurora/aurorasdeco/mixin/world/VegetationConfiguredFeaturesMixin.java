@@ -47,7 +47,7 @@ public class VegetationConfiguredFeaturesMixin {
 			method = "<clinit>",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/world/gen/stateprovider/DualNoiseBlockStateProvider;<init>(Lnet/minecraft/util/math/Range;Lnet/minecraft/util/math/noise/DoublePerlinNoiseSampler$NoiseParameters;FJLnet/minecraft/util/math/noise/DoublePerlinNoiseSampler$NoiseParameters;FLjava/util/List;)V",
+					target = "Lnet/minecraft/world/gen/stateprovider/DualNoiseBlockStateProvider;<init>(Lnet/minecraft/util/dynamic/Range;Lnet/minecraft/util/math/noise/DoublePerlinNoiseSampler$NoiseParameters;FJLnet/minecraft/util/math/noise/DoublePerlinNoiseSampler$NoiseParameters;FLjava/util/List;)V",
 					ordinal = 0,
 					remap = true
 			),

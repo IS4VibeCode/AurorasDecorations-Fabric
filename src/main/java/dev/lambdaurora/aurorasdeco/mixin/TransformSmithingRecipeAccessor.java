@@ -19,11 +19,15 @@ package dev.lambdaurora.aurorasdeco.mixin;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.TransformSmithingRecipe;
+import net.minecraft.recipe.SmithingTransformRecipe;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(TransformSmithingRecipe.class)
+/**
+ * Quilt Mappings names this class {@code TransformSmithingRecipe}; the real Yarn name (confirmed via
+ * the real 1.20.1 Yarn jar) is {@code SmithingTransformRecipe} -- same fields, reversed word order.
+ */
+@Mixin(SmithingTransformRecipe.class)
 public interface TransformSmithingRecipeAccessor {
 	@Accessor
 	Ingredient getBase();

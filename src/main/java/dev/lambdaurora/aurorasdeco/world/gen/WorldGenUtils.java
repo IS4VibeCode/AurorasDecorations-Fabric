@@ -19,7 +19,7 @@ package dev.lambdaurora.aurorasdeco.world.gen;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
 
@@ -43,7 +43,7 @@ public class WorldGenUtils {
 	 * @param removalFactor the chance for the circle generator to skip blocks inside the circle
 	 * @return {@code true} if the circle successfully generated, or {@code false} otherwise
 	 */
-	public static boolean generateCircle(StructureWorldAccess world, RandomGenerator random, BlockPos origin, int radius,
+	public static boolean generateCircle(StructureWorldAccess world, Random random, BlockPos origin, int radius,
 			BlockStateProvider stateProvider, float additionFactor, float removalFactor) {
 		return generateCircle(world, random, origin, radius, stateProvider, additionFactor, removalFactor, PositionModifier.NOOP);
 	}
@@ -61,7 +61,7 @@ public class WorldGenUtils {
 	 * @param positionModifier the modifier for the position
 	 * @return {@code true} if the circle successfully generated, or {@code false} otherwise
 	 */
-	public static boolean generateCircle(StructureWorldAccess world, RandomGenerator random, BlockPos origin, int radius,
+	public static boolean generateCircle(StructureWorldAccess world, Random random, BlockPos origin, int radius,
 			BlockStateProvider stateProvider, float additionFactor, float removalFactor, PositionModifier positionModifier) {
 		int radiusSquared = radius * radius;
 		int completeRadius = radius + 3;
@@ -85,7 +85,7 @@ public class WorldGenUtils {
 
 				if (shouldPlace) {
 					pos = positionModifier.getPosition(pos);
-					var state = stateProvider.getBlockState(random, pos);
+					var state = stateProvider.get(random, pos);
 
 					if (state.canPlaceAt(world, pos)) {
 						world.setBlockState(pos, state, Block.NOTIFY_LISTENERS);
@@ -98,7 +98,7 @@ public class WorldGenUtils {
 		return success;
 	}
 
-	public static int pickNextSpread(RandomGenerator random, int spread) {
+	public static int pickNextSpread(Random random, int spread) {
 		return random.nextInt(spread) - random.nextInt(spread);
 	}
 

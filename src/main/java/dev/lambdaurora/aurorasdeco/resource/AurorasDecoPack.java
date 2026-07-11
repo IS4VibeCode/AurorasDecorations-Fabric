@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 LambdAurora <email@lambdaurora.dev>
+ * Copyright (c) 2021 - 2023 LambdAurora <email@lambdaurora.dev>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,32 +21,78 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
-import com.mojang.blaze3d.texture.NativeImage;
 import com.mojang.logging.LogUtils;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.block.*;
 import dev.lambdaurora.aurorasdeco.registry.LanternRegistry;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.registry.Registries;
+import net.minecraft.resource.InputSupplier;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.resource.metadata.ResourceMetadataReader;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.resource.loader.api.InMemoryResourcePack;
 import org.slf4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class AurorasDecoPack extends InMemoryResourcePack {
+/**
+ * A dynamically-generated, in-memory resource pack -- its contents depend on which wood types /
+ * blocks were actually discovered at runtime, so it can't be file-backed.
+ * <p>
+ * QSL's {@code InMemoryResourcePack} provided this as a convenience base class; Fabric has no
+ * equivalent (confirmed by checking Fabric API's {@code ModResourcePack}, which is a bare marker
+ * interface extending vanilla {@link ResourcePack} with zero storage convenience of its own -- see
+ * java/CLAUDE.md §3/Task #18). This class implements {@link ResourcePack} directly instead, backed
+ * by plain in-memory maps.
+ * <p>
+ * Getting this pack actually treated as an always-active default pack (QSL's
+ * {@code getRegisterDefaultResourcePackEvent()}, which Fabric also has no equivalent for) is handled
+ * separately -- see {@link #registerAsDefaultPack} and {@code ResourcePackManagerMixin}. That part is
+ * unverified against a real build/run; everything else in this class is a direct, checked port of
+ * vanilla's real {@link ResourcePack} interface (net.minecraft.resource, Yarn 1.20.1+build.10).
+ */
+public class AurorasDecoPack implements ResourcePack {
 	private static final Logger LOGGER = LogUtils.getLogger();
+	private static final List<AurorasDecoPack> DEFAULT_PACKS = new ArrayList<>();
 
 	private final ResourceType type;
+	private final Map<Identifier, byte[]> assets = new ConcurrentHashMap<>();
+	private final Map<Identifier, byte[]> data = new ConcurrentHashMap<>();
+	private final Map<String, byte[]> root = new ConcurrentHashMap<>();
 
 	private boolean hasRegisteredOneTimeResources = false;
 
 	public AurorasDecoPack(ResourceType type) {
 		this.type = type;
+	}
+
+	/**
+	 * Registers {@code pack} to always be part of the active resource pack list, regardless of the
+	 * user's own pack selection -- see {@code ResourcePackManagerMixin}/{@code AurorasDecoResourcePackProvider}.
+	 */
+	public static void registerAsDefaultPack(AurorasDecoPack pack) {
+		DEFAULT_PACKS.add(pack);
+	}
+
+	public static List<AurorasDecoPack> getDefaultPacks() {
+		return DEFAULT_PACKS;
+	}
+
+	public ResourceType getType() {
+		return this.type;
 	}
 
 	public AurorasDecoPack rebuild(ResourceType type, @Nullable ResourceManager resourceManager) {
@@ -104,6 +150,12 @@ public class AurorasDecoPack extends InMemoryResourcePack {
 		return this;
 	}
 
+	/* Storage */
+
+	public void putText(ResourceType type, Identifier id, String text) {
+		this.getResourceMap(type).put(id, text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+	}
+
 	public void putJsonText(ResourceType type, Identifier id, String json) {
 		this.putText(type, new Identifier(id.getNamespace(), id.getPath() + ".json"), json);
 	}
@@ -127,10 +179,70 @@ public class AurorasDecoPack extends InMemoryResourcePack {
 	public void putImage(Identifier id, NativeImage image) {
 		if (!id.getPath().endsWith(".png")) id = new Identifier(id.getNamespace(), "textures/" + id.getPath() + ".png");
 		try {
-			super.putImage(id, image);
+			this.assets.put(id, image.getBytes());
 		} catch (IOException e) {
-			LOGGER.warn("Could not close output channel for texture " + id + ".", e);
+			LOGGER.warn("Could not encode texture " + id + " to PNG.", e);
 		}
+	}
+
+	private Map<Identifier, byte[]> getResourceMap(ResourceType type) {
+		return switch (type) {
+			case CLIENT_RESOURCES -> this.assets;
+			case SERVER_DATA -> this.data;
+		};
+	}
+
+	/* ResourcePack */
+
+	@Override
+	public @Nullable InputSupplier<InputStream> openRoot(String... path) {
+		var bytes = this.root.get(String.join("/", path));
+		if (bytes == null) return null;
+		return () -> new ByteArrayInputStream(bytes);
+	}
+
+	@Override
+	public @Nullable InputSupplier<InputStream> open(ResourceType type, Identifier id) {
+		var bytes = this.getResourceMap(type).get(id);
+		if (bytes == null) return null;
+		return () -> new ByteArrayInputStream(bytes);
+	}
+
+	@Override
+	public void findResources(ResourceType type, String namespace, String startingPath, ResultConsumer consumer) {
+		this.getResourceMap(type).forEach((id, bytes) -> {
+			if (id.getNamespace().equals(namespace) && id.getPath().startsWith(startingPath)) {
+				consumer.accept(id, () -> new ByteArrayInputStream(bytes));
+			}
+		});
+	}
+
+	@Override
+	public Set<String> getNamespaces(ResourceType type) {
+		return this.getResourceMap(type).keySet().stream()
+				.map(Identifier::getNamespace)
+				.collect(Collectors.toUnmodifiableSet());
+	}
+
+	@Override
+	public @Nullable <T> T parseMetadata(ResourceMetadataReader<T> metaReader) throws IOException {
+		// This virtual pack has no real pack.mcmeta -- synthesize just enough of one to satisfy the
+		// "pack" key vanilla always checks when loading any resource pack. Any other metadata key
+		// (e.g. mod-specific ones) is simply absent from this pack.
+		if (!metaReader.getKey().equals("pack")) return null;
+
+		var packJson = new JsonObject();
+		packJson.addProperty("description", "Aurora's Decorations dynamically-generated data.");
+		packJson.addProperty("pack_format", 15); // 1.20.1's data/resource pack_format.
+
+		var json = new JsonObject();
+		json.add("pack", packJson);
+
+		return metaReader.fromJson(net.minecraft.util.JsonHelper.getObject(json, "pack"));
+	}
+
+	@Override
+	public void close() {
 	}
 
 	@Override

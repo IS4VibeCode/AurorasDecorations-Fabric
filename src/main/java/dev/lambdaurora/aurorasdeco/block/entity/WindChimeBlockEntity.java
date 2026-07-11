@@ -25,7 +25,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public class WindChimeBlockEntity extends SwayingBlockEntity {
 	private final Box collisionBox;
@@ -60,7 +61,7 @@ public class WindChimeBlockEntity extends SwayingBlockEntity {
 
 	/* Ticking */
 
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	@Override
 	protected void tickClient(World world) {
 		super.tickClient(world);

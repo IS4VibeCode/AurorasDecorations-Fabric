@@ -25,17 +25,17 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 @SuppressWarnings("deprecation")
 public class RedstoneLanternBlock extends LanternBlock {
 	private final RedstoneLanternBehavior behavior = new RedstoneLanternBehavior(state -> state.get(HANGING) ? Direction.DOWN : Direction.UP);
 
 	public RedstoneLanternBlock() {
-		super(QuiltBlockSettings.copyOf(Blocks.LANTERN).luminance(state -> state.get(RedstoneLanternBehavior.LIT) ? 7 : 0));
+		super(FabricBlockSettings.copyOf(Blocks.LANTERN).luminance(state -> state.get(RedstoneLanternBehavior.LIT) ? 7 : 0));
 
 		this.setDefaultState(this.getDefaultState().with(RedstoneLanternBehavior.LIT, true));
 	}
@@ -73,7 +73,7 @@ public class RedstoneLanternBlock extends LanternBlock {
 	/* Ticking */
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
+	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		super.scheduledTick(state, world, pos, random);
 		this.behavior.scheduledTick(state, world, pos);
 	}
@@ -81,7 +81,7 @@ public class RedstoneLanternBlock extends LanternBlock {
 	/* Redstone */
 
 	@Override
-	public boolean isRedstonePowerSource(BlockState state) {
+	public boolean emitsRedstonePower(BlockState state) {
 		return true;
 	}
 
@@ -98,7 +98,7 @@ public class RedstoneLanternBlock extends LanternBlock {
 	/* Visual */
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		if (RedstoneLanternBehavior.isLit(state)) {
 			double x = (double) pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.75;
 			double y = (double) pos.getY() + 0.25 + (random.nextDouble() - 0.5) * 0.4;

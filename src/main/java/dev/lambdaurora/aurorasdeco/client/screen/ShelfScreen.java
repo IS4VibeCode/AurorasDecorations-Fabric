@@ -20,12 +20,13 @@ package dev.lambdaurora.aurorasdeco.client.screen;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.block.PartType;
 import dev.lambdaurora.aurorasdeco.screen.ShelfScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * Represents the shelf container screen.
@@ -34,7 +35,7 @@ import org.quiltmc.loader.api.minecraft.ClientOnly;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class ShelfScreen extends HandledScreen<ShelfScreenHandler> {
 	private static final Identifier TEXTURE = AurorasDeco.id("textures/gui/container/shelf.png");
 
@@ -45,7 +46,7 @@ public class ShelfScreen extends HandledScreen<ShelfScreenHandler> {
 	}
 
 	@Override
-	protected void drawBackground(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+	protected void drawBackground(DrawContext graphics, float delta, int mouseX, int mouseY) {
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		int x = (this.width - this.backgroundWidth) / 2;
 		int y = (this.height - this.backgroundHeight) / 2;
@@ -60,7 +61,7 @@ public class ShelfScreen extends HandledScreen<ShelfScreenHandler> {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
 		this.renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 		this.drawMouseoverTooltip(graphics, mouseX, mouseY);

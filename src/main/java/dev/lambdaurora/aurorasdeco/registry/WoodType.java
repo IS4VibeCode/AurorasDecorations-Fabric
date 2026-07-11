@@ -36,9 +36,9 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.block.content.registry.api.BlockContentRegistries;
-import org.quiltmc.qsl.block.content.registry.api.FlammableBlockEntry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -324,24 +324,31 @@ public final class WoodType {
 			return new Identifier(id.getNamespace(), "block/" + id.getPath() + "_top");
 		}
 
-		public @Nullable FlammableBlockEntry getFlammableEntry() {
-			return BlockContentRegistries.FLAMMABLE.getNullable(this.block());
-		}
-
+		/**
+		 * Copies this component's current flammability entry (if any) onto {@code other}.
+		 * <p>
+		 * QSL's original had a live {@code valueAddedEvent()} that kept propagating the value forever,
+		 * reacting even if it was set after this call. Fabric's {@link FlammableBlockRegistry} has no
+		 * equivalent live event, so this is a one-time, eager copy at call time instead -- a documented
+		 * simplification, not a silent behavior change. In practice this component's own flammability
+		 * is already set (either by {@link BlockContentRegistration} for aurorasdeco's own wood types,
+		 * or by whichever mod owns a dynamically-discovered wood type) by the time wood-type-derived
+		 * blocks like stumps/benches get registered, since both happen during the same mod-loading
+		 * window.
+		 */
 		public void syncFlammabilityWith(Block other) {
-			BlockContentRegistries.FLAMMABLE.valueAddedEvent().register((entry, value) -> {
-				if (entry == this.block) {
-					BlockContentRegistries.FLAMMABLE.put(other, value);
-				}
-			});
+			var entry = FlammableBlockRegistry.getDefaultInstance().get(this.block());
+			if (entry != null) {
+				FlammableBlockRegistry.getDefaultInstance().add(other, entry.getBurnChance(), entry.getSpreadChance());
+			}
 		}
 
-		@ClientOnly
+		@Environment(EnvType.CLIENT)
 		public BlockColorProvider getBlockColorProvider() {
 			return ColorProviderRegistry.BLOCK.get(this.block());
 		}
 
-		@ClientOnly
+		@Environment(EnvType.CLIENT)
 		public ItemColorProvider getItemColorProvider() {
 			return ColorProviderRegistry.ITEM.get(this.block());
 		}

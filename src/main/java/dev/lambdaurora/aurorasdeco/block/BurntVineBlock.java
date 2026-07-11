@@ -30,11 +30,11 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 /**
  * Represents a burnt vine tip block.
@@ -48,7 +48,7 @@ import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
 public final class BurntVineBlock extends VineBlock {
 	public BurntVineBlock() {
 		super(
-				QuiltBlockSettings.create()
+				FabricBlockSettings.of()
 						.pistonBehavior(PistonBehavior.DESTROY)
 						.replaceable()
 						.noCollision()
@@ -72,7 +72,7 @@ public final class BurntVineBlock extends VineBlock {
 	/* Ticking */
 
 	@Override
-	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, RandomGenerator random) {
+	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		// No random tick.
 	}
 

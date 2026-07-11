@@ -22,7 +22,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.structure.Structure;
 
 import static dev.lambdaurora.aurorasdeco.AurorasDeco.id;
 
@@ -55,7 +55,7 @@ public final class AurorasDecoTags {
 			new Identifier("c", "vegetation/on_water_surface")
 	);
 
-	public static final TagKey<StructureFeature> WAY_SIGN_DESTINATION_STRUCTURES = TagKey.of(RegistryKeys.STRUCTURE_FEATURE,
+	public static final TagKey<Structure> WAY_SIGN_DESTINATION_STRUCTURES = TagKey.of(RegistryKeys.STRUCTURE,
 			id("way_sign_destinations")
 	);
 }

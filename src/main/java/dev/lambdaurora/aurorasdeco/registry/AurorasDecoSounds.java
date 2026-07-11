@@ -43,7 +43,7 @@ public final class AurorasDecoSounds {
 
 	private static SoundEvent register(String path) {
 		var id = id(path);
-		return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));
+		return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
 	}
 
 	static void init() {

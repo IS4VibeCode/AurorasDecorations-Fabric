@@ -18,7 +18,7 @@
 package dev.lambdaurora.aurorasdeco.item.group;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
@@ -34,7 +34,7 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 	private final Identifier id;
 	protected final List<ItemTreeNode> nodes = new ArrayList<>();
 	private final Map<Identifier, ItemTreeGroupNode> groupNodes = new Object2ObjectOpenHashMap<>();
-	private ItemGroup.Visibility visibility = ItemGroup.Visibility.PARENT_AND_SEARCH_TABS;
+	private ItemGroup.StackVisibility visibility = ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS;
 
 	public ItemTreeGroupNode(Identifier id) {this.id = id;}
 
@@ -54,27 +54,27 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 		});
 	}
 
-	public void add(ItemStack stack, ItemGroup.Visibility visibility) {
+	public void add(ItemStack stack, ItemGroup.StackVisibility visibility) {
 		this.nodes.add(new ItemTreeItemNode(stack, visibility));
 	}
 
 	public void add(ItemStack stack) {
-		this.add(stack, ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+		this.add(stack, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 	}
 
-	public void add(int index, ItemStack stack, ItemGroup.Visibility visibility) {
+	public void add(int index, ItemStack stack, ItemGroup.StackVisibility visibility) {
 		this.nodes.add(index, new ItemTreeItemNode(stack, visibility));
 	}
 
 	public void add(int index, ItemStack stack) {
-		this.add(index, stack, ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+		this.add(index, stack, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 	}
 
 	public void add(ItemConvertible item) {
 		this.add(new ItemStack(item));
 	}
 
-	public void add(ItemConvertible item, ItemGroup.Visibility visibility) {
+	public void add(ItemConvertible item, ItemGroup.StackVisibility visibility) {
 		this.add(new ItemStack(item), visibility);
 	}
 
@@ -109,12 +109,12 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 		return this.addRelative(toFind, node, 0);
 	}
 
-	public int addBefore(ItemStack toFind, ItemStack toAdd, ItemGroup.Visibility visibility) {
+	public int addBefore(ItemStack toFind, ItemStack toAdd, ItemGroup.StackVisibility visibility) {
 		return this.addBefore(toFind, new ItemTreeItemNode(toAdd, visibility));
 	}
 
 	public int addBefore(ItemStack toFind, ItemStack toAdd) {
-		return this.addBefore(toFind, toAdd, ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+		return this.addBefore(toFind, toAdd, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 	}
 
 	public void addBefore(ItemStack toFind, ItemStack... toAdd) {
@@ -133,12 +133,12 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 		return this.addRelative(toFind, node, 1);
 	}
 
-	public int addAfter(ItemStack toFind, ItemStack toAdd, ItemGroup.Visibility visibility) {
+	public int addAfter(ItemStack toFind, ItemStack toAdd, ItemGroup.StackVisibility visibility) {
 		return this.addAfter(toFind, new ItemTreeItemNode(toAdd, visibility));
 	}
 
 	public int addAfter(ItemStack toFind, ItemStack toAdd) {
-		return this.addAfter(toFind, toAdd, ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+		return this.addAfter(toFind, toAdd, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 	}
 
 	public void addAfter(ItemStack toFind, ItemStack... toAdd) {
@@ -238,13 +238,13 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 	}
 
 	@Override
-	public ItemGroup.Visibility getVisibility() {
+	public ItemGroup.StackVisibility getVisibility() {
 		return this.visibility;
 	}
 
 	@Override
-	public void build(Collection<ItemStack> stacks, FeatureFlagBitSet enabledFeatures, ItemGroup.Visibility visibility) {
-		if (this.visibility == ItemGroup.Visibility.PARENT_AND_SEARCH_TABS || this.visibility == visibility) {
+	public void build(Collection<ItemStack> stacks, FeatureSet enabledFeatures, ItemGroup.StackVisibility visibility) {
+		if (this.visibility == ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS || this.visibility == visibility) {
 			for (var node : this.nodes) {
 				node.build(stacks, enabledFeatures, visibility);
 			}

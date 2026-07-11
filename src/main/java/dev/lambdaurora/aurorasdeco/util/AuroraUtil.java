@@ -136,7 +136,7 @@ public final class AuroraUtil {
 			hasDummy = true;
 		}
 
-		BlockItem.writeBlockEntityNbtToStack(stack, type, nbt);
+		BlockItem.setBlockEntityNbt(stack, type, nbt);
 		nbt.remove("id");
 
 		if (hasDummy) {
@@ -145,7 +145,7 @@ public final class AuroraUtil {
 	}
 
 	public static NbtCompound getOrCreateBlockEntityNbt(ItemStack stack, BlockEntityType<?> type) {
-		var nbt = BlockItem.getBlockEntityNbtFromStack(stack);
+		var nbt = BlockItem.getBlockEntityNbt(stack);
 		if (nbt == null) {
 			/* setBlockEntityNbt only actually sets the nbt tag if it isn't empty.
 			   We want to hit the code path to set the nbt tag. So we add a dummy boolean to our tag,

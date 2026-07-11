@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -183,7 +183,7 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 		var pos = ctx.getBlockPos();
 		var fluid = world.getFluidState(pos);
 
-		var facing = ctx.getPlayerFacing().getOpposite();
+		var facing = ctx.getPlayerLookDirection().getOpposite();
 
 		var relativeRight = pos.offset(facing.rotateYCounterclockwise());
 		var relativeLeft = pos.offset(facing.rotateYClockwise());
@@ -259,10 +259,10 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 
 	@Override
 	public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-		var blockEntity = builder.getParameter(LootContextParameters.BLOCK_ENTITY);
+		var blockEntity = builder.get(LootContextParameters.BLOCK_ENTITY);
 		if (blockEntity instanceof BenchBlockEntity bench) {
 			if (bench.hasRest()) {
-				builder.withDynamicDrop(SEAT_REST, (consumer) -> consumer.accept(new ItemStack(bench.getRest())));
+				builder.addDynamicDrop(SEAT_REST, (consumer) -> consumer.accept(new ItemStack(bench.getRest())));
 			}
 		}
 
@@ -276,10 +276,10 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 		return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
 	}
 
-	private static QuiltBlockSettings settings(WoodType woodType) {
+	private static FabricBlockSettings settings(WoodType woodType) {
 		var planks = woodType.getComponent(WoodType.ComponentType.PLANKS);
 		if (planks == null) throw new IllegalStateException("BenchBlock attempted to be created while the wood type is invalid.");
-		return QuiltBlockSettings.copyOf(planks.block())
+		return FabricBlockSettings.copyOf(planks.block())
 				.collidable(true)
 				.luminance(0) // Override any smart luminance stuff from other mods to avoid crashes.
 				.nonOpaque();

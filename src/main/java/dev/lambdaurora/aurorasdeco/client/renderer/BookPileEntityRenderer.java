@@ -25,7 +25,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 
 import java.util.Random;
 
@@ -61,13 +61,13 @@ public class BookPileEntityRenderer implements BlockEntityRenderer<BookPileBlock
 			{
 				matrices.translate(.5, 0, .5);
 				int angle = random.nextInt(360);
-				matrices.multiply(Axis.Y_POSITIVE.rotationDegrees(angle));
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angle));
 				matrices.translate(-.5, 0, -.5);
 			}
 
 			// Makes the book lay on the floor.
 			matrices.translate(.5, .025, .5);
-			matrices.multiply(Axis.Z_POSITIVE.rotationDegrees(90));
+			matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90));
 			matrices.translate(3 / 16.f - .15, 0, 0);
 			matrices.scale(.45f, .45f, .45f);
 

@@ -28,7 +28,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
-import net.minecraft.world.logic.RedstoneSignalLevels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public final class RedstoneLanternBehavior {
 	}
 
 	public void neighborUpdate(BlockState state, World world, BlockPos pos) {
-		if (isLit(state) == this.shouldUnpower(world, pos, state) && !world.getBlockTickScheduler().willTick(pos, state.getBlock())) {
+		if (isLit(state) == this.shouldUnpower(world, pos, state) && !world.getBlockTickScheduler().isTicking(pos, state.getBlock())) {
 			world.scheduleBlockTick(pos, state.getBlock(), 2);
 		}
 	}
@@ -69,14 +68,14 @@ public final class RedstoneLanternBehavior {
 	public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 		// This is needed to never power anything upward.
 		if (this.attachmentDirection.apply(state) == Direction.UP && direction == Direction.DOWN) {
-			return RedstoneSignalLevels.SIGNAL_NONE;
+			return 0;
 		}
 
-		return state.get(LIT) && this.attachmentDirection.apply(state) != direction ? RedstoneSignalLevels.SIGNAL_MAX : RedstoneSignalLevels.SIGNAL_NONE;
+		return state.get(LIT) && this.attachmentDirection.apply(state) != direction ? 15 : 0;
 	}
 
 	public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
-		return direction == Direction.UP ? state.getWeakRedstonePower(world, pos, direction) : RedstoneSignalLevels.SIGNAL_NONE;
+		return direction == Direction.UP ? state.getWeakRedstonePower(world, pos, direction) : 0;
 	}
 
 	/**
@@ -95,7 +94,10 @@ public final class RedstoneLanternBehavior {
 		boolean shouldUnpower = this.shouldUnpower(world, pos, state);
 		List<BurnoutEntry> list = this.burnoutMap.get(world);
 
-		while (list != null && !list.isEmpty() && world.getTime() - list.get(0).time > RedstoneTorchBlock.RECENT_TOGGLE_TIMER) {
+		// RedstoneTorchBlock.RECENT_TOGGLE_TIMER/MAX_RECENT_TOGGLES/RESTART_DELAY (Quilt Mappings names)
+		// stayed unmapped under Yarn (field_31227/field_31228/field_31229) -- confirmed 60/8/160 via
+		// javap -v's ConstantValue attributes, matching vanilla's known redstone-torch burnout numbers.
+		while (list != null && !list.isEmpty() && world.getTime() - list.get(0).time > RedstoneTorchBlock.field_31227) {
 			list.remove(0);
 		}
 
@@ -105,7 +107,7 @@ public final class RedstoneLanternBehavior {
 
 				if (this.isBurnedOut(world, pos, true)) {
 					world.syncWorldEvent(WorldEvents.REDSTONE_TORCH_BURNS_OUT, pos, 0);
-					world.scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), RedstoneTorchBlock.RESTART_DELAY);
+					world.scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), RedstoneTorchBlock.field_31229);
 				}
 			}
 		} else if (!shouldUnpower && !this.isBurnedOut(world, pos, false)) {
@@ -123,7 +125,7 @@ public final class RedstoneLanternBehavior {
 		int i = 0;
 
 		for (var burnoutEntry : list) {
-			if (burnoutEntry.pos().equals(pos) && ++i >= RedstoneTorchBlock.MAX_RECENT_TOGGLES) {
+			if (burnoutEntry.pos().equals(pos) && ++i >= RedstoneTorchBlock.field_31228) {
 				return true;
 			}
 		}

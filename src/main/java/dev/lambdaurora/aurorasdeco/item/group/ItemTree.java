@@ -40,11 +40,11 @@ public class ItemTree extends ItemTreeGroupNode {
 	private static final Identifier ROOT = AurorasDeco.id("root");
 	private static final ItemTreeGroupNode BLACKBOARDS = ItemTreeGroupNode.create(AurorasDeco.id("blackboard"), groupNode -> {
 		groupNode.add(BLACKBOARD_BLOCK);
-		groupNode.add(WAXED_BLACKBOARD_BLOCK, ItemGroup.Visibility.SEARCH_TAB_ONLY);
+		groupNode.add(WAXED_BLACKBOARD_BLOCK, ItemGroup.StackVisibility.SEARCH_TAB_ONLY);
 		groupNode.add(CHALKBOARD_BLOCK);
-		groupNode.add(WAXED_CHALKBOARD_BLOCK, ItemGroup.Visibility.SEARCH_TAB_ONLY);
+		groupNode.add(WAXED_CHALKBOARD_BLOCK, ItemGroup.StackVisibility.SEARCH_TAB_ONLY);
 		groupNode.add(GLASSBOARD_BLOCK);
-		groupNode.add(WAXED_GLASSBOARD_BLOCK, ItemGroup.Visibility.SEARCH_TAB_ONLY);
+		groupNode.add(WAXED_GLASSBOARD_BLOCK, ItemGroup.StackVisibility.SEARCH_TAB_ONLY);
 		//groupNode.add(BLACKBOARD_PRESS_BLOCK);
 	});
 	public static final ItemTreeGroupNode BENCHES = new ItemTreeGroupNode(AurorasDeco.id("bench"));
@@ -60,7 +60,7 @@ public class ItemTree extends ItemTreeGroupNode {
 		var nodes = new ArrayList<ItemTreeItemNode>();
 
 		for (var stack : displayStacks) {
-			nodes.add(new ItemTreeItemNode(stack, ItemGroup.Visibility.PARENT_TAB_ONLY));
+			nodes.add(new ItemTreeItemNode(stack, ItemGroup.StackVisibility.PARENT_TAB_ONLY));
 		}
 
 		for (int i = 0; i < searchStacks.size(); i++) {
@@ -72,7 +72,7 @@ public class ItemTree extends ItemTreeGroupNode {
 				ItemTreeItemNode node = nodes.get(j);
 
 				if (ItemStack.canCombine(node.stack(), current)) {
-					node.setVisibility(ItemGroup.Visibility.PARENT_AND_SEARCH_TABS);
+					node.setVisibility(ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 					foundIndex = -1;
 					break;
 				} else if (previous != null && ItemStack.canCombine(node.stack(), previous)) {
@@ -81,7 +81,7 @@ public class ItemTree extends ItemTreeGroupNode {
 			}
 
 			if (foundIndex != -1) {
-				nodes.add(foundIndex, new ItemTreeItemNode(current, ItemGroup.Visibility.SEARCH_TAB_ONLY));
+				nodes.add(foundIndex, new ItemTreeItemNode(current, ItemGroup.StackVisibility.SEARCH_TAB_ONLY));
 			}
 		}
 
@@ -92,10 +92,10 @@ public class ItemTree extends ItemTreeGroupNode {
 	public static void init() {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(modifyItems(ItemTree::modifyBuildingBlocks));
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COLORED_BLOCKS).register(modifyItems(ItemTree::modifyColoredBlocks));
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL_BLOCKS).register(modifyItems(ItemTree::modifyNaturalBlocks));
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL_BLOCKS).register(modifyItems(ItemTree::modifyFunctionalBlocks));
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE_BLOCKS).register(modifyItems(ItemTree::modifyRedstoneBlocks));
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS_AND_UTILITIES).register(modifyItems(ItemTree::modifyToolsAndUtilities));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(modifyItems(ItemTree::modifyNaturalBlocks));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(modifyItems(ItemTree::modifyFunctionalBlocks));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(modifyItems(ItemTree::modifyRedstoneBlocks));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(modifyItems(ItemTree::modifyToolsAndUtilities));
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS)
 				.register(entries -> entries.addAfter(Items.NETHERITE_INGOT, COPPER_SULFATE_ITEM));
 	}
@@ -109,8 +109,8 @@ public class ItemTree extends ItemTreeGroupNode {
 
 			entries.getDisplayStacks().clear();
 			entries.getSearchTabStacks().clear();
-			tree.build(entries.getDisplayStacks(), entries.getEnabledFeatures(), ItemGroup.Visibility.PARENT_TAB_ONLY);
-			tree.build(entries.getSearchTabStacks(), entries.getEnabledFeatures(), ItemGroup.Visibility.SEARCH_TAB_ONLY);
+			tree.build(entries.getDisplayStacks(), entries.getEnabledFeatures(), ItemGroup.StackVisibility.PARENT_TAB_ONLY);
+			tree.build(entries.getSearchTabStacks(), entries.getEnabledFeatures(), ItemGroup.StackVisibility.SEARCH_TAB_ONLY);
 		};
 	}
 

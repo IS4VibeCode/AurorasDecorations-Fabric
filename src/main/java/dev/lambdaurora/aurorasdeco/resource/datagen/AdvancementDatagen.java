@@ -29,10 +29,10 @@ import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.advancement.criterion.RecipeUnlockedCriterion;
 import net.minecraft.predicate.NumberRange;
 import net.minecraft.predicate.entity.EntityPredicate;
+import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.predicate.item.ItemPredicate;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
-import net.minecraft.unmapped.C_ctsfmifk;
 import net.minecraft.util.Identifier;
 
 import java.util.Map;
@@ -42,15 +42,15 @@ import java.util.regex.Pattern;
 import static dev.lambdaurora.aurorasdeco.util.AuroraUtil.jsonArray;
 
 public final class AdvancementDatagen {
-	private static final Map<Identifier, Supplier<Advancement.Task>> ADVANCEMENT_BUILDERS = new Object2ObjectOpenHashMap<>();
-	private static final Map<Identifier, Advancement.Task> ADVANCEMENTS = new Object2ObjectOpenHashMap<>();
+	private static final Map<Identifier, Supplier<Advancement.Builder>> ADVANCEMENT_BUILDERS = new Object2ObjectOpenHashMap<>();
+	private static final Map<Identifier, Advancement.Builder> ADVANCEMENTS = new Object2ObjectOpenHashMap<>();
 	private static final Pattern MISSING_TAG_REGEX = Pattern.compile("Unknown item tag '([a-z0-9_.-]+:[a-z0-9/._-]+)'");
 
 	private AdvancementDatagen() {
 		throw new UnsupportedOperationException("AdvancementDatagen only contains static definitions.");
 	}
 
-	public static void applyAdvancements(Map<Identifier, Advancement.Task> builder) {
+	public static void applyAdvancements(Map<Identifier, Advancement.Builder> builder) {
 		AurorasDeco.debug("Applying advancement injection...");
 
 		if (!ADVANCEMENT_BUILDERS.isEmpty()) {
@@ -85,20 +85,20 @@ public final class AdvancementDatagen {
 		});
 	}
 
-	public static Supplier<Advancement.Task> register(Identifier id, Supplier<Advancement.Task> advancement) {
+	public static Supplier<Advancement.Builder> register(Identifier id, Supplier<Advancement.Builder> advancement) {
 		ADVANCEMENT_BUILDERS.put(id, advancement);
 		return advancement;
 	}
 
-	public static Advancement.Task simpleRecipeUnlock(Recipe<?> recipe) {
-		var advancement = Advancement.Task.create();
+	public static Advancement.Builder simpleRecipeUnlock(Recipe<?> recipe) {
+		var advancement = Advancement.Builder.create();
 
 		advancement.parent(new Identifier("recipes/root"));
 		advancement.rewards(AdvancementRewards.Builder.recipe(recipe.getId()));
 		advancement.criteriaMerger(CriterionMerger.OR);
-		advancement.criterion("has_self", InventoryChangedCriterion.Conditions.items(recipe.getResult(null).getItem()));
+		advancement.criterion("has_self", InventoryChangedCriterion.Conditions.items(recipe.getOutput(null).getItem()));
 		advancement.criterion("has_the_recipe",
-				new RecipeUnlockedCriterion.Conditions(C_ctsfmifk.field_24388, recipe.getId())
+				new RecipeUnlockedCriterion.Conditions(LootContextPredicate.EMPTY, recipe.getId())
 		);
 
 		int i = 0;
@@ -122,7 +122,7 @@ public final class AdvancementDatagen {
 				items.add(child);
 			} else items.add(ingredientJson);
 		}
-		return new InventoryChangedCriterion.Conditions(C_ctsfmifk.field_24388,
+		return new InventoryChangedCriterion.Conditions(LootContextPredicate.EMPTY,
 				NumberRange.IntRange.ANY, NumberRange.IntRange.ANY, NumberRange.IntRange.ANY,
 				ItemPredicate.deserializeAll(items));
 	}

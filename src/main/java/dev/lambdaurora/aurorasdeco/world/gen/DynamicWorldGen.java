@@ -19,26 +19,19 @@ package dev.lambdaurora.aurorasdeco.world.gen;
 
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.world.gen.feature.AurorasDecoFeatures;
-import net.minecraft.registry.Holder;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.feature.PlacedFeature;
-import org.jetbrains.annotations.NotNull;
-import org.quiltmc.qsl.registry.api.event.DynamicRegistryManagerSetupContext;
-import org.quiltmc.qsl.registry.api.event.RegistryEvents;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeModifications;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectionContext;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
-import org.quiltmc.qsl.worldgen.biome.api.ModificationPhase;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
+import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -56,7 +49,7 @@ public class DynamicWorldGen{
 	private boolean canInjectBiomes = false;
 
 	private DynamicWorldGen() {
-		this.registerDynamicModifications(AurorasDeco.id("swamp"), BiomeSelectors.includeByKey(Biomes.SWAMP), List.of(
+		this.registerDynamicModifications(AurorasDeco.id("swamp"), BiomeSelectors.includeByKey(BiomeKeys.SWAMP), List.of(
 				AurorasDecoFeatures.SWAMP_DUCKWEED,
 				AurorasDecoFeatures.SWAMP_GIANT_MUSHROOMS,
 				AurorasDecoFeatures.SWAMP_SMALL_DRIPLEAF
@@ -65,7 +58,7 @@ public class DynamicWorldGen{
 		var waySigns = BiomeModifications.create(AurorasDeco.id("way_signs"));
 		for (var waySign : WAY_SIGNS) {
 			waySigns.add(ModificationPhase.ADDITIONS,
-					BiomeSelectors.isIn(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/way_sign/" + waySign))),
+					BiomeSelectors.tag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/way_sign/" + waySign))),
 					(selectionContext, context) -> {
 						context.getGenerationSettings().addFeature(GenerationStep.Feature.SURFACE_STRUCTURES,
 								RegistryKey.of(RegistryKeys.PLACED_FEATURE, AurorasDeco.id("way_sign/" + waySign))
@@ -79,7 +72,7 @@ public class DynamicWorldGen{
 		BiomeModifications.create(modificationsId)
 				.add(ModificationPhase.ADDITIONS, selector, (selectionContext, context) -> {
 					for (var feature : toPlace) {
-						if (selectionContext.doesPlacedFeatureExist(feature)) {
+						if (selectionContext.hasPlacedFeature(feature)) {
 							context.getGenerationSettings().addFeature(GenerationStep.Feature.VEGETAL_DECORATION, feature);
 						}
 					}

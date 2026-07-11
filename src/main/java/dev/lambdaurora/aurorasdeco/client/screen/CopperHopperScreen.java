@@ -20,7 +20,7 @@ package dev.lambdaurora.aurorasdeco.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.screen.CopperHopperScreenHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
@@ -47,14 +47,14 @@ public class CopperHopperScreen extends HandledScreen<CopperHopperScreenHandler>
 	/* Rendering */
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
 		this.renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, delta);
 		this.drawMouseoverTooltip(graphics, mouseX, mouseY);
 	}
 
 	@Override
-	protected void drawBackground(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+	protected void drawBackground(DrawContext graphics, float delta, int mouseX, int mouseY) {
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 
 		int x = (this.width - this.backgroundWidth) / 2;

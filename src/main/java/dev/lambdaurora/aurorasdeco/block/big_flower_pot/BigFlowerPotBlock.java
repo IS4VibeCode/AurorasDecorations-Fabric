@@ -37,7 +37,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -45,7 +45,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -83,8 +83,8 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	}
 
 	public BigFlowerPotBlock(PottedPlantType type) {
-		this(type, QuiltBlockSettings.create()
-				.nonSolid(true).pistonBehavior(PistonBehavior.DESTROY)
+		this(type, FabricBlockSettings.of()
+				.notSolid().pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.1f).nonOpaque()
 		);
 	}
@@ -245,7 +245,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	/* Visual */
 
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random) {
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
 		if (this.getPlant() != null) {
 			this.getPlant().randomDisplayTick(state, world, pos, random);
 		}
@@ -265,7 +265,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 		if (this.isEmpty())
 			return super.getDroppedStacks(state, builder);
 
-		builder.withDynamicDrop(PLANT_LOOT_ID, (consumer) -> this.acceptPlantDrops(state, builder, consumer));
+		builder.addDynamicDrop(PLANT_LOOT_ID, (consumer) -> this.acceptPlantDrops(state, builder, consumer));
 
 		return AurorasDecoRegistry.BIG_FLOWER_POT_BLOCK.getDroppedStacks(state, builder);
 	}

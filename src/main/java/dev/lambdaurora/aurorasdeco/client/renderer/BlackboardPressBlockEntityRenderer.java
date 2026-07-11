@@ -36,11 +36,11 @@ import net.minecraft.client.render.model.json.ModelVariantMap;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Axis;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.random.LegacySimpleRandom;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.util.random.RandomSeed;
+import net.minecraft.util.math.random.CheckedRandom;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.math.random.RandomSeed;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,7 +51,7 @@ public class BlackboardPressBlockEntityRenderer implements BlockEntityRenderer<B
 	public static final Identifier SCREW_ID = AurorasDeco.id("blockstates/blackboard_press/screw.json");
 	public static final ModelIdentifier PRESS_PLATE_MODEL_ID = new ModelIdentifier(AurorasDeco.id("blackboard_press/press_plate"), "special");
 	public static final ModelIdentifier SCREW_MODEL_ID = new ModelIdentifier(AurorasDeco.id("blackboard_press/screw"), "special");
-	private static final RandomGenerator RANDOM = new LegacySimpleRandom(RandomSeed.generateUniqueSeed());
+	private static final Random RANDOM = new CheckedRandom(RandomSeed.getSeed());
 	private final MinecraftClient client = MinecraftClient.getInstance();
 
 	public BlackboardPressBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
@@ -83,7 +83,7 @@ public class BlackboardPressBlockEntityRenderer implements BlockEntityRenderer<B
 				matrices.push();
 
 				matrices.translate(0.5, 0, 0.5);
-				matrices.multiply(Axis.Y_POSITIVE.rotationDegrees(-(entity.getWorld().getTime() % 360)));
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-(entity.getWorld().getTime() % 360)));
 				matrices.translate(-0.5, 0, -0.5);
 
 				client.getBlockRenderManager().getModelRenderer().render(entity.getWorld(), screwModel, state, pos,
@@ -120,7 +120,7 @@ public class BlackboardPressBlockEntityRenderer implements BlockEntityRenderer<B
 
 	private static UnbakedModel initModel(Identifier resourceId, Identifier modelId) {
 		var model = MinecraftClient.getInstance().getResourceManager().getResource(resourceId).map(resource -> {
-			try (var reader = new InputStreamReader(resource.open())) {
+			try (var reader = new InputStreamReader(resource.getInputStream())) {
 				var context = new ModelVariantMap.DeserializationContext();
 				context.setStateFactory(AurorasDecoRegistry.BLACKBOARD_PRESS_BLOCK.getStateManager());
 				var map = ModelVariantMap.fromJson(context, reader);

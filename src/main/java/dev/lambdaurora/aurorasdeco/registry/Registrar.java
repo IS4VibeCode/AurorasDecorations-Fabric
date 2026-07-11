@@ -141,7 +141,7 @@ public final class Registrar {
 		 * @return the instance of this completer
 		 */
 		public BlockRegistrationCompleter<T> addSelfTo(BlockEntityType<?> type) {
-			type.addSupportedBlock(this.registeredObject);
+			AurorasDecoRegistry.addSupportedBlock(type, this.registeredObject);
 			return this;
 		}
 

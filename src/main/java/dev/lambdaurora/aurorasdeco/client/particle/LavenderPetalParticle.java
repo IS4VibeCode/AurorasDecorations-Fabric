@@ -73,13 +73,13 @@ public class LavenderPetalParticle extends SpriteBillboardParticle {
 		this.prevPosZ = this.z;
 		this.prevAngle = angle;
 
-		var pos = BlockPos.create(this.x, this.y, this.z);
+		var pos = BlockPos.ofFloored(this.x, this.y, this.z);
 
 		this.age++;
 
 		// fade-out animation
 		if (this.age >= this.maxAge + 1 - FADE_DURATION) {
-			this.colorAlpha -= 1F / FADE_DURATION;
+			this.alpha -= 1F / FADE_DURATION;
 		}
 
 		if (this.age >= this.maxAge) {
@@ -134,7 +134,7 @@ public class LavenderPetalParticle extends SpriteBillboardParticle {
 		double oldDy = dy;
 		double oldDz = dz;
 
-		Vec3d vec3d = Entity.adjustSingleAxisMovementForCollisions(null, new Vec3d(dx, dy, dz), this.getBoundingBox(), this.world, List.of());
+		Vec3d vec3d = Entity.adjustMovementForCollisions(null, new Vec3d(dx, dy, dz), this.getBoundingBox(), this.world, List.of());
 		dx = vec3d.x;
 		dy = vec3d.y;
 		dz = vec3d.z;

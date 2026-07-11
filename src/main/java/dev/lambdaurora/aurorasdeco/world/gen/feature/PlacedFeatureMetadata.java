@@ -24,8 +24,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.PlacedFeature;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectionContext;
-import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class PlacedFeatureMetadata {
 		Predicate<BiomeSelectionContext> last = null;
 
 		for (var tag : this.allowedCategoryTags) {
-			var p = BiomeSelectors.isIn(tag);
+			var p = BiomeSelectors.tag(tag);
 
 			if (last == null) {
 				last = p;
@@ -125,7 +125,7 @@ public class PlacedFeatureMetadata {
 
 	public Predicate<BiomeSelectionContext> getTagPredicate() {
 		if (this.allowedTag != null)
-			return BiomeSelectors.isIn(this.allowedTag);
+			return BiomeSelectors.tag(this.allowedTag);
 		else
 			return biomeSelectionContext -> false;
 	}

@@ -42,6 +42,9 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
+import dev.lambdaurora.aurorasdeco.tooltip.BlackboardTooltipData;
+import dev.lambdaurora.aurorasdeco.tooltip.PainterPaletteTooltipData;
 import net.minecraft.block.Block;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.client.color.world.BiomeColors;
@@ -55,14 +58,14 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientLifecycleEvents;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientWorldTickEvents;
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-import org.quiltmc.qsl.resource.loader.api.ResourceLoader;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
 
@@ -73,14 +76,20 @@ import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class AurorasDecoClient implements ClientModInitializer {
 	public static final AurorasDecoPack RESOURCE_PACK = new AurorasDecoPack(ResourceType.CLIENT_RESOURCES);
 	public static final ModelIdentifier BLACKBOARD_MASK = new ModelIdentifier(AurorasDeco.id("blackboard_mask"),
 			"inventory");
 
 	@Override
-	public void onInitializeClient(ModContainer mod) {
+	public void onInitializeClient() {
+		TooltipComponentCallback.EVENT.register(data -> {
+			if (data instanceof BlackboardTooltipData blackboardData) return blackboardData.toComponent();
+			if (data instanceof PainterPaletteTooltipData painterPaletteData) return painterPaletteData.toComponent();
+			return null;
+		});
+
 		this.initBlockEntityRenderers();
 		this.initEntityRenderers();
 		this.initBlockRenderLayers();
@@ -93,12 +102,12 @@ public class AurorasDecoClient implements ClientModInitializer {
 		/* Signs */
 		ClientPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SIGN_POST_OPEN_GUI, AurorasDecoPackets.Client::handleSignPostOpenGuiPacket);
 
-		ClientLifecycleEvents.READY.register(client -> {
+		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			PottedPlantType.stream()
 					.forEach(plantType -> {
 						if (plantType.isEmpty()) return;
 
-						BlockRenderLayerMap.put(RenderLayer.getCutoutMipped(), plantType.getPot());
+						BlockRenderLayerMap.INSTANCE.putBlock(plantType.getPot(), RenderLayer.getCutoutMipped());
 
 						if (plantType.getPlant() instanceof TallPlantBlock) {
 							ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) ->
@@ -112,7 +121,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 						}
 					});
 			HangingFlowerPotBlock.stream().forEach(block -> {
-				BlockRenderLayerMap.put(RenderLayer.getCutout(), block);
+				BlockRenderLayerMap.INSTANCE.putBlock(block, RenderLayer.getCutout());
 				var colorProvider = ColorProviderRegistry.BLOCK.get(block.getFlowerPot());
 				if (colorProvider != null)
 					ColorProviderRegistry.BLOCK.register(colorProvider, block);
@@ -133,7 +142,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 					});
 		});
 
-		ClientWorldTickEvents.START.register((client, world) -> Wind.get().tick(world));
+		ClientTickEvents.START_WORLD_TICK.register(world -> Wind.get().tick(world));
 
 		this.registerBlackboardItemRenderer(BLACKBOARD_BLOCK);
 		this.registerBlackboardItemRenderer(CHALKBOARD_BLOCK);
@@ -156,13 +165,24 @@ public class AurorasDecoClient implements ClientModInitializer {
 		EntityModelLayerRegistry.registerModelLayer(WindChimeBlockEntityRenderer.WIND_CHIME_MODEL_LAYER,
 				WindChimeBlockEntityRenderer::getTexturedModelData);
 
-		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
-		resourceLoader.getRegisterDefaultResourcePackEvent().register(context -> {
-			context.addResourcePack(AurorasDecoClient.RESOURCE_PACK.rebuild(ResourceType.CLIENT_RESOURCES, context.resourceManager()));
-		});
-		resourceLoader.getRegisterTopResourcePackEvent().register(AurorasDeco.id("reload/render_rules"),
-				context -> {
-					RenderRule.reload(context.resourceManager());
+		// RESOURCE_PACK is rebuilt lazily by the reload listener below (it needs a ResourceManager to
+		// pass through to Datagen.generateClientData); registering it as an always-active default pack
+		// is handled once via AurorasDecoPack.registerAsDefaultPack, same as the server-side pack in
+		// AurorasDeco.onInitialize().
+		AurorasDecoPack.registerAsDefaultPack(RESOURCE_PACK);
+
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
+				new net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener() {
+					@Override
+					public Identifier getFabricId() {
+						return AurorasDeco.id("reload/render_rules");
+					}
+
+					@Override
+					public void reload(net.minecraft.resource.ResourceManager manager) {
+						AurorasDecoClient.RESOURCE_PACK.rebuild(ResourceType.CLIENT_RESOURCES, manager);
+						RenderRule.reload(manager);
+					}
 				}
 		);
 
@@ -228,9 +248,9 @@ public class AurorasDecoClient implements ClientModInitializer {
 	}
 
 	private void initBlockRenderLayers() {
-		BlockRenderLayerMap.put(RenderLayer.getCutoutMipped(),
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(),
 				AurorasDecoPlants.BURNT_VINE_BLOCK);
-		BlockRenderLayerMap.put(RenderLayer.getCutout(),
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
 				AMETHYST_LANTERN_BLOCK,
 				AZALEA_DOOR,
 				AZALEA_TRAPDOOR,
@@ -257,11 +277,11 @@ public class AurorasDecoClient implements ClientModInitializer {
 				WIND_CHIME_BLOCK
 		);
 
-		BlockRenderLayerMap.put(RenderLayer.getCutout(), StumpBlock.streamLogStumps().toArray(Block[]::new));
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(), StumpBlock.streamLogStumps().toArray(Block[]::new));
 	}
 
 	private void registerBlackboardItemRenderer(BlackboardBlock blackboard) {
-		@SuppressWarnings("deprecation") var id = blackboard.getBuiltInRegistryHolder().getRegistryKey().getValue();
+		@SuppressWarnings("deprecation") var id = blackboard.getRegistryEntry().registryKey().getValue();
 		var modelId = new ModelIdentifier(new Identifier(id.getNamespace(), id.getPath() + "_base"),
 				"inventory");
 		BuiltinItemRendererRegistry.INSTANCE.register(blackboard, new BlackboardItemRenderer(modelId));

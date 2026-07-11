@@ -18,38 +18,45 @@
 package dev.lambdaurora.aurorasdeco.mixin.world;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.registry.Holder;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.ConcentricRingsStructurePlacement;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructurePlacement;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldView;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.chunk.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.gen.chunk.placement.StructurePlacement;
+import net.minecraft.world.gen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.Set;
 
+/**
+ * Under Quilt Mappings these two private methods were named {@code findStructures}/{@code method_41522}
+ * (matching the old {@code Holder}/{@code StructureFeature}/{@code StructureManager} naming family).
+ * Under Yarn they're {@code locateConcentricRingsStructure}/{@code locateStructure}, and the equivalent
+ * types are {@code RegistryEntry}/{@code net.minecraft.world.gen.structure.Structure}/
+ * {@code StructureAccessor} — confirmed directly against the real 1.20.1 Yarn jar via javap, not guessed.
+ */
 @Mixin(ChunkGenerator.class)
 public interface ChunkGeneratorAccessor {
-	@Invoker
-	@Nullable Pair<BlockPos, Holder<StructureFeature>> invokeFindStructures(
-			Set<Holder<StructureFeature>> structures,
+	@Invoker("locateConcentricRingsStructure")
+	@Nullable Pair<BlockPos, RegistryEntry<Structure>> invokeFindStructures(
+			Set<RegistryEntry<Structure>> structures,
 			ServerWorld world,
-			StructureManager structureManager,
+			StructureAccessor structureAccessor,
 			BlockPos pos,
-			boolean bl,
+			boolean skipExistingChunks,
 			ConcentricRingsStructurePlacement placement
 	);
 
-	@Invoker
+	@Invoker("locateStructure")
 	@Nullable
-	static Pair<BlockPos, Holder<StructureFeature>> invokeMethod_41522(
-			Set<Holder<StructureFeature>> structures, WorldView world, StructureManager structureManager, boolean skipExistingChunks,
+	static Pair<BlockPos, RegistryEntry<Structure>> invokeLocateStructure(
+			Set<RegistryEntry<Structure>> structures, WorldView world, StructureAccessor structureAccessor, boolean skipExistingChunks,
 			StructurePlacement placement, ChunkPos pos
 	) {
 		throw new IllegalStateException("Mixin injection failed.");

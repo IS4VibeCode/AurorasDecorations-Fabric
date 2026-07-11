@@ -19,17 +19,18 @@ package dev.lambdaurora.aurorasdeco.client.model;
 
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.ModelBaker;
+import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.util.Collection;
 import java.util.function.Function;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public record UnbakedBenchModel(UnbakedModel baseModel, RestModelManager restModelManager) implements AuroraUnbakedModel {
 	@Override
 	public Collection<Identifier> getModelDependencies() {
@@ -37,13 +38,13 @@ public record UnbakedBenchModel(UnbakedModel baseModel, RestModelManager restMod
 	}
 
 	@Override
-	public void resolveParents(Function<Identifier, UnbakedModel> models) {
-		this.baseModel.resolveParents(models);
+	public void setParents(Function<Identifier, UnbakedModel> models) {
+		this.baseModel.setParents(models);
 	}
 
 	@Override
 	public BakedModel bake(
-			ModelBaker modelBaker, Function<Material, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
 	) {
 		return new BakedBenchModel(this.baseModel().bake(modelBaker, textureGetter, rotationContainer, modelId), this.restModelManager());
 	}

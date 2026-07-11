@@ -28,7 +28,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.recipe.api.serializer.QuiltRecipeSerializer;
 
 /**
  * Represents woodcutting recipes.
@@ -47,7 +46,7 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 
 	@Override
 	public boolean matches(Inventory inv, World world) {
-		return this.ingredient.test(inv.getStack(0));
+		return this.input.test(inv.getStack(0));
 	}
 
 	@Override
@@ -55,7 +54,7 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 		return new ItemStack(AurorasDecoRegistry.SAWMILL_BLOCK);
 	}
 
-	public static class Serializer implements QuiltRecipeSerializer<WoodcuttingRecipe> {
+	public static class Serializer implements JsonSerializableRecipeSerializer<WoodcuttingRecipe> {
 		private Serializer() {
 		}
 
@@ -86,8 +85,8 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 		@Override
 		public void write(PacketByteBuf buf, WoodcuttingRecipe recipe) {
 			buf.writeString(recipe.group);
-			recipe.ingredient.write(buf);
-			buf.writeItemStack(recipe.result);
+			recipe.input.write(buf);
+			buf.writeItemStack(recipe.output);
 		}
 
 		@Override
@@ -97,9 +96,9 @@ public final class WoodcuttingRecipe extends CuttingRecipe {
 			if (!recipe.group.isEmpty())
 				root.addProperty("group", recipe.group);
 
-			root.add("ingredient", recipe.ingredient.toJson());
-			root.addProperty("result", Registries.ITEM.getId(recipe.result.getItem()).toString());
-			root.addProperty("count", recipe.result.getCount());
+			root.add("ingredient", recipe.input.toJson());
+			root.addProperty("result", Registries.ITEM.getId(recipe.output.getItem()).toString());
+			root.addProperty("count", recipe.output.getCount());
 
 			return root;
 		}

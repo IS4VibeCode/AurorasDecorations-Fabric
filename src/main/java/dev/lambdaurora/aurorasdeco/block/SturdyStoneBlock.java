@@ -26,7 +26,7 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 /**
  * Represents a block which cannot be moved by pistons or slime blocks
@@ -41,7 +41,7 @@ public class SturdyStoneBlock extends Block {
 	public static final BooleanProperty POWERED = Properties.POWERED;
 
 	public SturdyStoneBlock() {
-		super(QuiltBlockSettings.create().mapColor(MapColor.STONE).pistonBehavior(PistonBehavior.BLOCK).requiresTool().strength(3.5f));
+		super(FabricBlockSettings.of().mapColor(MapColor.STONE_GRAY).pistonBehavior(PistonBehavior.BLOCK).requiresTool().strength(3.5f));
 		this.setDefaultState(this.getDefaultState().with(POWERED, false));
 	}
 

@@ -19,7 +19,7 @@ package dev.lambdaurora.aurorasdeco.screen.slot;
 
 import dev.lambdaurora.aurorasdeco.blackboard.Blackboard;
 import dev.lambdaurora.aurorasdeco.blackboard.BlackboardDrawModifier;
-import net.minecraft.feature_flags.FeatureFlagBitSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -33,9 +33,9 @@ import net.minecraft.screen.slot.Slot;
  * @since 1.0.0-beta.6
  */
 public class BlackboardToolSlot extends Slot {
-	private final FeatureFlagBitSet enabledFeatures;
+	private final FeatureSet enabledFeatures;
 
-	public BlackboardToolSlot(Inventory inventory, FeatureFlagBitSet enabledFeatures, int index, int x, int y) {
+	public BlackboardToolSlot(Inventory inventory, FeatureSet enabledFeatures, int index, int x, int y) {
 		super(inventory, index, x, y);
 		this.enabledFeatures = enabledFeatures;
 	}

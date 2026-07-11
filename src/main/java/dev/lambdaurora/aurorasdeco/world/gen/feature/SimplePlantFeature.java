@@ -48,11 +48,11 @@ public class SimplePlantFeature extends Feature<SimplePlantFeature.Config> {
 	}
 
 	@Override
-	public boolean place(FeatureContext<Config> context) {
+	public boolean generate(FeatureContext<Config> context) {
 		Config config = context.getConfig();
 		StructureWorldAccess world = context.getWorld();
 		BlockPos pos = context.getOrigin();
-		BlockState state = config.toPlace().getBlockState(context.getRandom(), pos);
+		BlockState state = config.toPlace().get(context.getRandom(), pos);
 
 		var above = pos.mutableCopy().move(Direction.UP);
 

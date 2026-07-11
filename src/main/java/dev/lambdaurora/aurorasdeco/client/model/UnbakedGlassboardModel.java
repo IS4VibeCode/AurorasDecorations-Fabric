@@ -25,16 +25,17 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.ModelBaker;
+import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.render.model.json.ModelVariantMap;
-import net.minecraft.client.resource.Material;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	static final int LEFT_UP_MASK = 0b00000001;
@@ -87,7 +88,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 					if (resource.isEmpty()) {
 						LOGGER.warn("Could not load glassboard model part (" + corner + ", " + type + "): could not locate the blockstate file.");
 					} else {
-						try (var reader = new InputStreamReader(resource.get().open())) {
+						try (var reader = new InputStreamReader(resource.get().getInputStream())) {
 							deserializationContext.setStateFactory(block.getStateManager());
 							var map = ModelVariantMap.fromJson(deserializationContext, reader);
 
@@ -106,7 +107,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 
 	@Override
 	public BakedModel bake(
-			ModelBaker modelBaker, Function<Material, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
 	) {
 		var baseModel = this.bakeBaseModel(modelBaker, textureGetter, rotationContainer, modelId);
 
@@ -114,7 +115,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 	}
 
 	private Int2ObjectMap<List<BakedModel>> bakeAllConnectingModels(
-			ModelBaker baker, Function<Material, Sprite> textureGetter, ModelBakeSettings rotationContainer,
+			Baker baker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer,
 			Identifier modelId, BakedModel baseModel
 	) {
 		var map = new Int2ObjectOpenHashMap<List<BakedModel>>();
@@ -125,7 +126,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 		for (var corner : Corner.CORNERS) {
 			for (var type : Type.TYPES) {
 				int id = this.getCornerDataIndex(corner, type);
-				bakedModels.put(id, baker.getModel(this.identifiers.get(id))
+				bakedModels.put(id, baker.getOrLoadModel(this.identifiers.get(id))
 						.bake(baker, textureGetter, rotationContainer, modelId));
 			}
 		}

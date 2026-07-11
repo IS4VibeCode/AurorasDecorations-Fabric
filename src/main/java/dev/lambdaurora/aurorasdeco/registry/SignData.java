@@ -22,12 +22,12 @@ import com.terraformersmc.terraform.sign.block.TerraformSignBlock;
 import com.terraformersmc.terraform.sign.block.TerraformWallHangingSignBlock;
 import com.terraformersmc.terraform.sign.block.TerraformWallSignBlock;
 import net.minecraft.block.Block;
-import net.minecraft.feature_flags.FeatureFlags;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.item.HangingSignItem;
 import net.minecraft.item.SignItem;
 import net.minecraft.util.Identifier;
-import org.quiltmc.qsl.block.extensions.api.QuiltBlockSettings;
-import org.quiltmc.qsl.item.setting.api.QuiltItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 
 import static dev.lambdaurora.aurorasdeco.AurorasDeco.id;
 
@@ -52,27 +52,27 @@ public final class SignData {
 		Identifier hangingSignGuiTexture = id("textures/gui/hanging_sign/" + name);
 
 		this.signBlock = AurorasDecoRegistry.registerBlock(name + "_sign",
-				new TerraformSignBlock(signTexture, QuiltBlockSettings.copyOf(base).strength(1.f).noCollision())
+				new TerraformSignBlock(signTexture, FabricBlockSettings.copyOf(base).strength(1.f).noCollision())
 		);
 		this.wallSignBlock = AurorasDecoRegistry.registerBlock(name + "_wall_sign",
-				new TerraformWallSignBlock(signTexture, QuiltBlockSettings.copyOf(base).dropsLike(this.signBlock))
+				new TerraformWallSignBlock(signTexture, FabricBlockSettings.copyOf(base).dropsLike(this.signBlock))
 		);
 		this.hangingSignBlock = AurorasDecoRegistry.registerBlock(name + "_hanging_sign",
 				new TerraformHangingSignBlock(
 						hangingSignTexture, hangingSignGuiTexture,
-						QuiltBlockSettings.copyOf(base).strength(1.f)
+						FabricBlockSettings.copyOf(base).strength(1.f)
 				));
 		this.wallHangingSignBlock = AurorasDecoRegistry.registerBlock(name + "_wall_hanging_sign",
 				new TerraformWallHangingSignBlock(
 						hangingSignTexture, hangingSignGuiTexture,
-						QuiltBlockSettings.copyOf(base).strength(1.f).dropsLike(this.hangingSignBlock)
+						FabricBlockSettings.copyOf(base).strength(1.f).dropsLike(this.hangingSignBlock)
 				));
 
 		this.signItem = AurorasDecoRegistry.registerItem(name + "_sign",
-				new SignItem(new QuiltItemSettings(), this.signBlock, this.wallSignBlock)
+				new SignItem(new FabricItemSettings(), this.signBlock, this.wallSignBlock)
 		);
 		this.hangingSignItem = AurorasDecoRegistry.registerItem(name + "_hanging_sign",
-				new HangingSignItem(this.hangingSignBlock, this.wallHangingSignBlock, new QuiltItemSettings())
+				new HangingSignItem(this.hangingSignBlock, this.wallHangingSignBlock, new FabricItemSettings())
 		);
 	}
 

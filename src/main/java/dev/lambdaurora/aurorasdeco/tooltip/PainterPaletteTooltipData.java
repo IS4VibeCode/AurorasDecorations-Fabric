@@ -20,18 +20,23 @@ package dev.lambdaurora.aurorasdeco.tooltip;
 import dev.lambdaurora.aurorasdeco.client.tooltip.PainterPaletteTooltipComponent;
 import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-import org.quiltmc.qsl.tooltip.api.ConvertibleTooltipData;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.item.TooltipData;
 
 /**
  * Represents the painter's palette tooltip data. Used to build the {@link PainterPaletteTooltipComponent} on the client.
+ * <p>
+ * Fabric's {@link TooltipData} is a bare marker interface with no conversion method -- unlike QSL's
+ * {@code ConvertibleTooltipData}, the data-to-component mapping is wired up separately via
+ * {@code TooltipComponentCallback} in {@code AurorasDecoClient}.
  *
  * @author LambdAurora
  * @version 1.0.0-beta.6
  * @since 1.0.0-beta.6
  */
-public record PainterPaletteTooltipData(PainterPaletteItem.PainterPaletteInventory inventory) implements ConvertibleTooltipData {
-	@ClientOnly
+public record PainterPaletteTooltipData(PainterPaletteItem.PainterPaletteInventory inventory) implements TooltipData {
+	@Environment(EnvType.CLIENT)
 	public TooltipComponent toComponent() {
 		return new PainterPaletteTooltipComponent(this.inventory());
 	}

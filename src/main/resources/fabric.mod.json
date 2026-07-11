@@ -1,0 +1,48 @@
+{
+	"schemaVersion": 1,
+	"id": "aurorasdeco",
+	"version": "${version}",
+	"name": "Aurora's Decorations",
+	"description": "A decorations-focused mod which tries to have a twist for its different features.\n\nPorted from Quilt (LambdAurora upstream, commit 9073bd2, MC 1.20.1) to plain Fabric -- research port, not an official release.",
+	"authors": [
+		"LambdAurora",
+		"april",
+		"harpsi",
+		"Kat",
+		"unascribed"
+	],
+	"contact": {
+		"homepage": "https://lambdaurora.dev/AurorasDecorations/",
+		"sources": "https://github.com/LambdAurora/AurorasDecorations",
+		"issues": "https://github.com/LambdAurora/AurorasDecorations/issues"
+	},
+	"license": "LGPL-3.0-only",
+	"icon": "assets/aurorasdeco/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.lambdaurora.aurorasdeco.AurorasDeco"
+		],
+		"client": [
+			"dev.lambdaurora.aurorasdeco.client.AurorasDecoClient",
+			"dev.lambdaurora.aurorasdeco.hook.TrinketsHooks"
+		],
+		"emi": [
+			"dev.lambdaurora.aurorasdeco.hook.EmiHooks"
+		]
+	},
+	"mixins": [
+		"aurorasdeco.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"terraform-wood-api-v1": ">=7.0.1"
+	},
+	"suggests": {
+		"emi": "*",
+		"trinkets": ">=3.7.1"
+	}
+}

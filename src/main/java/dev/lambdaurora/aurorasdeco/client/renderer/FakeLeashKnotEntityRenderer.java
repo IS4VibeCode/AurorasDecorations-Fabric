@@ -27,9 +27,10 @@ import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.LeashKnotEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class FakeLeashKnotEntityRenderer
 		extends MobEntityRenderer<FakeLeashKnotEntity, LeashKnotEntityModel<FakeLeashKnotEntity>> {
 	private static final Identifier TEXTURE = new Identifier("textures/entity/lead_knot.png");
