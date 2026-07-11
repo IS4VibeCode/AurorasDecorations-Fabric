@@ -118,7 +118,7 @@ public class PetBedBlock extends Block {
 	private static void registerPetBed(DyeColor color) {
 		var block = Registry.register(Registries.BLOCK,
 				AurorasDeco.id("pet_bed/" + color.getName()),
-				new PetBedBlock(FabricBlockSettings.of()
+				new PetBedBlock(FabricBlockSettings.create()
 						.mapColor(color).sounds(BlockSoundGroup.WOOD).strength(.2f)));
 		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new FabricItemSettings()));
 		PET_BEDS_ITEM_GROUP_NODE.add(item);

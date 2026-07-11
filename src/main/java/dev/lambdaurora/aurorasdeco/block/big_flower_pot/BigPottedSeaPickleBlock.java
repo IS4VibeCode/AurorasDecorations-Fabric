@@ -62,7 +62,7 @@ public class BigPottedSeaPickleBlock extends BigFlowerPotBlock implements Waterl
 	private final Map<BlockState, VoxelShape> shapeCache = new Object2ObjectOpenHashMap<>();
 
 	public BigPottedSeaPickleBlock(PottedPlantType type) {
-		super(type, FabricBlockSettings.of().pistonBehavior(PistonBehavior.DESTROY).notSolid().strength(.1f).nonOpaque());
+		super(type, FabricBlockSettings.create().pistonBehavior(PistonBehavior.DESTROY).notSolid().strength(.1f).nonOpaque());
 
 		var plantSettings = ((AbstractBlockAccessor) type.getPlant()).getSettings();
 		((AbstractBlockAccessor) this).getSettings()

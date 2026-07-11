@@ -31,7 +31,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
  */
 public class CopperSulfateBrazierBlock extends BrazierBlock {
 	public CopperSulfateBrazierBlock(MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
-		super(FabricBlockSettings.of().ticksRandomly(), color, fireDamage, luminance, particle);
+		super(FabricBlockSettings.create().ticksRandomly(), color, fireDamage, luminance, particle);
 		this.tickComponent = new CopperSulfateBehavior(20);
 	}
 }

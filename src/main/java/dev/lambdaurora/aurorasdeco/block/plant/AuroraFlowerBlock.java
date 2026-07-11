@@ -47,7 +47,7 @@ public class AuroraFlowerBlock extends FlowerBlock implements Fertilizable {
 	}
 
 	public static FabricBlockSettings defaultSettings() {
-		return FabricBlockSettings.of()
+		return FabricBlockSettings.create()
 				.pistonBehavior(PistonBehavior.DESTROY)
 				.notSolid()
 				.noCollision()

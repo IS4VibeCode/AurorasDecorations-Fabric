@@ -41,7 +41,7 @@ public class SturdyStoneBlock extends Block {
 	public static final BooleanProperty POWERED = Properties.POWERED;
 
 	public SturdyStoneBlock() {
-		super(FabricBlockSettings.of().mapColor(MapColor.STONE_GRAY).pistonBehavior(PistonBehavior.BLOCK).requiresTool().strength(3.5f));
+		super(FabricBlockSettings.create().mapColor(MapColor.STONE_GRAY).pistonBehavior(PistonBehavior.BLOCK).requiresTool().strength(3.5f));
 		this.setDefaultState(this.getDefaultState().with(POWERED, false));
 	}
 

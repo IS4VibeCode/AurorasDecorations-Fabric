@@ -60,7 +60,7 @@ public final class SawmillBlock extends Block {
 	private static final VoxelShape SHAPE;
 
 	public SawmillBlock() {
-		super(FabricBlockSettings.of().mapColor(MapColor.OAK_TAN).nonOpaque().strength(2.5f).sounds(BlockSoundGroup.WOOD));
+		super(FabricBlockSettings.create().mapColor(MapColor.OAK_TAN).nonOpaque().strength(2.5f).sounds(BlockSoundGroup.WOOD));
 
 		this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH));
 	}

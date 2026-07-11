@@ -78,7 +78,7 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	private final int fireDamage;
 
 	public BrazierBlock(MapColor color, int fireDamage, int luminance, ParticleEffect particle) {
-		this(FabricBlockSettings.of(), color, fireDamage, luminance, particle);
+		this(FabricBlockSettings.create(), color, fireDamage, luminance, particle);
 	}
 
 	public BrazierBlock(FabricBlockSettings settings, MapColor color, int fireDamage, int luminance, ParticleEffect particle) {

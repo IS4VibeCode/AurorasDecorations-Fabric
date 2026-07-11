@@ -48,7 +48,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 public final class BurntVineBlock extends VineBlock {
 	public BurntVineBlock() {
 		super(
-				FabricBlockSettings.of()
+				FabricBlockSettings.create()
 						.pistonBehavior(PistonBehavior.DESTROY)
 						.replaceable()
 						.noCollision()

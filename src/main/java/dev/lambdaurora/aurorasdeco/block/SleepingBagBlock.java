@@ -110,7 +110,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	private final DyeColor color;
 
 	public SleepingBagBlock(DyeColor color) {
-		super(FabricBlockSettings.of()
+		super(FabricBlockSettings.create()
 				.mapColor(color.getMapColor())
 				.pistonBehavior(PistonBehavior.DESTROY)
 				.strength(.5f)

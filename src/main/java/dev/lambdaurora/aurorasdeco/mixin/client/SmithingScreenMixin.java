@@ -34,21 +34,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(SmithingScreen.class)
 public class SmithingScreenMixin {
+	/**
+	 * Quilt Mappings names this field {@code display} and the method it's set up in
+	 * {@code displayStack}; the real Yarn names (confirmed via javap against the real 1.20.1 jar) are
+	 * {@code armorStand} and {@code equipArmorStand}. {@code equipArmorStand} clears every slot to
+	 * {@code ItemStack.EMPTY} first, then either equips the stack into its real armor slot (if it's an
+	 * {@link net.minecraft.item.ArmorItem}) or into {@code OFFHAND} otherwise -- a blackboard isn't an
+	 * {@code ArmorItem}, so it lands in {@code OFFHAND} by vanilla logic before this injection moves it
+	 * to {@code HEAD} instead. Injecting at {@code TAIL} rather than replicating the original's
+	 * ordinal-counted {@code @At(INVOKE, ...)} target is deliberate: the original targeted one specific
+	 * {@code equipStack} call among several in this method by bytecode position, which is fragile
+	 * across mapping/version changes; {@code TAIL} achieves the identical effect (override after all of
+	 * vanilla's own equip logic has run) without depending on exactly which branch's call site ordinal
+	 * survived the reshuffled method.
+	 */
 	@Shadow
-	private @Nullable ArmorStandEntity display;
+	private @Nullable ArmorStandEntity armorStand;
 
-	@Inject(
-			method = "displayStack",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V",
-					shift = At.Shift.AFTER
-			)
-	)
+	@Inject(method = "equipArmorStand", at = @At("TAIL"))
 	private void aurorasdeco$onArmorStandPreview(ItemStack stack, CallbackInfo ci) {
 		if (stack.isIn(AurorasDecoTags.BLACKBOARD_ITEMS)) {
-			this.display.equipStack(EquipmentSlot.HEAD, stack);
-			this.display.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+			this.armorStand.equipStack(EquipmentSlot.HEAD, stack);
+			this.armorStand.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
 		}
 	}
 }

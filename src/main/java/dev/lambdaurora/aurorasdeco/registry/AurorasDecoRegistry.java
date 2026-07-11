@@ -239,7 +239,7 @@ public final class AurorasDecoRegistry {
 	public static final BigFlowerPotBlock.PlantAirBlock PLANT_AIR_BLOCK = registerBlock(
 			"plant_air",
 			new BigFlowerPotBlock.PlantAirBlock(
-					FabricBlockSettings.of()
+					FabricBlockSettings.create()
 							.notSolid()
 							.replaceable()
 							.nonOpaque()
@@ -267,7 +267,7 @@ public final class AurorasDecoRegistry {
 
 	//region Blackboards
 	public static final BlackboardBlock BLACKBOARD_BLOCK = registerWithItem("blackboard",
-			new BlackboardBlock(FabricBlockSettings.of()
+			new BlackboardBlock(FabricBlockSettings.create()
 					.strength(.2f)
 					.nonOpaque()
 					.pistonBehavior(PistonBehavior.DESTROY)
@@ -299,7 +299,7 @@ public final class AurorasDecoRegistry {
 			BlackboardItem::new);
 
 	public static final BlackboardPressBlock BLACKBOARD_PRESS_BLOCK = registerWithItem("blackboard_press",
-			new BlackboardPressBlock(FabricBlockSettings.of().mapColor(MapColor.IRON_GRAY)),
+			new BlackboardPressBlock(FabricBlockSettings.create().mapColor(MapColor.IRON_GRAY)),
 			new FabricItemSettings()
 	);
 
@@ -342,7 +342,7 @@ public final class AurorasDecoRegistry {
 	//endregion
 
 	public static final BookPileBlock BOOK_PILE_BLOCK = Registrar.register("book_pile",
-					new BookPileBlock(FabricBlockSettings.of()
+					new BookPileBlock(FabricBlockSettings.create()
 							.strength(.2f)
 							.nonOpaque()))
 			.then(block -> {
@@ -372,7 +372,7 @@ public final class AurorasDecoRegistry {
 	//endregion
 
 	public static final WindChimeBlock WIND_CHIME_BLOCK = registerWithItem("wind_chime",
-			new WindChimeBlock(FabricBlockSettings.of().nonOpaque()
+			new WindChimeBlock(FabricBlockSettings.create().nonOpaque()
 					.sounds(BlockSoundGroup.AMETHYST_BLOCK)),
 			new FabricItemSettings());
 

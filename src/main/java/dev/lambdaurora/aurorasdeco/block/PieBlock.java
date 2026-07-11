@@ -65,7 +65,7 @@ public class PieBlock extends Block {
 	private final FoodComponent foodComponent;
 
 	public PieBlock(FoodComponent foodComponent) {
-		this(FabricBlockSettings.of()
+		this(FabricBlockSettings.create()
 						.mapColor(MapColor.CLEAR).pistonBehavior(PistonBehavior.DESTROY).strength(0.5f).sounds(BlockSoundGroup.WOOL),
 				foodComponent
 		);
