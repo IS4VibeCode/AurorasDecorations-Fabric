@@ -39,6 +39,20 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 	private static final Identifier TEXTURE = Identifier.of("textures/gui/container/stonecutter.png");
+	// 1.21 moved these out of stonecutter.png's own texture atlas (drawn via UV sub-region, the
+	// pre-1.21 way) into the separate GUI sprite system entirely -- confirmed against the real vanilla
+	// StonecutterScreen source (java/neoforge-1.21.1-mojmap-sources): RECIPE_SPRITE/RECIPE_SELECTED_SPRITE/
+	// RECIPE_HIGHLIGHTED_SPRITE/SCROLLER_SPRITE/SCROLLER_DISABLED_SPRITE, drawn via blitSprite (Yarn:
+	// DrawContext.drawGuiTexture), not blit/drawTexture against stonecutter.png anymore. The old UV
+	// coordinates below the main background image (this.backgroundHeight, +18, +36) now sample
+	// whatever's left there post-rework instead of the frame graphics, rendering as a flat fill --
+	// exactly the "solid color, no highlight frame" bug report. Reused directly since this screen
+	// already deliberately imitates the stonecutter's own look.
+	private static final Identifier RECIPE_SPRITE = Identifier.of("container/stonecutter/recipe");
+	private static final Identifier RECIPE_SELECTED_SPRITE = Identifier.of("container/stonecutter/recipe_selected");
+	private static final Identifier RECIPE_HIGHLIGHTED_SPRITE = Identifier.of("container/stonecutter/recipe_highlighted");
+	private static final Identifier SCROLLER_SPRITE = Identifier.of("container/stonecutter/scroller");
+	private static final Identifier SCROLLER_DISABLED_SPRITE = Identifier.of("container/stonecutter/scroller_disabled");
 	private float scrollAmount;
 	private boolean mouseClicked;
 	private int scrollOffset;
@@ -70,8 +84,9 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		graphics.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 		int scrollAmount = (int) (41.f * this.scrollAmount);
-		graphics.drawTexture(TEXTURE,
-				this.x + 119, this.y + 15 + scrollAmount, 176 + (this.shouldScroll() ? 0 : 12), 0, 12, 15
+		graphics.drawGuiTexture(
+				this.shouldScroll() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE,
+				this.x + 119, this.y + 15 + scrollAmount, 12, 15
 		);
 		int recipesX = this.x + 52;
 		int recipesY = this.y + 14;
@@ -106,14 +121,16 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 			int recipeX = x + offset % 4 * 16;
 			int line = offset / 4;
 			int recipeY = y + line * 18 + 2;
-			int v = this.backgroundHeight;
+			Identifier sprite;
 			if (i == this.handler.getSelectedRecipe()) {
-				v += 18;
+				sprite = RECIPE_SELECTED_SPRITE;
 			} else if (mouseX >= recipeX && mouseY >= recipeY && mouseX < recipeX + 16 && mouseY < recipeY + 18) {
-				v += 36;
+				sprite = RECIPE_HIGHLIGHTED_SPRITE;
+			} else {
+				sprite = RECIPE_SPRITE;
 			}
 
-			graphics.drawTexture(TEXTURE, recipeX, recipeY - 1, 0, v, 16, 18);
+			graphics.drawGuiTexture(sprite, recipeX, recipeY - 1, 16, 18);
 		}
 	}
 
