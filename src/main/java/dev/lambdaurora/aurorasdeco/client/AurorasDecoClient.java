@@ -100,7 +100,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 		ParticleFactoryRegistry.getInstance().register(AurorasDecoParticles.LAVENDER_PETAL, LavenderPetalParticle.Factory::new);
 
 		/* Signs */
-		ClientPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SIGN_POST_OPEN_GUI, AurorasDecoPackets.Client::handleSignPostOpenGuiPacket);
+		ClientPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SignPostOpenGuiPayload.ID, AurorasDecoPackets.Client::handleSignPostOpenGuiPacket);
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			PottedPlantType.stream()

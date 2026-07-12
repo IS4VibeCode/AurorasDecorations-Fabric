@@ -40,7 +40,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import java.util.UUID;
@@ -117,9 +116,7 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 	public void startEdit(ServerPlayerEntity player) {
 		this.editor = player.getUuid();
 
-		var buffer = PacketByteBufs.create();
-		buffer.writeBlockPos(this.getPos());
-		ServerPlayNetworking.send(player, AurorasDecoPackets.SIGN_POST_OPEN_GUI, buffer);
+		ServerPlayNetworking.send(player, new AurorasDecoPackets.SignPostOpenGuiPayload(this.getPos()));
 	}
 
 	public void cancelEditing(ServerPlayerEntity player) {

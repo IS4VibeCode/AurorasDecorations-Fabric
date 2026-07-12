@@ -23,9 +23,11 @@ import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
@@ -169,6 +171,31 @@ public final class AuroraUtil {
 		} else {
 			return nbt;
 		}
+	}
+
+	/**
+	 * Replaces the removed {@code ItemStack.getSubNbt(String)}, which the 1.21.1 data component rework
+	 * moved to a named key inside {@link DataComponentTypes#CUSTOM_DATA}.
+	 */
+	public static @Nullable NbtCompound getSubNbt(ItemStack stack, String key) {
+		var component = stack.get(DataComponentTypes.CUSTOM_DATA);
+		if (component == null) return null;
+		var nbt = component.copyNbt();
+		return nbt.contains(key, NbtElement.COMPOUND_TYPE) ? nbt.getCompound(key) : null;
+	}
+
+	/**
+	 * Replaces the removed {@code ItemStack.setSubNbt(String, NbtElement)}.
+	 */
+	public static void setSubNbt(ItemStack stack, String key, NbtElement element) {
+		NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, nbt -> nbt.put(key, element));
+	}
+
+	/**
+	 * Replaces the removed {@code ItemStack.removeSubNbt(String)}.
+	 */
+	public static void removeSubNbt(ItemStack stack, String key) {
+		NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, nbt -> nbt.remove(key));
 	}
 
 	/* State Utils */

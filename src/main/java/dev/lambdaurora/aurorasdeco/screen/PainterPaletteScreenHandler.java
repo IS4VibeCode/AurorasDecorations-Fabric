@@ -21,6 +21,7 @@ import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoScreenHandlers;
 import dev.lambdaurora.aurorasdeco.screen.slot.BlackboardToolSlot;
 import dev.lambdaurora.aurorasdeco.screen.slot.ColorSlot;
+import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
@@ -144,13 +145,13 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 	@Override
 	protected boolean saveToOriginItem(ItemStack stack) {
 		var nbt = inventory.toNbt();
-		if (nbt != null) stack.setSubNbt("inventory", nbt);
+		if (nbt != null) AuroraUtil.setSubNbt(stack, "inventory", nbt);
 		else {
-			if (stack.getSubNbt("inventory") == null) {
+			if (AuroraUtil.getSubNbt(stack, "inventory") == null) {
 				return false;
 			}
 
-			stack.removeSubNbt("inventory");
+			AuroraUtil.removeSubNbt(stack, "inventory");
 		}
 
 		return true;
@@ -177,7 +178,7 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 
 		@Override
 		public @NotNull ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-			var inventory = PainterPaletteItem.PainterPaletteInventory.fromNbt(this.self.getSubNbt("inventory"));
+			var inventory = PainterPaletteItem.PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(this.self, "inventory"));
 
 			return new PainterPaletteScreenHandler(syncId, playerInventory, this.type, this.lockedSlot, inventory);
 		}

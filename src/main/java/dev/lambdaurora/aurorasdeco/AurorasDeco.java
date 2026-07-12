@@ -71,9 +71,10 @@ public class AurorasDeco implements ModInitializer {
 
 		ItemTree.init();
 
-		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SIGN_POST_OPEN_GUI_FAIL, AurorasDecoPackets::handleSignPostOpenGuiFailPacket);
-		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SIGN_POST_SET_TEXT, AurorasDecoPackets::handleSignPostSetTextPacket);
-		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.PAINTER_PALETTE_SCROLL, AurorasDecoPackets::handlePainterPaletteScroll);
+		AurorasDecoPackets.init();
+		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SignPostOpenGuiFailPayload.ID, AurorasDecoPackets::handleSignPostOpenGuiFailPacket);
+		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.SignPostSetTextPayload.ID, AurorasDecoPackets::handleSignPostSetTextPacket);
+		ServerPlayNetworking.registerGlobalReceiver(AurorasDecoPackets.PainterPaletteScrollPayload.ID, AurorasDecoPackets::handlePainterPaletteScroll);
 
 		DynamicWorldGen.init();
 

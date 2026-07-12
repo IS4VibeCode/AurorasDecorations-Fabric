@@ -50,8 +50,9 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
+import java.util.Optional;
 
 /**
  * Represents the sign post editor screen.
@@ -105,15 +106,10 @@ public class SignPostEditScreen extends Screen {
 				flags |= 2;
 			}
 
-			var buffer = PacketByteBufs.create();
-			buffer.writeBlockPos(this.signPost.getPos());
-			buffer.writeByte(flags);
-			if ((flags & 1) == 1)
-				buffer.writeString(this.text[0]);
-			if ((flags & 2) == 2)
-				buffer.writeString(this.text[1]);
+			var upText = (flags & 1) == 1 ? Optional.of(this.text[0]) : Optional.<String>empty();
+			var downText = (flags & 2) == 2 ? Optional.of(this.text[1]) : Optional.<String>empty();
 
-			ClientPlayNetworking.send(AurorasDecoPackets.SIGN_POST_SET_TEXT, buffer);
+			ClientPlayNetworking.send(new AurorasDecoPackets.SignPostSetTextPayload(this.signPost.getPos(), flags, upText, downText));
 		}
 	}
 

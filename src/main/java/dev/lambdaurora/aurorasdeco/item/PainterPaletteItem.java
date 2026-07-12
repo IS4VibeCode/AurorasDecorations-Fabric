@@ -24,6 +24,7 @@ import dev.lambdaurora.aurorasdeco.registry.AurorasDecoPackets;
 import dev.lambdaurora.aurorasdeco.screen.NestedScreenHandler;
 import dev.lambdaurora.aurorasdeco.screen.PainterPaletteScreenHandler;
 import dev.lambdaurora.aurorasdeco.tooltip.PainterPaletteTooltipData;
+import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.featuretoggle.FeatureSet;
@@ -46,7 +47,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import java.util.Optional;
@@ -66,13 +66,13 @@ public class PainterPaletteItem extends Item {
 	}
 
 	public ItemStack getCurrentColorAsItem(ItemStack paletteStack) {
-		var inventory = PainterPaletteInventory.fromNbt(paletteStack.getSubNbt("inventory"));
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
 
 		return inventory.getSelectedColor();
 	}
 
 	public ItemStack getCurrentToolAsItem(ItemStack paletteStack) {
-		var inventory = PainterPaletteInventory.fromNbt(paletteStack.getSubNbt("inventory"));
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
 		if (inventory.selectedTool == -1) return ItemStack.EMPTY;
 
 		return inventory.getSelectedTool();
@@ -134,18 +134,14 @@ public class PainterPaletteItem extends Item {
 	}
 
 	public boolean onScroll(PlayerEntity player, ItemStack paletteStack, double scrollDelta, boolean toolModifier) {
-		var inventory = PainterPaletteInventory.fromNbt(paletteStack.getSubNbt("inventory"));
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
 
 		if (inventory.isEmpty()) {
 			return false;
 		}
 
 		if (player.getWorld().isClient()) {
-			var buffer = PacketByteBufs.create();
-			buffer.writeDouble(scrollDelta);
-			buffer.writeBoolean(toolModifier);
-
-			ClientPlayNetworking.send(AurorasDecoPackets.PAINTER_PALETTE_SCROLL, buffer);
+			ClientPlayNetworking.send(new AurorasDecoPackets.PainterPaletteScrollPayload(scrollDelta, toolModifier));
 		} else {
 			if (!toolModifier) {
 				if (scrollDelta < 0) {
@@ -163,8 +159,8 @@ public class PainterPaletteItem extends Item {
 				}
 
 				var nbt = inventory.toNbt();
-				if (nbt != null) paletteStack.setSubNbt("inventory", nbt);
-				else paletteStack.removeSubNbt("inventory");
+				if (nbt != null) AuroraUtil.setSubNbt(paletteStack, "inventory", nbt);
+				else AuroraUtil.removeSubNbt(paletteStack, "inventory");
 				player.playerScreenHandler.sendContentUpdates();
 
 				var modifier = BlackboardDrawModifier.fromItem(inventory.getSelectedColor());
@@ -178,8 +174,8 @@ public class PainterPaletteItem extends Item {
 				if (inventory.selectedTool != nextTool) {
 					inventory.selectedTool = nextTool;
 					var nbt = inventory.toNbt();
-					if (nbt != null) paletteStack.setSubNbt("inventory", nbt);
-					else paletteStack.removeSubNbt("inventory");
+					if (nbt != null) AuroraUtil.setSubNbt(paletteStack, "inventory", nbt);
+					else AuroraUtil.removeSubNbt(paletteStack, "inventory");
 					player.playerScreenHandler.sendContentUpdates();
 
 					var message = getSelectedToolMessage(inventory, player.getWorld().getEnabledFeatures());
@@ -196,7 +192,7 @@ public class PainterPaletteItem extends Item {
 	}
 
 	public int getColor(ItemStack paletteStack, int tintIndex) {
-		NbtCompound nbt = paletteStack.getSubNbt("inventory");
+		NbtCompound nbt = AuroraUtil.getSubNbt(paletteStack, "inventory");
 
 		BlackboardDrawModifier primaryColor = null;
 		BlackboardDrawModifier previousColor = null;
@@ -265,7 +261,7 @@ public class PainterPaletteItem extends Item {
 
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
-		var nbt = stack.getSubNbt("inventory");
+		var nbt = AuroraUtil.getSubNbt(stack, "inventory");
 		if (nbt != null) {
 			return Optional.of(new PainterPaletteTooltipData(PainterPaletteInventory.fromNbt(nbt)));
 		}

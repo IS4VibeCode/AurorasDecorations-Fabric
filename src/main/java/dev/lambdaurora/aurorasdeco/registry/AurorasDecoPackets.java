@@ -20,21 +20,26 @@ package dev.lambdaurora.aurorasdeco.registry;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.client.screen.SignPostEditScreen;
 import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.util.math.BlockPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import java.util.Optional;
 
 /**
  * Contains the different packet definitions used in Aurora's Decorations.
+ * <p>
+ * 1.21.1 update: Fabric API's networking layer moved from raw {@code Identifier} + {@code PacketByteBuf}
+ * receivers to typed {@link CustomPayload} records, each with its own {@link CustomPayload.Id} and
+ * {@link PacketCodec}, registered once via {@link PayloadTypeRegistry} before either side's
+ * {@code registerGlobalReceiver} can be used.
  *
  * @author LambdAurora
  * @version 1.0.0
@@ -45,17 +50,83 @@ public final class AurorasDecoPackets {
 		throw new UnsupportedOperationException("Someone tried to instantiate a static-only class. How?");
 	}
 
-	public static final Identifier SIGN_POST_OPEN_GUI = AurorasDeco.id("sign_post/open_gui");
-	public static final Identifier SIGN_POST_OPEN_GUI_FAIL = AurorasDeco.id("sign_post/open_gui/fail");
-	public static final Identifier SIGN_POST_SET_TEXT = AurorasDeco.id("sign_post/set_text");
-	public static final Identifier PAINTER_PALETTE_SCROLL = AurorasDeco.id("painter_palette/scroll");
+	public record SignPostOpenGuiPayload(BlockPos pos) implements CustomPayload {
+		public static final CustomPayload.Id<SignPostOpenGuiPayload> ID =
+				CustomPayload.id(AurorasDeco.id("sign_post/open_gui").toString());
+		public static final PacketCodec<RegistryByteBuf, SignPostOpenGuiPayload> CODEC = PacketCodec.tuple(
+				BlockPos.PACKET_CODEC, SignPostOpenGuiPayload::pos,
+				SignPostOpenGuiPayload::new
+		);
 
-	public static void handleSignPostOpenGuiFailPacket(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler,
-			PacketByteBuf buf, PacketSender responseSender) {
-		var pos = buf.readBlockPos();
+		@Override
+		public CustomPayload.Id<SignPostOpenGuiPayload> getId() {
+			return ID;
+		}
+	}
 
-		server.execute(() -> {
-			var signPost = AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE.get(player.getWorld(), pos);
+	public record SignPostOpenGuiFailPayload(BlockPos pos) implements CustomPayload {
+		public static final CustomPayload.Id<SignPostOpenGuiFailPayload> ID =
+				CustomPayload.id(AurorasDeco.id("sign_post/open_gui/fail").toString());
+		public static final PacketCodec<RegistryByteBuf, SignPostOpenGuiFailPayload> CODEC = PacketCodec.tuple(
+				BlockPos.PACKET_CODEC, SignPostOpenGuiFailPayload::pos,
+				SignPostOpenGuiFailPayload::new
+		);
+
+		@Override
+		public CustomPayload.Id<SignPostOpenGuiFailPayload> getId() {
+			return ID;
+		}
+	}
+
+	public record SignPostSetTextPayload(BlockPos pos, byte mode, Optional<String> upText, Optional<String> downText)
+			implements CustomPayload {
+		public static final CustomPayload.Id<SignPostSetTextPayload> ID =
+				CustomPayload.id(AurorasDeco.id("sign_post/set_text").toString());
+		public static final PacketCodec<RegistryByteBuf, SignPostSetTextPayload> CODEC = PacketCodec.tuple(
+				BlockPos.PACKET_CODEC, SignPostSetTextPayload::pos,
+				PacketCodecs.BYTE, SignPostSetTextPayload::mode,
+				PacketCodecs.optional(PacketCodecs.STRING), SignPostSetTextPayload::upText,
+				PacketCodecs.optional(PacketCodecs.STRING), SignPostSetTextPayload::downText,
+				SignPostSetTextPayload::new
+		);
+
+		@Override
+		public CustomPayload.Id<SignPostSetTextPayload> getId() {
+			return ID;
+		}
+	}
+
+	public record PainterPaletteScrollPayload(double scrollDelta, boolean toolModifier) implements CustomPayload {
+		public static final CustomPayload.Id<PainterPaletteScrollPayload> ID =
+				CustomPayload.id(AurorasDeco.id("painter_palette/scroll").toString());
+		public static final PacketCodec<RegistryByteBuf, PainterPaletteScrollPayload> CODEC = PacketCodec.tuple(
+				PacketCodecs.DOUBLE, PainterPaletteScrollPayload::scrollDelta,
+				PacketCodecs.BOOL, PainterPaletteScrollPayload::toolModifier,
+				PainterPaletteScrollPayload::new
+		);
+
+		@Override
+		public CustomPayload.Id<PainterPaletteScrollPayload> getId() {
+			return ID;
+		}
+	}
+
+	/**
+	 * Registers every payload's codec. Must run on both the client and the server before either side's
+	 * {@code registerGlobalReceiver}/{@code send} can be used for these payloads.
+	 */
+	public static void init() {
+		PayloadTypeRegistry.playS2C().register(SignPostOpenGuiPayload.ID, SignPostOpenGuiPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(SignPostOpenGuiFailPayload.ID, SignPostOpenGuiFailPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(SignPostSetTextPayload.ID, SignPostSetTextPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(PainterPaletteScrollPayload.ID, PainterPaletteScrollPayload.CODEC);
+	}
+
+	public static void handleSignPostOpenGuiFailPacket(SignPostOpenGuiFailPayload payload, ServerPlayNetworking.Context context) {
+		var player = context.player();
+
+		context.server().execute(() -> {
+			var signPost = AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE.get(player.getWorld(), payload.pos());
 			if (signPost == null)
 				return; // Sign Post is not here.
 
@@ -63,14 +134,13 @@ public final class AurorasDecoPackets {
 		});
 	}
 
-	public static void handleSignPostSetTextPacket(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler,
-			PacketByteBuf buf, PacketSender responseSender) {
-		var pos = buf.readBlockPos();
-		var mode = buf.readByte();
-		String upText = ((mode & 1) == 1) ? buf.readString() : null;
-		String downText = ((mode & 2) == 2) ? buf.readString() : null;
+	public static void handleSignPostSetTextPacket(SignPostSetTextPayload payload, ServerPlayNetworking.Context context) {
+		var player = context.player();
+		var pos = payload.pos();
+		String upText = ((payload.mode() & 1) == 1) ? payload.upText().orElse(null) : null;
+		String downText = ((payload.mode() & 2) == 2) ? payload.downText().orElse(null) : null;
 
-		server.execute(() -> {
+		context.server().execute(() -> {
 			if (!player.getAbilities().allowModifyWorld)
 				return; // Avoid griefing.
 
@@ -87,14 +157,12 @@ public final class AurorasDecoPackets {
 		});
 	}
 
-	public static void handlePainterPaletteScroll(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler,
-			PacketByteBuf buf, PacketSender responseSender) {
-		double scrollDelta = buf.readDouble();
-		boolean toolModifier = buf.readBoolean();
+	public static void handlePainterPaletteScroll(PainterPaletteScrollPayload payload, ServerPlayNetworking.Context context) {
+		var player = context.player();
 
-		server.execute(() -> {
+		context.server().execute(() -> {
 			if (player.getMainHandStack().getItem() instanceof PainterPaletteItem paletteItem) {
-				paletteItem.onScroll(player, player.getMainHandStack(), scrollDelta, toolModifier);
+				paletteItem.onScroll(player, player.getMainHandStack(), payload.scrollDelta(), payload.toolModifier());
 			}
 		});
 	}
@@ -105,16 +173,14 @@ public final class AurorasDecoPackets {
 			throw new UnsupportedOperationException("Someone tried to instantiate a static-only class. How?");
 		}
 
-		public static void handleSignPostOpenGuiPacket(MinecraftClient client, ClientPlayNetworkHandler handler,
-				PacketByteBuf buf, PacketSender responseSender) {
-			var pos = buf.readBlockPos();
+		public static void handleSignPostOpenGuiPacket(SignPostOpenGuiPayload payload, ClientPlayNetworking.Context context) {
+			var client = context.client();
+			var pos = payload.pos();
 
 			client.execute(() -> {
 				var signPost = AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE.get(client.world, pos);
 				if (signPost == null) {
-					var buffer = PacketByteBufs.create();
-					buffer.writeBlockPos(pos);
-					ClientPlayNetworking.send(SIGN_POST_OPEN_GUI_FAIL, buffer);
+					ClientPlayNetworking.send(new SignPostOpenGuiFailPayload(pos));
 					return;
 				}
 
