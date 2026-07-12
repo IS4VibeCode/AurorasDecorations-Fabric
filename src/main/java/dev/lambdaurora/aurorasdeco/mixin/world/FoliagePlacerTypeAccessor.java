@@ -17,7 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.mixin.world;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.world.gen.foliage.FoliagePlacer;
 import net.minecraft.world.gen.foliage.FoliagePlacerType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(FoliagePlacerType.class)
 public interface FoliagePlacerTypeAccessor {
 	@Invoker("<init>")
-	static <P extends FoliagePlacer> FoliagePlacerType<P> create(Codec<P> codec) {
+	static <P extends FoliagePlacer> FoliagePlacerType<P> create(MapCodec<P> codec) {
 		throw new IllegalStateException("Mixin failed to inject.");
 	}
 }

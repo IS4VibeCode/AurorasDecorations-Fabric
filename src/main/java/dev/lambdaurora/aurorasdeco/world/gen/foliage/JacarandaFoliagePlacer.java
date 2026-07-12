@@ -17,7 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.world.gen.foliage;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.mixin.world.FoliagePlacerTypeAccessor;
@@ -33,7 +33,7 @@ import net.minecraft.world.gen.foliage.FoliagePlacer;
 import net.minecraft.world.gen.foliage.FoliagePlacerType;
 
 public class JacarandaFoliagePlacer extends FoliagePlacer {
-	public static final Codec<JacarandaFoliagePlacer> CODEC = RecordCodecBuilder.create(instance -> fillFoliagePlacerFields(instance).apply(instance, JacarandaFoliagePlacer::new));
+	public static final MapCodec<JacarandaFoliagePlacer> CODEC = RecordCodecBuilder.mapCodec(instance -> fillFoliagePlacerFields(instance).apply(instance, JacarandaFoliagePlacer::new));
 	public static final FoliagePlacerType<JacarandaFoliagePlacer> TYPE = Registry.register(Registries.FOLIAGE_PLACER_TYPE,
 			AurorasDeco.id("jacaranda"),
 			FoliagePlacerTypeAccessor.create(CODEC)
