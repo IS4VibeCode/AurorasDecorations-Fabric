@@ -20,7 +20,6 @@ package dev.lambdaurora.aurorasdeco.mixin.entity;
 import dev.lambdaurora.aurorasdeco.block.SleepingBagBlock;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -33,7 +32,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
@@ -41,30 +39,25 @@ public abstract class LivingEntityMixin extends Entity {
 		super(type, world);
 	}
 
-	@Inject(
-			method = "sleep",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/block/BlockState;getBlock()Lnet/minecraft/block/Block;"
-			),
-			locals = LocalCapture.CAPTURE_FAILHARD
-	)
-	private void onSleep(BlockPos pos, CallbackInfo ci, BlockState state) {
+	/**
+	 * Recomputes the block state itself instead of relying on Mixin's local-variable capture -- the
+	 * real 1.21.1 {@code sleep}/{@code wakeUp} bytecode doesn't expose a {@code BlockState} local at
+	 * the old {@code BlockState.getBlock()} injection point the way earlier versions did (confirmed
+	 * via bytecode disassembly: {@code getBlockState(pos)}'s result is read fresh here, matching what
+	 * the target method itself does at its very start, so this is behaviorally identical).
+	 */
+	@Inject(method = "sleep", at = @At("HEAD"))
+	private void onSleep(BlockPos pos, CallbackInfo ci) {
+		var state = this.getWorld().getBlockState(pos);
 		if (state.getBlock() instanceof SleepingBagBlock) {
 			this.getWorld().setBlockState(pos, state.with(BedBlock.OCCUPIED, true), Block.NOTIFY_ALL);
 		}
 	}
 
 	@Dynamic("Lambda in LivingEntity#wakeUp")
-	@Inject(
-			method = "method_18404(Lnet/minecraft/util/math/BlockPos;)V",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/block/BlockState;getBlock()Lnet/minecraft/block/Block;"
-			),
-			locals = LocalCapture.CAPTURE_FAILHARD
-	)
-	private void onWakeUp(BlockPos pos, CallbackInfo ci, BlockState state) {
+	@Inject(method = "method_18404(Lnet/minecraft/util/math/BlockPos;)V", at = @At("HEAD"))
+	private void onWakeUp(BlockPos pos, CallbackInfo ci) {
+		var state = this.getWorld().getBlockState(pos);
 		if (state.getBlock() instanceof SleepingBagBlock) {
 			this.getWorld().setBlockState(pos, state.with(SleepingBagBlock.OCCUPIED, false), Block.NOTIFY_ALL);
 			Vec3d wakUpPos = BedBlock.findWakeUpPosition(this.getType(), this.getWorld(), pos, state.get(SleepingBagBlock.FACING), this.getYaw())
