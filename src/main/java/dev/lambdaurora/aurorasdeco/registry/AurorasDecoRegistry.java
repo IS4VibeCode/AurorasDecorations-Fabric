@@ -36,6 +36,7 @@ import dev.lambdaurora.aurorasdeco.item.SeatRestItem;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
 import dev.lambdaurora.aurorasdeco.item.group.ItemTree;
 import dev.lambdaurora.aurorasdeco.recipe.ActuallyGoodTransformSmithingRecipe;
+import dev.lambdaurora.aurorasdeco.recipe.AuroraCuttingRecipeSerializer;
 import dev.lambdaurora.aurorasdeco.recipe.BlackboardCloneRecipe;
 import dev.lambdaurora.aurorasdeco.recipe.ExplodingRecipe;
 import dev.lambdaurora.aurorasdeco.recipe.WoodcuttingRecipe;
@@ -505,12 +506,12 @@ public final class AurorasDecoRegistry {
 	public static final Identifier EXPLODING_RECIPE_ID = id("exploding");
 	public static final RecipeType<ExplodingRecipe> EXPLODING_RECIPE_TYPE = registerRecipeType("exploding");
 	public static final RecipeSerializer<ExplodingRecipe> EXPLODING_RECIPE_SERIALIZER
-			= register("exploding", ExplodingRecipe.SERIALIZER);
+			= register("exploding", new AuroraCuttingRecipeSerializer<>(ExplodingRecipe::new));
 
 	public static final Identifier WOODCUTTING_RECIPE_ID = id("woodcutting");
 	public static final RecipeType<WoodcuttingRecipe> WOODCUTTING_RECIPE_TYPE = registerRecipeType("woodcutting");
 	public static final RecipeSerializer<WoodcuttingRecipe> WOODCUTTING_RECIPE_SERIALIZER
-			= register("woodcutting", WoodcuttingRecipe.SERIALIZER);
+			= register("woodcutting", new AuroraCuttingRecipeSerializer<>(WoodcuttingRecipe::new));
 
 	public static final RecipeSerializer<ActuallyGoodTransformSmithingRecipe> ACTUALLY_GOOD_TRANSFORM_SMITHING_RECIPE_SERIALIZER
 			= register("actually_good_smithing_transform", ActuallyGoodTransformSmithingRecipe.SERIALIZER);

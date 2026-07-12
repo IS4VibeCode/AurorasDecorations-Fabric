@@ -21,17 +21,16 @@ import dev.lambdaurora.aurorasdeco.blackboard.Blackboard;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoTags;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.BlockItem;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.recipe.input.CraftingRecipeInput;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
@@ -50,17 +49,17 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 			AurorasDecoRegistry.GLASSBOARD_BLOCK
 	);
 
-	public BlackboardCloneRecipe(Identifier id, CraftingRecipeCategory craftingCategory) {
-		super(id, craftingCategory);
+	public BlackboardCloneRecipe(CraftingRecipeCategory craftingCategory) {
+		super(craftingCategory);
 	}
 
 	@Override
-	public boolean matches(RecipeInputInventory inv, World world) {
+	public boolean matches(CraftingRecipeInput input, World world) {
 		boolean hasInput = false, hasOutput = false;
 		int count = 0;
 
-		for (int slot = 0; slot < inv.size(); ++slot) {
-			var stack = inv.getStack(slot);
+		for (int slot = 0; slot < input.getSize(); ++slot) {
+			var stack = input.getStackInSlot(slot);
 
 			if (INPUT.test(stack)) {
 				if (OUTPUT.test(stack) && !this.isInput(stack))
@@ -74,21 +73,22 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public ItemStack craft(RecipeInputInventory inv, DynamicRegistryManager registryManager) {
+	public ItemStack craft(CraftingRecipeInput input, RegistryWrapper.WrapperLookup registryLookup) {
 		Blackboard blackboard = null;
 		ItemStack output = null;
 		Text customName = null;
 
-		for (int slot = 0; slot < inv.size(); ++slot) {
-			var craftStack = inv.getStack(slot);
+		for (int slot = 0; slot < input.getSize(); ++slot) {
+			var craftStack = input.getStackInSlot(slot);
 			if (!craftStack.isEmpty()) {
 				if (OUTPUT.test(craftStack) && !this.isInput(craftStack)) {
 					output = craftStack;
 				} else if (this.isInput(craftStack)) {
-					var nbt = BlockItem.getBlockEntityNbt(craftStack);
+					var nbt = AuroraUtil.getBlockEntityNbt(craftStack);
 					blackboard = Blackboard.fromNbt(nbt);
-					if (craftStack.hasCustomName())
-						customName = craftStack.getName();
+					var stackCustomName = craftStack.get(DataComponentTypes.CUSTOM_NAME);
+					if (stackCustomName != null)
+						customName = stackCustomName;
 				}
 			}
 		}
@@ -100,13 +100,13 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 		blackboard.writeNbt(nbt);
 
 		if (customName != null)
-			out.setCustomName(customName);
+			out.set(DataComponentTypes.CUSTOM_NAME, customName);
 
 		return out;
 	}
 
 	private boolean isInput(ItemStack stack) {
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = AuroraUtil.getBlockEntityNbt(stack);
 		if (nbt != null) {
 			if (nbt.contains("pixels", NbtElement.BYTE_ARRAY_TYPE)) {
 				byte[] pixels = nbt.getByteArray("pixels");
@@ -121,11 +121,11 @@ public class BlackboardCloneRecipe extends SpecialCraftingRecipe {
 	}
 
 	@Override
-	public DefaultedList<ItemStack> getRemainder(RecipeInputInventory craftingInventory) {
-		DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(craftingInventory.size(), ItemStack.EMPTY);
+	public DefaultedList<ItemStack> getRemainder(CraftingRecipeInput input) {
+		DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(input.getSize(), ItemStack.EMPTY);
 
 		for (int i = 0; i < defaultedList.size(); ++i) {
-			ItemStack invStack = craftingInventory.getStack(i);
+			ItemStack invStack = input.getStackInSlot(i);
 			if (!invStack.isEmpty()) {
 				if (invStack.getItem().hasRecipeRemainder()) {
 					defaultedList.set(i, new ItemStack(invStack.getItem().getRecipeRemainder()));

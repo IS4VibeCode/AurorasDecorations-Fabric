@@ -46,7 +46,7 @@ public class HoneycombItemMixin {
 		if (state.getBlock() instanceof BlackboardBlock) {
 			var blockEntity = AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE.get(world, pos);
 			if (blockEntity != null && !(blockEntity.isEmpty() && !blockEntity.hasCustomName())) {
-				aurorasdeco$blockEntityData.set(blockEntity.writeBlackBoardNbt(new NbtCompound()));
+				aurorasdeco$blockEntityData.set(blockEntity.writeBlackBoardNbt(new NbtCompound(), world.getRegistryManager()));
 			}
 		}
 	}
@@ -59,7 +59,7 @@ public class HoneycombItemMixin {
 		if (state.getBlock() instanceof BlackboardBlock) {
 			var blockEntity = AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE.get(world, pos);
 			if (blockEntity != null && aurorasdeco$blockEntityData.get() != null) {
-				blockEntity.readBlackBoardNbt(aurorasdeco$blockEntityData.get());
+				blockEntity.readBlackBoardNbt(aurorasdeco$blockEntityData.get(), world.getRegistryManager());
 				if (!world.isClient()) {
 					blockEntity.markDirty();
 					blockEntity.sync();

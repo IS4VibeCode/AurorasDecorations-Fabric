@@ -17,16 +17,11 @@
 
 package dev.lambdaurora.aurorasdeco.recipe;
 
-import com.google.gson.JsonObject;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.CuttingRecipe;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.world.World;
 
 /**
@@ -37,70 +32,18 @@ import net.minecraft.world.World;
  * @since 1.0.0
  */
 public final class WoodcuttingRecipe extends CuttingRecipe {
-	public static final Serializer SERIALIZER = new Serializer();
-
-	public WoodcuttingRecipe(Identifier id, String group, Ingredient input, ItemStack output) {
+	public WoodcuttingRecipe(String group, Ingredient input, ItemStack output) {
 		super(AurorasDecoRegistry.WOODCUTTING_RECIPE_TYPE, AurorasDecoRegistry.WOODCUTTING_RECIPE_SERIALIZER,
-				id, group, input, output);
+				group, input, output);
 	}
 
 	@Override
-	public boolean matches(Inventory inv, World world) {
-		return this.input.test(inv.getStack(0));
+	public boolean matches(SingleStackRecipeInput input, World world) {
+		return this.ingredient.test(input.item());
 	}
 
 	@Override
 	public ItemStack createIcon() {
 		return new ItemStack(AurorasDecoRegistry.SAWMILL_BLOCK);
-	}
-
-	public static class Serializer implements JsonSerializableRecipeSerializer<WoodcuttingRecipe> {
-		private Serializer() {
-		}
-
-		@Override
-		public WoodcuttingRecipe read(Identifier identifier, JsonObject json) {
-			var group = JsonHelper.getString(json, "group", "");
-			Ingredient ingredient;
-			if (JsonHelper.hasArray(json, "ingredient")) {
-				ingredient = Ingredient.fromJson(JsonHelper.getArray(json, "ingredient"));
-			} else {
-				ingredient = Ingredient.fromJson(JsonHelper.getObject(json, "ingredient"));
-			}
-
-			var resultId = JsonHelper.getString(json, "result");
-			int count = JsonHelper.getInt(json, "count");
-			var itemStack = new ItemStack(Registries.ITEM.get(new Identifier(resultId)), count);
-			return new WoodcuttingRecipe(identifier, group, ingredient, itemStack);
-		}
-
-		@Override
-		public WoodcuttingRecipe read(Identifier identifier, PacketByteBuf buf) {
-			var string = buf.readString(32767);
-			var ingredient = Ingredient.fromPacket(buf);
-			var itemStack = buf.readItemStack();
-			return new WoodcuttingRecipe(identifier, string, ingredient, itemStack);
-		}
-
-		@Override
-		public void write(PacketByteBuf buf, WoodcuttingRecipe recipe) {
-			buf.writeString(recipe.group);
-			recipe.input.write(buf);
-			buf.writeItemStack(recipe.output);
-		}
-
-		@Override
-		public JsonObject toJson(WoodcuttingRecipe recipe) {
-			var root = new JsonObject();
-			root.addProperty("type", AurorasDecoRegistry.WOODCUTTING_RECIPE_ID.toString());
-			if (!recipe.group.isEmpty())
-				root.addProperty("group", recipe.group);
-
-			root.add("ingredient", recipe.input.toJson());
-			root.addProperty("result", Registries.ITEM.getId(recipe.output.getItem()).toString());
-			root.addProperty("count", recipe.output.getCount());
-
-			return root;
-		}
 	}
 }

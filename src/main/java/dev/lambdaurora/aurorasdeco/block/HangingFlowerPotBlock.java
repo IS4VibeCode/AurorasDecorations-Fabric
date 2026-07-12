@@ -70,7 +70,7 @@ public class HangingFlowerPotBlock extends Block {
 	private static HangingFlowerPotBlock DEFAULT;
 
 	public static final Identifier HANGING_FLOWER_POT_ATTACHMENT_MODEL = AurorasDeco.id("block/hanging_flower_pot_attachment");
-	public static final Identifier BETTER_GRASS_DATA = new Identifier("bettergrass/data/flower_pot");
+	public static final Identifier BETTER_GRASS_DATA = Identifier.of("bettergrass/data/flower_pot");
 
 	private final FlowerPotBlock flowerPot;
 

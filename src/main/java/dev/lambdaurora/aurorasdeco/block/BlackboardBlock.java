@@ -126,7 +126,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 		var world = ctx.getWorld();
 		var directions = ctx.getPlacementDirections();
 
-		var nbt = BlockItem.getBlockEntityNbt(ctx.getStack());
+		var nbt = AuroraUtil.getBlockEntityNbt(ctx.getStack());
 		if (nbt != null && nbt.contains("lit")) {
 			state = state.with(LIT, nbt.getBoolean("lit"));
 		}
@@ -167,11 +167,12 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		var blackboard = this.getBlackboardEntity(world, pos);
 		if (blackboard != null) {
-			if (stack.hasCustomName()) {
-				blackboard.setCustomName(stack.getName());
+			var customName = stack.get(DataComponentTypes.CUSTOM_NAME);
+			if (customName != null) {
+				blackboard.setCustomName(customName);
 			}
 
-			var nbt = BlockItem.getBlockEntityNbt(stack);
+			var nbt = AuroraUtil.getBlockEntityNbt(stack);
 			if (state.get(WATERLOGGED) && !this.isLocked())
 				return;
 
@@ -352,12 +353,12 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 		if (blackboard != null) {
 			if (!world.isClient() && playerEntity.isCreative()) {
 				var stack = new ItemStack(this);
-				var nbt = blackboard.writeBlackBoardNbt(new NbtCompound());
+				var nbt = blackboard.writeBlackBoardNbt(new NbtCompound(), world.getRegistryManager());
 				nbt.remove("custom_name");
 				AuroraUtil.writeBlockEntityNbtToStack(stack, AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE, nbt, false);
 
 				if (blackboard.hasCustomName()) {
-					stack.setCustomName(blackboard.getCustomName());
+					stack.set(DataComponentTypes.CUSTOM_NAME, blackboard.getCustomName());
 				}
 
 				var itemEntity = new ItemEntity(world,
@@ -371,11 +372,11 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		var stack = super.getPickStack(world, pos, state);
 		var blackboard = this.getBlackboardEntity(world, pos);
 		if (blackboard != null) {
-			var nbt = blackboard.writeBlackBoardNbt(new NbtCompound());
+			var nbt = blackboard.writeBlackBoardNbt(new NbtCompound(), world.getRegistryManager());
 			nbt.remove("custom_name");
 			AuroraUtil.writeBlockEntityNbtToStack(stack, AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE, nbt, false);
 		}

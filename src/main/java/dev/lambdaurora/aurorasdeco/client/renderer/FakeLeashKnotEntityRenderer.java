@@ -33,7 +33,7 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class FakeLeashKnotEntityRenderer
 		extends MobEntityRenderer<FakeLeashKnotEntity, LeashKnotEntityModel<FakeLeashKnotEntity>> {
-	private static final Identifier TEXTURE = new Identifier("textures/entity/lead_knot.png");
+	private static final Identifier TEXTURE = Identifier.of("textures/entity/lead_knot.png");
 
 	public FakeLeashKnotEntityRenderer(EntityRendererFactory.Context context) {
 		super(context, new LeashKnotEntityModel<>(context.getPart(EntityModelLayers.LEASH_KNOT)), 1.f);

@@ -24,7 +24,6 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.HashSet;
@@ -65,7 +64,7 @@ public class AuroraShapelessRecipeBuilder extends AuroraRecipeBuilder<AuroraShap
 	}
 
 	@Override
-	public ShapelessRecipe build(Identifier id, String group) {
+	public ShapelessRecipe build(String group) {
 		this.checkOutputItem();
 
 		if (this.ingredients.isEmpty()) throw new IllegalStateException("Cannot build a recipe without ingredients.");
@@ -77,6 +76,6 @@ public class AuroraShapelessRecipeBuilder extends AuroraRecipeBuilder<AuroraShap
 			i++;
 		}
 
-		return new ShapelessRecipe(id, group, this.category, this.output, ingredients);
+		return new ShapelessRecipe(group, this.category, this.output, ingredients);
 	}
 }

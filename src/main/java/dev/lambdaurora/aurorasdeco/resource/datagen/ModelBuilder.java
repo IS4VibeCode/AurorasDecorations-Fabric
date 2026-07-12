@@ -49,18 +49,18 @@ public class ModelBuilder {
 
 	public Identifier register(Block block) {
 		var id = Registries.BLOCK.getId(block);
-		return this.register(new Identifier(id.getNamespace(), "block/" + id.getPath()));
+		return this.register(Identifier.of(id.getNamespace(), "block/" + id.getPath()));
 	}
 
 	public Identifier register(Item block) {
 		var id = Registries.ITEM.getId(block);
-		return this.register(new Identifier(id.getNamespace(), "item/" + id.getPath()));
+		return this.register(Identifier.of(id.getNamespace(), "item/" + id.getPath()));
 	}
 
 
 	public Identifier register(Identifier id) {
 		AurorasDecoClient.RESOURCE_PACK.putJson(ResourceType.CLIENT_RESOURCES,
-				new Identifier(id.getNamespace(), "models/" + id.getPath()),
+				Identifier.of(id.getNamespace(), "models/" + id.getPath()),
 				this.toJson());
 		return id;
 	}

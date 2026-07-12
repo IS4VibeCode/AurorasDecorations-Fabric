@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -208,8 +209,9 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 	public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		var shelf = AurorasDecoRegistry.SHELF_BLOCK_ENTITY_TYPE.get(world, pos);
 		if (shelf != null) {
-			if (stack.hasCustomName()) {
-				shelf.setCustomName(stack.getName());
+			var customName = stack.get(DataComponentTypes.CUSTOM_NAME);
+			if (customName != null) {
+				((LockableContainerBlockEntityAccessor) shelf).setCustomName(customName);
 			}
 		}
 	}

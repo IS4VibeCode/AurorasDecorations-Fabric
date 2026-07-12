@@ -32,7 +32,7 @@ public class MultipartBlockStateBuilder {
 	private final JsonArray multipartJson = new JsonArray();
 
 	public MultipartBlockStateBuilder(Identifier id) {
-		this.id = new Identifier(id.getNamespace(), "blockstates/" + id.getPath());
+		this.id = Identifier.of(id.getNamespace(), "blockstates/" + id.getPath());
 
 		this.json.add("multipart", multipartJson);
 	}

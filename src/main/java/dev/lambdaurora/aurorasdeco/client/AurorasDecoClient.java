@@ -283,7 +283,7 @@ public class AurorasDecoClient implements ClientModInitializer {
 
 	private void registerBlackboardItemRenderer(BlackboardBlock blackboard) {
 		@SuppressWarnings("deprecation") var id = blackboard.getRegistryEntry().registryKey().getValue();
-		var modelId = new ModelIdentifier(new Identifier(id.getNamespace(), id.getPath() + "_base"),
+		var modelId = new ModelIdentifier(Identifier.of(id.getNamespace(), id.getPath() + "_base"),
 				"inventory");
 		BuiltinItemRendererRegistry.INSTANCE.register(blackboard, new BlackboardItemRenderer(modelId));
 		ModelLoadingPlugin.register(context -> context.addModels(modelId, BLACKBOARD_MASK));

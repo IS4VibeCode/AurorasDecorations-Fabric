@@ -36,7 +36,7 @@ public class BlockStateBuilder {
 
 	public BlockStateBuilder(Block block) {
 		var id = Registries.BLOCK.getId(block);
-		this.id = new Identifier(id.getNamespace(), "blockstates/" + id.getPath());
+		this.id = Identifier.of(id.getNamespace(), "blockstates/" + id.getPath());
 
 		this.json.add("variants", variantsJson);
 	}

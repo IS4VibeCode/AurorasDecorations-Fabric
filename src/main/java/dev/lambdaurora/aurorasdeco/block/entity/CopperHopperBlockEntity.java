@@ -26,6 +26,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
@@ -78,20 +79,20 @@ public class CopperHopperBlockEntity extends FilteredHopperBlockEntity {
 	/* Serialization */
 
 	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
+	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.readNbt(nbt, registryLookup);
 
 		if (nbt.contains("filter", NbtElement.COMPOUND_TYPE))
-			this.filterInventory.setStack(0, ItemStack.fromNbt(nbt.getCompound("filter")));
+			this.filterInventory.setStack(0, ItemStack.fromNbt(registryLookup, nbt.getCompound("filter")).orElse(ItemStack.EMPTY));
 		else this.filterInventory.setStack(0, ItemStack.EMPTY);
 	}
 
 	@Override
-	public void writeNbt(NbtCompound nbt) {
-		super.writeNbt(nbt);
+	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.writeNbt(nbt, registryLookup);
 		var filter = this.getFilter();
 		if (!filter.isEmpty())
-			nbt.put("filter", filter.writeNbt(new NbtCompound()));
+			nbt.put("filter", filter.encode(registryLookup));
 	}
 
 	public interface Filter {

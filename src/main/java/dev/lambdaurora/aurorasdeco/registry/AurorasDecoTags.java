@@ -52,7 +52,7 @@ public final class AurorasDecoTags {
 	public static final TagKey<Block> STUMPS = TagKey.of(RegistryKeys.BLOCK, id("stumps"));
 
 	public static final TagKey<Block> VEGETATION_ON_WATER_SURFACE = TagKey.of(RegistryKeys.BLOCK,
-			new Identifier("c", "vegetation/on_water_surface")
+			Identifier.of("c", "vegetation/on_water_surface")
 	);
 
 	public static final TagKey<Structure> WAY_SIGN_DESTINATION_STRUCTURES = TagKey.of(RegistryKeys.STRUCTURE,

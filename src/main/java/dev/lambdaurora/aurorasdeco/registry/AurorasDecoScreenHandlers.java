@@ -17,11 +17,13 @@
 
 package dev.lambdaurora.aurorasdeco.registry;
 
+import dev.lambdaurora.aurorasdeco.block.PartType;
 import dev.lambdaurora.aurorasdeco.screen.CopperHopperScreenHandler;
 import dev.lambdaurora.aurorasdeco.screen.PainterPaletteScreenHandler;
 import dev.lambdaurora.aurorasdeco.screen.SawmillScreenHandler;
 import dev.lambdaurora.aurorasdeco.screen.ShelfScreenHandler;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -46,13 +48,14 @@ public class AurorasDecoScreenHandlers {
 			new ScreenHandlerType<>(CopperHopperScreenHandler::new, FeatureSet.empty()));
 
 	public static final ScreenHandlerType<PainterPaletteScreenHandler> PAINTER_PALETTE_SCREEN_HANDLER_TYPE = register("painter_palette",
-			new ExtendedScreenHandlerType<>(PainterPaletteScreenHandler::new));
+			new ExtendedScreenHandlerType<>(PainterPaletteScreenHandler::new, PainterPaletteScreenHandler.OpeningData.PACKET_CODEC));
 
 	public static final ScreenHandlerType<SawmillScreenHandler> SAWMILL_SCREEN_HANDLER_TYPE = register("sawmill",
 			new ScreenHandlerType<>(SawmillScreenHandler::new, FeatureSet.empty()));
 
 	public static final ScreenHandlerType<ShelfScreenHandler> SHELF_SCREEN_HANDLER_TYPE = register("shelf",
-			new ExtendedScreenHandlerType<>(ShelfScreenHandler::new));
+			new ExtendedScreenHandlerType<>(ShelfScreenHandler::new,
+					PacketCodecs.indexed(i -> PartType.values()[i], PartType::ordinal)));
 
 	private static <SH extends ScreenHandler> ScreenHandlerType<SH> register(String name, ScreenHandlerType<SH> type) {
 		return Registry.register(Registries.SCREEN_HANDLER, id(name), type);

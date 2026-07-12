@@ -17,20 +17,14 @@
 
 package dev.lambdaurora.aurorasdeco.recipe;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lambdaurora.aurorasdeco.mixin.TransformSmithingRecipeAccessor;
-import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.SmithingTransformRecipe;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 
 import java.util.stream.Stream;
 
@@ -46,8 +40,8 @@ import java.util.stream.Stream;
 public class ActuallyGoodTransformSmithingRecipe extends SmithingTransformRecipe {
 	public static final Serializer SERIALIZER = new Serializer();
 
-	public ActuallyGoodTransformSmithingRecipe(Identifier id, Ingredient base, Ingredient addition, ItemStack result) {
-		super(id, Ingredient.EMPTY, base, addition, result);
+	public ActuallyGoodTransformSmithingRecipe(Ingredient base, Ingredient addition, ItemStack result) {
+		super(Ingredient.EMPTY, base, addition, result);
 	}
 
 	@Override
@@ -61,51 +55,31 @@ public class ActuallyGoodTransformSmithingRecipe extends SmithingTransformRecipe
 		return SERIALIZER;
 	}
 
-	public static class Serializer implements JsonSerializableRecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
-		public ActuallyGoodTransformSmithingRecipe read(Identifier id, JsonObject json) {
-			Ingredient base = Ingredient.fromJson(JsonHelper.getObject(json, "base"));
-			Ingredient addition = Ingredient.fromJson(JsonHelper.getObject(json, "addition"));
+	public static class Serializer implements RecipeSerializer<ActuallyGoodTransformSmithingRecipe> {
+		public static final MapCodec<ActuallyGoodTransformSmithingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				Ingredient.ALLOW_EMPTY_CODEC.fieldOf("base")
+						.forGetter(recipe -> ((TransformSmithingRecipeAccessor) recipe).getBase()),
+				Ingredient.ALLOW_EMPTY_CODEC.fieldOf("addition")
+						.forGetter(recipe -> ((TransformSmithingRecipeAccessor) recipe).getAddition()),
+				ItemStack.VALIDATED_CODEC.fieldOf("result")
+						.forGetter(recipe -> ((TransformSmithingRecipeAccessor) recipe).getResult())
+		).apply(instance, ActuallyGoodTransformSmithingRecipe::new));
 
-			var result = JsonHelper.getObject(json, "result");
-			String itemId = JsonHelper.getString(result, "item");
-			Item item = Registries.ITEM.getOrEmpty(new Identifier(itemId))
-					.orElseThrow(() -> new JsonSyntaxException("Unknown item '" + itemId + "'"));
-			int count = JsonHelper.getInt(result, "count", 1);
-			if (count < 1) {
-				throw new JsonSyntaxException("Invalid output count: " + count);
-			} else {
-				return new ActuallyGoodTransformSmithingRecipe(id, base, addition, new ItemStack(item, count));
-			}
+		public static final PacketCodec<net.minecraft.network.RegistryByteBuf, ActuallyGoodTransformSmithingRecipe> PACKET_CODEC = PacketCodec.tuple(
+				Ingredient.PACKET_CODEC, recipe -> ((TransformSmithingRecipeAccessor) recipe).getBase(),
+				Ingredient.PACKET_CODEC, recipe -> ((TransformSmithingRecipeAccessor) recipe).getAddition(),
+				ItemStack.PACKET_CODEC, recipe -> ((TransformSmithingRecipeAccessor) recipe).getResult(),
+				ActuallyGoodTransformSmithingRecipe::new
+		);
+
+		@Override
+		public MapCodec<ActuallyGoodTransformSmithingRecipe> codec() {
+			return CODEC;
 		}
 
 		@Override
-		public JsonObject toJson(ActuallyGoodTransformSmithingRecipe recipe) {
-			var json = new JsonObject();
-
-			json.add("base", ((TransformSmithingRecipeAccessor) recipe).getBase().toJson());
-			json.add("addition", ((TransformSmithingRecipeAccessor) recipe).getAddition().toJson());
-
-			var result = new JsonObject();
-			json.add("result", result);
-			result.addProperty("result",
-					Registries.ITEM.getId(((TransformSmithingRecipeAccessor) recipe).getResult().getItem()).toString()
-			);
-			result.addProperty("count", ((TransformSmithingRecipeAccessor) recipe).getResult().getCount());
-
-			return json;
-		}
-
-		public ActuallyGoodTransformSmithingRecipe read(Identifier id, PacketByteBuf buf) {
-			Ingredient base = Ingredient.fromPacket(buf);
-			Ingredient addition = Ingredient.fromPacket(buf);
-			ItemStack result = buf.readItemStack();
-			return new ActuallyGoodTransformSmithingRecipe(id, base, addition, result);
-		}
-
-		public void write(PacketByteBuf buf, ActuallyGoodTransformSmithingRecipe recipe) {
-			((TransformSmithingRecipeAccessor) recipe).getBase().write(buf);
-			((TransformSmithingRecipeAccessor) recipe).getAddition().write(buf);
-			buf.writeItemStack(((TransformSmithingRecipeAccessor) recipe).getResult());
+		public PacketCodec<net.minecraft.network.RegistryByteBuf, ActuallyGoodTransformSmithingRecipe> packetCodec() {
+			return PACKET_CODEC;
 		}
 	}
 }

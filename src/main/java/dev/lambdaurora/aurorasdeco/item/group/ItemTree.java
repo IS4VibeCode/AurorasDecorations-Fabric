@@ -115,10 +115,10 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void modifyBuildingBlocks(ItemTree tree) {
-		var mangrove = tree.collectItemsAsGroup(new Identifier("minecraft", "mangrove"),
+		var mangrove = tree.collectItemsAsGroup(Identifier.of("minecraft", "mangrove"),
 				Items.MANGROVE_LOG, Items.MANGROVE_BUTTON
 		);
-		var cherry = tree.collectItemsAsGroup(new Identifier("minecraft", "cherry"),
+		var cherry = tree.collectItemsAsGroup(Identifier.of("minecraft", "cherry"),
 				Items.CHERRY_LOG, Items.CHERRY_BUTTON
 		);
 
@@ -159,11 +159,11 @@ public class ItemTree extends ItemTreeGroupNode {
 		tree.addAfter(Items.NETHER_BRICK_FENCE, NETHER_BRICK_FENCE_GATE);
 		tree.addAfter(Items.POLISHED_BASALT, POLISHED_BASALT_WALL);
 
-		var andesite = tree.collectItemsAsGroup(new Identifier("andesite"), Items.ANDESITE, Items.POLISHED_ANDESITE_SLAB);
+		var andesite = tree.collectItemsAsGroup(Identifier.of("andesite"), Items.ANDESITE, Items.POLISHED_ANDESITE_SLAB);
 		tree.addAfter(andesite, CALCITE_DERIVATOR.getGroupNode());
 		tree.addAfter(CALCITE_DERIVATOR.getGroupNode(), TUFF_DERIVATOR.getGroupNode());
 
-		var deepslateBricks = tree.collectItemsAsGroup(new Identifier("deepslate_bricks"),
+		var deepslateBricks = tree.collectItemsAsGroup(Identifier.of("deepslate_bricks"),
 				Items.DEEPSLATE_BRICKS, Items.DEEPSLATE_BRICK_WALL
 		);
 		tree.addAfter(deepslateBricks, MOSSY_DEEPSLATE_BRICKS_DERIVATOR.getGroupNode());
@@ -174,16 +174,16 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void modifyNaturalBlocks(ItemTree tree) {
-		var logs = tree.collectItemsAsGroup(new Identifier("minecraft", "logs"),
+		var logs = tree.collectItemsAsGroup(Identifier.of("minecraft", "logs"),
 				Items.OAK_LOG, Items.WARPED_STEM
 		);
 
 		logs.addBefore(Items.MUSHROOM_STEM, AZALEA_LOG_BLOCK, FLOWERING_AZALEA_LOG_BLOCK, JACARANDA_LOG_BLOCK);
 
-		var leaves = tree.collectItemsAsGroup(new Identifier("minecraft", "leaves"),
+		var leaves = tree.collectItemsAsGroup(Identifier.of("minecraft", "leaves"),
 				Items.OAK_LEAVES, Items.FLOWERING_AZALEA_LEAVES
 		);
-		var saplings = tree.collectItemsAsGroup(new Identifier("minecraft", "saplings"),
+		var saplings = tree.collectItemsAsGroup(Identifier.of("minecraft", "saplings"),
 				Items.OAK_SAPLING, Items.FLOWERING_AZALEA
 		);
 
@@ -193,7 +193,7 @@ public class ItemTree extends ItemTreeGroupNode {
 
 		saplings.add(AurorasDecoPlants.JACARANDA_SAPLING);
 
-		var smallFlowers = tree.collectItemsAsGroup(new Identifier("minecraft", "small_flowers"),
+		var smallFlowers = tree.collectItemsAsGroup(Identifier.of("minecraft", "small_flowers"),
 				stack -> stack.isIn(ItemTags.SMALL_FLOWERS)
 		);
 		// Unlike this file's other predicate-based groupings (lanterns, campfires, signs, boats -- all
@@ -212,13 +212,13 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void modifyFunctionalBlocks(ItemTree tree) {
-		var torches = tree.collectItemsAsGroup(new Identifier("minecraft", "torch"),
+		var torches = tree.collectItemsAsGroup(Identifier.of("minecraft", "torch"),
 				Items.TORCH, Items.REDSTONE_TORCH
 		);
 
 		torches.addAfter(Items.SOUL_TORCH, COPPER_SULFATE_TORCH_ITEM);
 
-		var lanterns = tree.collectItemsAsGroup(new Identifier("minecraft", "lantern"),
+		var lanterns = tree.collectItemsAsGroup(Identifier.of("minecraft", "lantern"),
 				stack -> stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof LanternBlock
 		);
 
@@ -226,7 +226,7 @@ public class ItemTree extends ItemTreeGroupNode {
 		lanterns.add(COPPER_SULFATE_LANTERN_BLOCK);
 		lanterns.add(REDSTONE_LANTERN_BLOCK);
 
-		var campfires = tree.collectItemsAsGroup(new Identifier("minecraft", "campfire"),
+		var campfires = tree.collectItemsAsGroup(Identifier.of("minecraft", "campfire"),
 				stack -> stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CampfireBlock
 		);
 
@@ -244,12 +244,12 @@ public class ItemTree extends ItemTreeGroupNode {
 		tree.addAfter(Items.BELL, WIND_CHIME_BLOCK);
 		tree.addAfter(Items.FLOWER_POT, BIG_FLOWER_POT_BLOCK);
 
-		var itemFrames = tree.collectItemsAsGroup(new Identifier("minecraft", "item_frame"),
+		var itemFrames = tree.collectItemsAsGroup(Identifier.of("minecraft", "item_frame"),
 				Items.ITEM_FRAME, Items.GLOW_ITEM_FRAME
 		);
 		tree.addAfter(itemFrames, BLACKBOARDS);
 
-		var signs = tree.collectItemsAsGroup(new Identifier("minecraft", "sign"),
+		var signs = tree.collectItemsAsGroup(Identifier.of("minecraft", "sign"),
 				stack -> stack.getItem() instanceof SignItem || stack.getItem() instanceof HangingSignItem
 		);
 		signs.addBefore(Items.CRIMSON_SIGN,
@@ -258,7 +258,7 @@ public class ItemTree extends ItemTreeGroupNode {
 		);
 		SignPostItem.insertIntoSignsNode(signs);
 
-		var storage = tree.collectItemsAsGroup(new Identifier("minecraft", "storage"),
+		var storage = tree.collectItemsAsGroup(Identifier.of("minecraft", "storage"),
 				Items.CHEST, Items.PINK_SHULKER_BOX
 		);
 		storage.add(SHELVES);
@@ -277,7 +277,7 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void modifyToolsAndUtilities(ItemTree tree) {
-		var boats = tree.collectItemsAsGroup(new Identifier("minecraft", "boat"),
+		var boats = tree.collectItemsAsGroup(Identifier.of("minecraft", "boat"),
 				stack -> stack.getItem() instanceof BoatItem
 		);
 
@@ -298,7 +298,7 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void insertBedStuff(ItemTree tree) {
-		var beds = tree.collectItemsAsGroup(new Identifier("minecraft", "bed"),
+		var beds = tree.collectItemsAsGroup(Identifier.of("minecraft", "bed"),
 				stack -> stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof BedBlock
 		);
 		tree.addAfter(beds, SleepingBagBlock.SLEEPING_BAGS_ITEM_GROUP_NODE);

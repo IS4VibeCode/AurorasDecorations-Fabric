@@ -95,14 +95,14 @@ public class AurorasDecoPack implements ResourcePack {
 	}
 
 	public AurorasDecoPack rebuild(ResourceType type, @Nullable ResourceManager resourceManager) {
-		this.registerTag(new String[]{"blocks"}, new Identifier("flower_pots"), HangingFlowerPotBlock.stream()
+		this.registerTag(new String[]{"blocks"}, Identifier.of("flower_pots"), HangingFlowerPotBlock.stream()
 				.map(Registries.BLOCK::getId));
 
 		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("benches"), BenchBlock.streamBenches()
 				.map(Registries.BLOCK::getId));
 		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("shelves"), ShelfBlock.streamShelves()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks"}, new Identifier("mineable/axe"), SignPostBlock.stream() // @TODO: FIX THIS SO IT DOESN'T FUCK THE STONE FENCES
+		this.registerTag(new String[]{"blocks"}, Identifier.of("mineable/axe"), SignPostBlock.stream() // @TODO: FIX THIS SO IT DOESN'T FUCK THE STONE FENCES
 				.map(Registries.BLOCK::getId));
 		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("small_log_piles"), SmallLogPileBlock.stream()
 				.map(Registries.BLOCK::getId));
@@ -129,7 +129,7 @@ public class AurorasDecoPack implements ResourcePack {
 		root.add("values", values);
 
 		for (var type : types) {
-			this.putJson(ResourceType.SERVER_DATA, new Identifier(id.getNamespace(), "tags/" + type + "/" + id.getPath()), root);
+			this.putJson(ResourceType.SERVER_DATA, Identifier.of(id.getNamespace(), "tags/" + type + "/" + id.getPath()), root);
 		}
 	}
 
@@ -156,11 +156,11 @@ public class AurorasDecoPack implements ResourcePack {
 	}
 
 	public void putJsonText(ResourceType type, Identifier id, String json) {
-		this.putText(type, new Identifier(id.getNamespace(), id.getPath() + ".json"), json);
+		this.putText(type, Identifier.of(id.getNamespace(), id.getPath() + ".json"), json);
 	}
 
 	public void putJson(ResourceType type, Identifier id, JsonObject json) {
-		if (!id.getPath().endsWith(".json")) id = new Identifier(id.getNamespace(), id.getPath() + ".json");
+		if (!id.getPath().endsWith(".json")) id = Identifier.of(id.getNamespace(), id.getPath() + ".json");
 
 		var stringWriter = new StringWriter();
 		var jsonWriter = new JsonWriter(stringWriter);
@@ -176,7 +176,7 @@ public class AurorasDecoPack implements ResourcePack {
 	}
 
 	public void putImage(Identifier id, NativeImage image) {
-		if (!id.getPath().endsWith(".png")) id = new Identifier(id.getNamespace(), "textures/" + id.getPath() + ".png");
+		if (!id.getPath().endsWith(".png")) id = Identifier.of(id.getNamespace(), "textures/" + id.getPath() + ".png");
 		try {
 			this.assets.put(id, image.getBytes());
 		} catch (IOException e) {

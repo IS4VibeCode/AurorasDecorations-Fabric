@@ -22,9 +22,11 @@ import com.google.gson.JsonElement;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.DyeColor;
@@ -71,7 +73,7 @@ public final class AuroraUtil {
 	}
 
 	public static Identifier toResourcePackId(Identifier id, String prefix, String extension) {
-		return new Identifier(id.getNamespace(), prefix + id.getPath() + '.' + extension);
+		return Identifier.of(id.getNamespace(), prefix + id.getPath() + '.' + extension);
 	}
 
 	public static Identifier toAbsoluteTexturesId(Identifier id) {
@@ -129,6 +131,15 @@ public final class AuroraUtil {
 
 	/* NBT */
 
+	/**
+	 * Replaces the removed {@code BlockItem.getBlockEntityNbt(ItemStack)}, which the 1.21.1 data
+	 * component rework moved to {@link DataComponentTypes#BLOCK_ENTITY_DATA}.
+	 */
+	public static @Nullable NbtCompound getBlockEntityNbt(ItemStack stack) {
+		var component = stack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+		return component == null ? null : component.copyNbt();
+	}
+
 	public static void writeBlockEntityNbtToStack(ItemStack stack, BlockEntityType<?> type, NbtCompound nbt, boolean force) {
 		boolean hasDummy = false;
 		if (nbt.isEmpty() && force) {
@@ -136,7 +147,7 @@ public final class AuroraUtil {
 			hasDummy = true;
 		}
 
-		BlockItem.setBlockEntityNbt(stack, type, nbt);
+		BlockItem.setBlockEntityData(stack, type, nbt);
 		nbt.remove("id");
 
 		if (hasDummy) {
@@ -145,7 +156,7 @@ public final class AuroraUtil {
 	}
 
 	public static NbtCompound getOrCreateBlockEntityNbt(ItemStack stack, BlockEntityType<?> type) {
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = getBlockEntityNbt(stack);
 		if (nbt == null) {
 			/* setBlockEntityNbt only actually sets the nbt tag if it isn't empty.
 			   We want to hit the code path to set the nbt tag. So we add a dummy boolean to our tag,

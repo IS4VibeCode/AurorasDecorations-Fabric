@@ -17,30 +17,38 @@
 
 package dev.lambdaurora.aurorasdeco.mixin;
 
-import com.google.gson.JsonElement;
+import com.google.common.collect.ImmutableMap;
 import dev.lambdaurora.aurorasdeco.resource.datagen.AdvancementDatagen;
-import net.minecraft.advancement.Advancement;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.server.ServerAdvancementLoader;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-import java.util.Map;
-
+/**
+ * 1.21.1 update: {@code ServerAdvancementLoader.apply()}'s real bytecode was re-disassembled rather
+ * than assuming the 1.20.1 injection point still holds. The per-JSON-entry parsing that used to be
+ * inline in {@code apply()} (giving the old mixin a hookable {@code Map<Identifier, Advancement.Builder>}
+ * local mid-loop) has moved into a private lambda passed to {@code Map.forEach} -- there is no longer
+ * any point inside {@code apply()} itself where "advancements before they're finalized" are visible as
+ * a plain local.
+ * <p>
+ * Instead this redirects the single {@code ImmutableMap.Builder<Identifier, AdvancementEntry>
+ * .buildOrThrow()} call at the very end of {@code apply()} (confirmed unique in the method): our own
+ * entries are added to the still-open builder immediately before it's finalized, which reaches the
+ * exact same end state ("our advancements are present in the final immutable map") without needing to
+ * hook the fragile synthetic lambda method.
+ */
 @Mixin(ServerAdvancementLoader.class)
 public class ServerAdvancementLoaderMixin {
-	@Inject(
-			method = "apply",
-			at = @At(value = "INVOKE", target = "Ljava/util/Map;forEach(Ljava/util/function/BiConsumer;)V"),
-			locals = LocalCapture.CAPTURE_FAILHARD
+	@Redirect(
+			method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V",
+			at = @At(value = "INVOKE",
+					target = "Lcom/google/common/collect/ImmutableMap$Builder;buildOrThrow()Lcom/google/common/collect/ImmutableMap;")
 	)
-	private void onApply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci,
-			Map<Identifier, Advancement.Builder> builder) {
+	private ImmutableMap<Identifier, AdvancementEntry> onBuild(ImmutableMap.Builder<Identifier, AdvancementEntry> builder) {
 		AdvancementDatagen.applyAdvancements(builder);
+		return builder.buildOrThrow();
 	}
 }

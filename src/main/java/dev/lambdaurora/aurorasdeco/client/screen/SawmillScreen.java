@@ -38,7 +38,7 @@ import net.fabricmc.api.Environment;
  */
 @Environment(EnvType.CLIENT)
 public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
-	private static final Identifier TEXTURE = new Identifier("textures/gui/container/stonecutter.png");
+	private static final Identifier TEXTURE = Identifier.of("textures/gui/container/stonecutter.png");
 	private float scrollAmount;
 	private boolean mouseClicked;
 	private int scrollOffset;

@@ -17,6 +17,8 @@
 
 package dev.lambdaurora.aurorasdeco.block.entity;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoPackets;
@@ -26,9 +28,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -175,9 +180,9 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 	/* Serialization */
 
 	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
-		this.readSignPostNbt(nbt);
+	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.readNbt(nbt, registryLookup);
+		this.readSignPostNbt(nbt, registryLookup);
 		this.waxed = nbt.getBoolean("waxed");
 
 		if (nbt.contains("generation_settings", NbtElement.COMPOUND_TYPE)) {
@@ -186,9 +191,9 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 	}
 
 	@Override
-	public void writeNbt(NbtCompound nbt) {
-		super.writeNbt(nbt);
-		this.writeSignPostNbt(nbt);
+	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.writeNbt(nbt, registryLookup);
+		this.writeSignPostNbt(nbt, registryLookup);
 		nbt.putBoolean("waxed", this.waxed);
 
 		if (this.generationSettings != null) {
@@ -196,28 +201,29 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 		}
 	}
 
-	private void readSignPostNbt(NbtCompound nbt) {
+	private void readSignPostNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 		if (nbt.contains("up_sign", NbtElement.COMPOUND_TYPE)) {
-			this.up = this.getSignFromNbt(nbt.getCompound("up_sign"));
+			this.up = this.getSignFromNbt(nbt.getCompound("up_sign"), registryLookup);
 		} else this.up = null;
 
 		if (nbt.contains("down_sign", NbtElement.COMPOUND_TYPE)) {
-			this.down = this.getSignFromNbt(nbt.getCompound("down_sign"));
+			this.down = this.getSignFromNbt(nbt.getCompound("down_sign"), registryLookup);
 		} else this.down = null;
 	}
 
-	private NbtCompound writeSignPostNbt(NbtCompound nbt) {
+	private NbtCompound writeSignPostNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 		if (this.up != null)
-			nbt.put("up_sign", this.up.toNbt());
+			nbt.put("up_sign", this.up.toNbt(registryLookup));
 		if (this.down != null)
-			nbt.put("down_sign", this.down.toNbt());
+			nbt.put("down_sign", this.down.toNbt(registryLookup));
 
 		return nbt;
 	}
 
-	private static Text unparsedTextFromJson(String json) {
+	private static Text unparsedTextFromJson(String json, RegistryWrapper.WrapperLookup registryLookup) {
 		try {
-			var text = Text.Serializer.fromJson(json);
+			var text = TextCodecs.CODEC.parse(RegistryOps.of(JsonOps.INSTANCE, registryLookup),
+					JsonParser.parseString(json)).result().orElse(null);
 			if (text != null) {
 				return text;
 			}
@@ -227,7 +233,7 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 		return Text.empty();
 	}
 
-	private Sign getSignFromNbt(NbtCompound nbt) {
+	private Sign getSignFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 		var woodId = Identifier.tryParse(nbt.getString("wood_type"));
 
 		var woodType = WoodType.OAK;
@@ -237,7 +243,7 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 				woodType = identifiedWood;
 		}
 
-		var text = unparsedTextFromJson(nbt.getString("text"));
+		var text = unparsedTextFromJson(nbt.getString("text"), registryLookup);
 		var textColor = DyeColor.byName(nbt.getString("color"), DyeColor.BLACK);
 		boolean glowing = nbt.getBoolean("glowing_text");
 
@@ -342,11 +348,12 @@ public class SignPostBlockEntity extends BasicBlockEntity {
 			SignPostBlockEntity.this.attemptToSync();
 		}
 
-		public NbtCompound toNbt() {
+		public NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
 			var nbt = new NbtCompound();
 
 			nbt.putString("wood_type", this.sign.getWoodType().getId().toString());
-			nbt.putString("text", Text.Serializer.toJson(this.text));
+			TextCodecs.CODEC.encodeStart(RegistryOps.of(JsonOps.INSTANCE, registryLookup), this.text)
+					.result().ifPresent(json -> nbt.putString("text", json.toString()));
 			nbt.putString("color", this.color.getName());
 			nbt.putBoolean("glowing_text", this.glowing);
 

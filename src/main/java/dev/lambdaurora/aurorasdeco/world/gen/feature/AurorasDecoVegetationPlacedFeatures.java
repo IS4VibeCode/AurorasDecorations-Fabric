@@ -31,40 +31,40 @@ public final class AurorasDecoVegetationPlacedFeatures {
 
 	public static final PlacedFeatureMetadata FALLEN_FOREST_TREES = new PlacedFeatureMetadata(id("vegetation/fallen_tree/forest"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_FOREST)
-			.addAllowedNeighborFeature(new Identifier("trees_birch_and_oak"))
-			.addAllowedNeighborFeature(new Identifier("trees_flower_forest"))
+			.addAllowedNeighborFeature(Identifier.of("trees_birch_and_oak"))
+			.addAllowedNeighborFeature(Identifier.of("trees_flower_forest"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/forest")));
 
 	public static final PlacedFeatureMetadata FALLEN_BIRCH_FOREST_TREES = new PlacedFeatureMetadata(id("vegetation/fallen_tree/birch_forest"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_FOREST)
-			.addAllowedNeighborFeature(new Identifier("birch_tall"))
+			.addAllowedNeighborFeature(Identifier.of("birch_tall"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/birch_forest")));
 
 	public static final PlacedFeatureMetadata FALLEN_SPRUCE_TAIGA_TREES = new PlacedFeatureMetadata(id("vegetation/fallen_tree/spruce_taiga"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_TAIGA)
 			.addAllowedPrecipitation(Biome.Precipitation.RAIN)
-			.addAllowedNeighborFeature(new Identifier("trees_taiga"))
+			.addAllowedNeighborFeature(Identifier.of("trees_taiga"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/spruce_taiga")));
 
 	public static final PlacedFeatureMetadata SNOWY_FALLEN_SPRUCE_TAIGA_TREES = new PlacedFeatureMetadata(
 			id("vegetation/fallen_tree/snowy_spruce_taiga"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_TAIGA)
 			.addAllowedPrecipitation(Biome.Precipitation.SNOW)
-			.addAllowedNeighborFeature(new Identifier("trees_taiga"))
+			.addAllowedNeighborFeature(Identifier.of("trees_taiga"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/snowy_spruce_taiga")));
 
 	public static final PlacedFeatureMetadata FALLEN_TREES_OLD_GROWTH_SPRUCE_TAIGA = new PlacedFeatureMetadata(
 			id("vegetation/fallen_tree/old_growth_spruce_taiga"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_TAIGA)
-			.addAllowedNeighborFeature(new Identifier("trees_old_growth_spruce_taiga"))
-			.addAllowedNeighborFeature(new Identifier("trees_old_growth_pine_taiga"))
+			.addAllowedNeighborFeature(Identifier.of("trees_old_growth_spruce_taiga"))
+			.addAllowedNeighborFeature(Identifier.of("trees_old_growth_pine_taiga"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/old_growth_spruce_taiga")));
 
 	public static final PlacedFeatureMetadata FALLEN_TREES_SPARSE_JUNGLE = new PlacedFeatureMetadata(
 			id("vegetation/fallen_tree/sparse_jungle"))
 			.addAllowedBiomeCategoryTag(BiomeTags.IS_JUNGLE)
 			.addAllowedPrecipitation(Biome.Precipitation.RAIN)
-			.addAllowedNeighborFeature(new Identifier("trees_sparse_jungle"))
+			.addAllowedNeighborFeature(Identifier.of("trees_sparse_jungle"))
 			.setAllowedTag(TagKey.of(RegistryKeys.BIOME, AurorasDeco.id("feature/fallen_trees/sparse_jungle")));
 
 

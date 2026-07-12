@@ -18,11 +18,13 @@
 package dev.lambdaurora.aurorasdeco.mixin;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import dev.lambdaurora.aurorasdeco.resource.datagen.RecipeDatagen;
-import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
@@ -41,22 +43,30 @@ import java.util.Map;
  * (confirmed: {@code fabric-recipe-api-v1} at 1.20.1 only has {@code CustomIngredient}-related
  * classes, no runtime static-recipe-registration helper -- java/CLAUDE.md §3/Task #19).
  * <p>
- * The injection target ({@code Map.entrySet()}, ordinal 1, inside {@code RecipeManager.apply()}) was
- * verified against the real 1.20.1 bytecode before restoring this, not assumed to still match just
- * because it worked at 1.18.2: {@code apply()} still calls {@code entrySet()} exactly twice, and the
- * second call is on the same {@code Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>>}
- * local this mixin expects to capture, at the same point (right after all JSON-sourced recipes have
- * been parsed and organized by type, right before the final immutable structures get built).
+ * 1.21.1 re-verification: {@code RecipeManager.apply()}'s real bytecode was re-disassembled rather
+ * than assuming the 1.20.1 injection point still holds. It no longer calls {@code Map.entrySet()}
+ * twice -- there is now a single combined loop over the JSON map that builds both the
+ * {@code ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>>} (by-type) and
+ * {@code ImmutableMap.Builder<Identifier, RecipeEntry<?>>} (by-id) structures at once (recipes no
+ * longer carry their own id -- {@link RecipeEntry} is now the separate id+recipe pair created inside
+ * that loop). The injection point that matches the old intent ("right after all JSON-sourced recipes
+ * have been organized, right before the final immutable structures get built") is now the single
+ * {@code ImmutableMultimap.Builder.build()} call that follows the loop -- unique in the method, so no
+ * ordinal is needed. At that point both builders are still open and both are captured.
  */
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
 	@Inject(
-			method = "apply",
-			at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;", ordinal = 1),
+			method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V",
+			at = @At(value = "INVOKE",
+					target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;"),
 			locals = LocalCapture.CAPTURE_FAILHARD
 	)
 	private void onReload(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler,
-	                      CallbackInfo ci, Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> builderMap) {
-		RecipeDatagen.applyRecipes(map, builderMap);
+			CallbackInfo ci,
+			ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> recipesByType,
+			ImmutableMap.Builder<Identifier, RecipeEntry<?>> recipesById,
+			RegistryOps<JsonElement> registryOps) {
+		RecipeDatagen.applyRecipes(map, recipesByType, recipesById);
 	}
 }

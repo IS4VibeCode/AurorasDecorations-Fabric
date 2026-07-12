@@ -22,6 +22,8 @@ import dev.lambdaurora.aurorasdeco.blackboard.BlackboardDrawModifier;
 import dev.lambdaurora.aurorasdeco.blackboard.BlackboardHandler;
 import dev.lambdaurora.aurorasdeco.block.BlackboardBlock;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
@@ -31,8 +33,11 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -250,9 +255,9 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	/* Serialization */
 
 	@Override
-	public void readNbt(NbtCompound nbt) {
-		super.readNbt(nbt);
-		this.readBlackBoardNbt(nbt);
+	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.readNbt(nbt, registryLookup);
+		this.readBlackBoardNbt(nbt, registryLookup);
 		this.lastUser = null;
 		if (this.world != null && this.world.isClient()) {
 			this.refreshRendering();
@@ -271,23 +276,25 @@ public class BlackboardBlockEntity extends BasicBlockEntity implements Nameable,
 	}
 
 	@Override
-	public void writeNbt(NbtCompound nbt) {
-		super.writeNbt(nbt);
-		this.writeBlackBoardNbt(nbt);
+	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+		super.writeNbt(nbt, registryLookup);
+		this.writeBlackBoardNbt(nbt, registryLookup);
 	}
 
-	public void readBlackBoardNbt(NbtCompound nbt) {
+	public void readBlackBoardNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 		this.blackboard.readNbt(nbt);
 
 		if (nbt.contains("custom_name", NbtElement.STRING_TYPE)) {
-			this.customName = Text.Serializer.fromJson(nbt.getString("custom_name"));
+			this.customName = TextCodecs.CODEC.parse(RegistryOps.of(JsonOps.INSTANCE, registryLookup),
+					JsonParser.parseString(nbt.getString("custom_name"))).result().orElse(null);
 		}
 	}
 
-	public NbtCompound writeBlackBoardNbt(NbtCompound nbt) {
+	public NbtCompound writeBlackBoardNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 		this.blackboard.writeNbt(nbt);
 		if (this.customName != null) {
-			nbt.putString("custom_name", Text.Serializer.toJson(this.customName));
+			TextCodecs.CODEC.encodeStart(RegistryOps.of(JsonOps.INSTANCE, registryLookup), this.customName)
+					.result().ifPresent(json -> nbt.putString("custom_name", json.toString()));
 		}
 		return nbt;
 	}

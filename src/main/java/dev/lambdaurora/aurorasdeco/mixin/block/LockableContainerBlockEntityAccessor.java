@@ -19,6 +19,7 @@ package dev.lambdaurora.aurorasdeco.mixin.block;
 
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.inventory.ContainerLock;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
@@ -26,4 +27,13 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface LockableContainerBlockEntityAccessor {
 	@Accessor
 	ContainerLock getLock();
+
+	/**
+	 * 1.21.1: {@code setCustomName} was removed -- {@code customName} is now populated automatically
+	 * from an item's {@code minecraft:custom_name} component via {@code readComponents}/{@code addComponents}
+	 * when a container is placed from a renamed item. This accessor is kept for callers (e.g.
+	 * {@code ShelfBlock.onPlaced}) that set it explicitly rather than relying on that pipeline.
+	 */
+	@Accessor
+	void setCustomName(Text customName);
 }

@@ -17,20 +17,18 @@
 
 package dev.lambdaurora.aurorasdeco.resource.datagen;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonSyntaxException;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.AdvancementCriterion;
+import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.AdvancementRequirements;
 import net.minecraft.advancement.AdvancementRewards;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.advancement.criterion.RecipeUnlockedCriterion;
-import net.minecraft.predicate.NumberRange;
-import net.minecraft.predicate.entity.EntityPredicate;
-import net.minecraft.predicate.entity.LootContextPredicate;
-import net.minecraft.predicate.item.ItemPredicate;
+import net.minecraft.item.Item;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
@@ -38,8 +36,6 @@ import net.minecraft.util.Identifier;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-
-import static dev.lambdaurora.aurorasdeco.util.AuroraUtil.jsonArray;
 
 public final class AdvancementDatagen {
 	private static final Map<Identifier, Supplier<Advancement.Builder>> ADVANCEMENT_BUILDERS = new Object2ObjectOpenHashMap<>();
@@ -50,7 +46,18 @@ public final class AdvancementDatagen {
 		throw new UnsupportedOperationException("AdvancementDatagen only contains static definitions.");
 	}
 
-	public static void applyAdvancements(Map<Identifier, Advancement.Builder> builder) {
+	/**
+	 * 1.21.1 update: {@code ServerAdvancementLoader.apply()}'s per-JSON-entry parsing moved into a
+	 * private lambda invoked via {@code Map.forEach}, so there is no longer an inline
+	 * {@code Map<Identifier, Advancement.Builder>} local to capture mid-loop the way the old mixin did
+	 * (re-verified against the real bytecode, not assumed). Instead {@code ServerAdvancementLoaderMixin}
+	 * now redirects the single {@code ImmutableMap.Builder<Identifier, AdvancementEntry>.buildOrThrow()}
+	 * call at the very end of {@code apply()} -- this method receives that still-open builder and adds
+	 * our own entries (built via {@link Advancement.Builder#build(Identifier)}, which now needs the id
+	 * passed in explicitly since recipes/advancements no longer carry it themselves) before the vanilla
+	 * caller finalizes it.
+	 */
+	public static void applyAdvancements(ImmutableMap.Builder<Identifier, AdvancementEntry> builder) {
 		AurorasDeco.debug("Applying advancement injection...");
 
 		if (!ADVANCEMENT_BUILDERS.isEmpty()) {
@@ -67,7 +74,7 @@ public final class AdvancementDatagen {
 					var matcher = MISSING_TAG_REGEX.matcher(e.getMessage());
 
 					if (matcher.find()) {
-						var badTag = new Identifier(matcher.group(1));
+						var badTag = Identifier.of(matcher.group(1));
 						AurorasDeco.error("Could not build advancement {} due to a missing item tag {}. " +
 										"This probably means the mod {} is very likely to break Vanilla's expectations! Please report this issue!",
 								advancementBuilder.getKey(), badTag, badTag.getNamespace());
@@ -78,11 +85,7 @@ public final class AdvancementDatagen {
 			}
 		}
 
-		ADVANCEMENTS.forEach((identifier, task) -> {
-			task.parent((Advancement) null);
-
-			builder.put(identifier, task);
-		});
+		ADVANCEMENTS.forEach((identifier, task) -> builder.put(identifier, task.build(identifier)));
 	}
 
 	public static Supplier<Advancement.Builder> register(Identifier id, Supplier<Advancement.Builder> advancement) {
@@ -90,16 +93,14 @@ public final class AdvancementDatagen {
 		return advancement;
 	}
 
-	public static Advancement.Builder simpleRecipeUnlock(Recipe<?> recipe) {
+	public static Advancement.Builder simpleRecipeUnlock(Identifier id, Recipe<?> recipe) {
 		var advancement = Advancement.Builder.create();
 
-		advancement.parent(new Identifier("recipes/root"));
-		advancement.rewards(AdvancementRewards.Builder.recipe(recipe.getId()));
+		advancement.parent(Identifier.of("recipes/root"));
+		advancement.rewards(AdvancementRewards.Builder.recipe(id));
 		advancement.criteriaMerger(AdvancementRequirements.CriterionMerger.OR);
-		advancement.criterion("has_self", InventoryChangedCriterion.Conditions.items(recipe.getOutput(null).getItem()));
-		advancement.criterion("has_the_recipe",
-				new RecipeUnlockedCriterion.Conditions(LootContextPredicate.EMPTY, recipe.getId())
-		);
+		advancement.criterion("has_self", InventoryChangedCriterion.Conditions.items(recipe.createIcon().getItem()));
+		advancement.criterion("has_the_recipe", RecipeUnlockedCriterion.create(id));
 
 		int i = 0;
 		for (var ingredient : recipe.getIngredients()) {
@@ -112,18 +113,11 @@ public final class AdvancementDatagen {
 		return advancement;
 	}
 
-	public static InventoryChangedCriterion.Conditions inventoryChangedCriterion(Ingredient item) {
-		var items = new JsonArray();
-		var ingredientJson = item.toJson();
-		if (ingredientJson instanceof JsonObject ingredientJsonObject) {
-			if (ingredientJsonObject.has("item")) {
-				var child = new JsonObject();
-				child.add("items", jsonArray(ingredientJsonObject.get("item").getAsString()));
-				items.add(child);
-			} else items.add(ingredientJson);
+	public static AdvancementCriterion<InventoryChangedCriterion.Conditions> inventoryChangedCriterion(Ingredient item) {
+		var items = new java.util.LinkedHashSet<Item>();
+		for (var stack : item.getMatchingStacks()) {
+			items.add(stack.getItem());
 		}
-		return new InventoryChangedCriterion.Conditions(LootContextPredicate.EMPTY,
-				NumberRange.IntRange.ANY, NumberRange.IntRange.ANY, NumberRange.IntRange.ANY,
-				ItemPredicate.deserializeAll(items));
+		return InventoryChangedCriterion.Conditions.items(items.toArray(new Item[0]));
 	}
 }

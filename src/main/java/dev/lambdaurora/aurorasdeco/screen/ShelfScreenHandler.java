@@ -24,7 +24,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
@@ -39,8 +38,8 @@ public class ShelfScreenHandler extends ScreenHandler {
 	private final Inventory inventory;
 	private final PartType partType;
 
-	public ShelfScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-		this(syncId, playerInventory, new SimpleInventory(8), buf.readEnumConstant(PartType.class));
+	public ShelfScreenHandler(int syncId, PlayerInventory playerInventory, PartType partType) {
+		this(syncId, playerInventory, new SimpleInventory(8), partType);
 	}
 
 	public ShelfScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PartType partType) {

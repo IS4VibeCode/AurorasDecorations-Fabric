@@ -19,7 +19,6 @@ package dev.lambdaurora.aurorasdeco.recipe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
-import net.minecraft.util.Identifier;
 
 import java.util.Objects;
 
@@ -44,5 +43,5 @@ public abstract class AuroraRecipeBuilder<SELF extends AuroraRecipeBuilder<SELF,
 		Objects.requireNonNull(this.output, "The output stack cannot be null.");
 	}
 
-	public abstract RESULT build(Identifier id, String group);
+	public abstract RESULT build(String group);
 }

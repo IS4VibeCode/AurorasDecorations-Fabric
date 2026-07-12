@@ -106,7 +106,7 @@ public class BlackboardItem extends BlockItem {
 	}
 
 	private ItemStack ensureValidStack(ItemStack stack) {
-		if (BlockItem.getBlockEntityNbt(stack) == null) {
+		if (AuroraUtil.getBlockEntityNbt(stack) == null) {
 			var nbt = AuroraUtil.getOrCreateBlockEntityNbt(stack, AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE);
 			var blackboard = new Blackboard();
 			blackboard.writeNbt(nbt);
@@ -116,7 +116,7 @@ public class BlackboardItem extends BlockItem {
 
 	@Override
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
-		var nbt = BlockItem.getBlockEntityNbt(stack);
+		var nbt = AuroraUtil.getBlockEntityNbt(stack);
 		if (nbt != null && nbt.contains("pixels", NbtElement.BYTE_ARRAY_TYPE)) {
 			var blackboard = Blackboard.fromNbt(nbt);
 			return Optional.of(new BlackboardTooltipData(

@@ -42,7 +42,7 @@ import net.fabricmc.api.Environment;
  */
 @Environment(EnvType.CLIENT)
 public class BlackboardTooltipComponent implements TooltipComponent {
-	private static final Identifier LOCK_ICON_TEXTURE = new Identifier("textures/gui/container/cartography_table.png");
+	private static final Identifier LOCK_ICON_TEXTURE = Identifier.of("textures/gui/container/cartography_table.png");
 	private static final Identifier GLOW_TEXTURE = AurorasDeco.id("textures/gui/glowing_sprite.png");
 
 	private final MinecraftClient client = MinecraftClient.getInstance();

@@ -23,11 +23,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RawShapedRecipe;
 import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 
 /**
  * Replaces QSL's {@code ShapedRecipeBuilder} -- same shape, no Fabric equivalent needed
@@ -35,15 +34,11 @@ import net.minecraft.util.collection.DefaultedList;
  */
 public class AuroraShapedRecipeBuilder extends AuroraRecipeBuilder<AuroraShapedRecipeBuilder, ShapedRecipe> {
 	private final String[] pattern;
-	private final int width;
-	private final int height;
 	private final Char2ObjectMap<Ingredient> ingredients = new Char2ObjectOpenHashMap<>();
 	private CraftingRecipeCategory category = CraftingRecipeCategory.MISC;
 
 	public AuroraShapedRecipeBuilder(String... pattern) {
 		this.pattern = pattern;
-		this.width = pattern[0].length();
-		this.height = pattern.length;
 		this.ingredients.put(' ', Ingredient.EMPTY);
 	}
 
@@ -87,21 +82,10 @@ public class AuroraShapedRecipeBuilder extends AuroraRecipeBuilder<AuroraShapedR
 	}
 
 	@Override
-	public ShapedRecipe build(Identifier id, String group) {
+	public ShapedRecipe build(String group) {
 		this.checkOutputItem();
 
-		var flattened = DefaultedList.<Ingredient>ofSize(this.width * this.height, Ingredient.EMPTY);
-		for (int y = 0; y < this.height; y++) {
-			for (int x = 0; x < this.width; x++) {
-				char key = this.pattern[y].charAt(x);
-				var ingredient = this.ingredients.get(key);
-				if (ingredient == null) {
-					throw new IllegalStateException("The pattern key '" + key + "' has no assigned ingredient.");
-				}
-				flattened.set(y * this.width + x, ingredient);
-			}
-		}
-
-		return new ShapedRecipe(id, group, this.category, this.width, this.height, flattened, this.output);
+		var raw = RawShapedRecipe.create(this.ingredients, this.pattern);
+		return new ShapedRecipe(group, this.category, raw, this.output);
 	}
 }

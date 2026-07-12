@@ -42,7 +42,7 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class PainterPaletteScreen extends HandledScreen<PainterPaletteScreenHandler> {
 	private static final Identifier TEXTURE = AurorasDeco.id("textures/gui/container/painter_palette.png");
-	private static final Identifier LOCK_TEXTURE = new Identifier("textures/gui/container/cartography_table.png");
+	private static final Identifier LOCK_TEXTURE = Identifier.of("textures/gui/container/cartography_table.png");
 
 	public PainterPaletteScreen(PainterPaletteScreenHandler handler, PlayerInventory inventory, Text title) {
 		super(handler, inventory, title);

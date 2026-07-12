@@ -42,7 +42,6 @@ import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
@@ -77,8 +76,8 @@ public final class Datagen {
 	private static final Identifier WALL_LANTERN_ATTACHMENT_EXTENDED1 = id("block/wall_lantern_attachment_extended1");
 	private static final Identifier WALL_LANTERN_ATTACHMENT_EXTENDED2 = id("block/wall_lantern_attachment_extended2");
 
-	private static final Identifier TEMPLATE_LANTERN_MODEL = new Identifier("block/template_lantern");
-	private static final Identifier TEMPLATE_HANGING_LANTERN_MODEL = new Identifier("block/template_hanging_lantern");
+	private static final Identifier TEMPLATE_LANTERN_MODEL = Identifier.of("block/template_lantern");
+	private static final Identifier TEMPLATE_HANGING_LANTERN_MODEL = Identifier.of("block/template_hanging_lantern");
 	private static final Identifier TEMPLATE_SLEEPING_BAG_FOOT_MODEL = id("block/template/sleeping_bag_foot");
 	private static final Identifier TEMPLATE_SLEEPING_BAG_HEAD_MODEL = id("block/template/sleeping_bag_head");
 	private static final Identifier TEMPLATE_SLEEPING_BAG_ITEM_MODEL = id("item/template/sleeping_bag");
@@ -107,7 +106,7 @@ public final class Datagen {
 		json.addProperty("data", data.toString());
 		AurorasDecoClient.RESOURCE_PACK.putJson(
 				ResourceType.CLIENT_RESOURCES,
-				new Identifier(blockId.getNamespace(), "bettergrass/states/" + blockId.getPath()),
+				Identifier.of(blockId.getNamespace(), "bettergrass/states/" + blockId.getPath()),
 				json
 		);
 	}
@@ -183,7 +182,7 @@ public final class Datagen {
 		var id = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				new Identifier(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
+				Identifier.of(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
 				benchBlockLootTable(id)
 		);
 	}
@@ -219,7 +218,7 @@ public final class Datagen {
 		var id = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				new Identifier(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
+				Identifier.of(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
 				doubleBlockLootTable(id)
 		);
 	}
@@ -297,7 +296,7 @@ public final class Datagen {
 		var blockId = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJsonText(
 				ResourceType.SERVER_DATA,
-				new Identifier(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
+				Identifier.of(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
 				candleLikeBlockLootTable(blockId, Registries.ITEM.getId(block.getParent().asItem()))
 		);
 	}
@@ -310,17 +309,9 @@ public final class Datagen {
 	public static void registerSimpleBlockLootTable(Identifier blockId, Identifier itemId, boolean copyName) {
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				new Identifier(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
+				Identifier.of(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
 				simpleBlockLootTable(itemId, copyName)
 		);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static JsonObject recipe(Recipe<?> recipe) {
-		if (!(recipe.getSerializer() instanceof dev.lambdaurora.aurorasdeco.recipe.JsonSerializableRecipeSerializer<?>))
-			throw new UnsupportedOperationException("Cannot serialize recipe " + recipe);
-
-		return ((dev.lambdaurora.aurorasdeco.recipe.JsonSerializableRecipeSerializer<Recipe<?>>) recipe.getSerializer()).toJson(recipe);
 	}
 
 	public static void registerWoodcuttingRecipesForBlockVariants(Block block) {
@@ -353,12 +344,14 @@ public final class Datagen {
 
 	public static void registerDefaultRecipes() {
 		{
-			var sulfurItem = Registries.ITEM.get(new Identifier("sulfurpotassiummod", "sulfur"));
+			var sulfurItem = Registries.ITEM.get(Identifier.of("sulfurpotassiummod", "sulfur"));
 			if (sulfurItem != Items.AIR) {
-				registerRecipe(AuroraRecipeBuilders.shapelessRecipe(new ItemStack(AurorasDecoRegistry.COPPER_SULFATE_ITEM))
-						.ingredient(sulfurItem)
-						.ingredient(Items.RAW_COPPER)
-						.build(id("copper_sulfate_from_sulfurpotassiummod"), ""), "misc");
+				registerRecipe(id("copper_sulfate_from_sulfurpotassiummod"),
+						AuroraRecipeBuilders.shapelessRecipe(new ItemStack(AurorasDecoRegistry.COPPER_SULFATE_ITEM))
+								.ingredient(sulfurItem)
+								.ingredient(Items.RAW_COPPER)
+								.build(""),
+						"misc");
 			}
 		}
 	}
@@ -389,11 +382,12 @@ public final class Datagen {
 
 				if (log == null) return;
 				var planksId = planks.getItemId();
-				registerRecipe(new WoodcuttingRecipe(AuroraUtil.appendWithNamespace("woodcutting", planksId),
+				registerRecipe(AuroraUtil.appendWithNamespace("woodcutting", planksId),
+						new WoodcuttingRecipe(
 								"planks",
 								Ingredient.fromTag(TagKey.of(
 										RegistryKeys.ITEM,
-										new Identifier(log.id().getNamespace(), log.id().getPath() + "s")
+										Identifier.of(log.id().getNamespace(), log.id().getPath() + "s")
 								)),
 								new ItemStack(planks.item(), 4)),
 						"building_blocks");
@@ -408,55 +402,55 @@ public final class Datagen {
 		BenchBlock.streamBenches().forEach(block -> {
 			var planks = block.getWoodType().getComponent(WoodType.ComponentType.PLANKS).item();
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/bench/" + block.getWoodType().getPathName()),
 					"bench", Ingredient.ofItems(planks),
 					new ItemStack(block));
-			registerRecipe(recipe, "decorations");
+			registerRecipe(id("woodcutting/bench/" + block.getWoodType().getPathName()), recipe, "decorations");
 
 			var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
 			if (slabComponent != null) {
 				var slab = Ingredient.ofItems(slabComponent.item());
 				var stick = Ingredient.ofItems(Items.STICK);
-				registerRecipe(AuroraRecipeBuilders.shapedRecipe("---", "S S")
-						.ingredient('-', slab)
-						.ingredient('S', stick)
-						.output(new ItemStack(block, 2))
-						.build(id("bench/" + block.getWoodType().getPathName()), "bench"), "decorations");
+				registerRecipe(id("bench/" + block.getWoodType().getPathName()),
+						AuroraRecipeBuilders.shapedRecipe("---", "S S")
+								.ingredient('-', slab)
+								.ingredient('S', stick)
+								.output(new ItemStack(block, 2))
+								.build("bench"),
+						"decorations");
 			}
 		});
 
 		SeatRestItem.streamSeatRests().forEach(item -> {
 			var planks = item.getWoodType().getComponent(WoodType.ComponentType.PLANKS).item();
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/seat_rest/" + item.getWoodType().getPathName()),
 					"seat_rests", Ingredient.ofItems(planks),
 					new ItemStack(item));
-			registerRecipe(recipe, "misc");
+			registerRecipe(id("woodcutting/seat_rest/" + item.getWoodType().getPathName()), recipe, "misc");
 		});
 
 		SignPostItem.stream().forEach(item -> {
 			var planks = item.getWoodType().getComponent(WoodType.ComponentType.PLANKS).item();
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/sign_post/" + item.getWoodType().getPathName()),
 					"sign_posts", Ingredient.ofItems(planks),
 					new ItemStack(item));
-			registerRecipe(recipe, "misc");
+			registerRecipe(id("woodcutting/sign_post/" + item.getWoodType().getPathName()), recipe, "misc");
 		});
 
 		ShelfBlock.streamShelves().forEach(block -> {
 			var planks = block.getWoodType().getComponent(WoodType.ComponentType.PLANKS).item();
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/shelf/" + block.getWoodType().getPathName()),
 					"shelf", Ingredient.ofItems(planks),
 					new ItemStack(block));
-			registerRecipe(recipe, "decorations");
+			registerRecipe(id("woodcutting/shelf/" + block.getWoodType().getPathName()), recipe, "decorations");
 
 			var slabComponent = block.getWoodType().getComponent(WoodType.ComponentType.SLAB);
 			if (slabComponent != null) {
-				registerRecipe(AuroraRecipeBuilders.shapedRecipe("SS")
-						.ingredient('S', slabComponent.item())
-						.output(new ItemStack(block, 2))
-						.build(id("shelf/" + block.getWoodType().getPathName()), "shelf"), "decorations");
+				registerRecipe(id("shelf/" + block.getWoodType().getPathName()),
+						AuroraRecipeBuilders.shapedRecipe("SS")
+								.ingredient('S', slabComponent.item())
+								.output(new ItemStack(block, 2))
+								.build("shelf"),
+						"decorations");
 			}
 		});
 
@@ -464,20 +458,18 @@ public final class Datagen {
 			if (block.getWoodType().getLog() == null)
 				return;
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/small_log_pile/" + block.getWoodType().getPathName()),
 					"small_log_pile", Ingredient.ofItems(block.getWoodType().getLog()),
 					new ItemStack(block, 2));
-			registerRecipe(recipe, "decorations");
+			registerRecipe(id("woodcutting/small_log_pile/" + block.getWoodType().getPathName()), recipe, "decorations");
 		});
 
 		StumpBlock.streamLogStumps().forEach(block -> {
 			if (block.getWoodType().getLog() == null)
 				return;
 			var recipe = new WoodcuttingRecipe(
-					id("woodcutting/stump/" + block.getWoodType().getPathName()),
 					"log_stump", Ingredient.ofItems(block.getWoodType().getLog()),
 					new ItemStack(block));
-			registerRecipe(recipe, "decorations");
+			registerRecipe(id("woodcutting/stump/" + block.getWoodType().getPathName()), recipe, "decorations");
 		});
 	}
 
@@ -491,14 +483,13 @@ public final class Datagen {
 			String type, int count, String category) {
 		if (planks.asItem() == Items.AIR)
 			return;
-		var id = new Identifier(namespace, basePath + type);
+		var id = Identifier.of(namespace, basePath + type);
 		var item = Registries.ITEM.get(id);
 		if (item != Items.AIR) {
 			var recipe = new WoodcuttingRecipe(
-					new Identifier(namespace, "woodcutting/" + basePath + type),
 					"", Ingredient.ofItems(planks),
 					new ItemStack(item, count));
-			registerRecipe(recipe, category);
+			registerRecipe(Identifier.of(namespace, "woodcutting/" + basePath + type), recipe, category);
 		}
 	}
 
@@ -506,7 +497,8 @@ public final class Datagen {
 		var component = woodType.getComponent(target);
 		if (component != null && component.hasItem()) {
 			var output = component.getItemId();
-			registerRecipe(new WoodcuttingRecipe(AuroraUtil.appendWithNamespace("woodcutting", output),
+			registerRecipe(AuroraUtil.appendWithNamespace("woodcutting", output),
+					new WoodcuttingRecipe(
 							target.name().toLowerCase(Locale.ROOT),
 							Ingredient.ofItems(planks.item()), new ItemStack(component.item(), count)),
 					category);
@@ -688,7 +680,7 @@ public final class Datagen {
 				return;
 
 			var planksTextureId = item.getWoodType().getPlanksTexture(resourceManager);
-			var texturePath = new Identifier(planksTextureId.getNamespace(), "textures/" + planksTextureId.getPath() + ".png");
+			var texturePath = Identifier.of(planksTextureId.getNamespace(), "textures/" + planksTextureId.getPath() + ".png");
 			var resource = resourceManager.getResource(texturePath);
 
 			if (resource.isPresent()) {
@@ -825,7 +817,7 @@ public final class Datagen {
 			if (block.getWoodType().getLogType().equals("stem")) {
 				Identifier leavesTexture;
 				var component = block.getWoodType().getComponent(WoodType.ComponentType.LEAVES);
-				if (component == null) leavesTexture = new Identifier("block/red_mushroom_block");
+				if (component == null) leavesTexture = Identifier.of("block/red_mushroom_block");
 				else leavesTexture = block.getWoodType().getLeavesTexture(resourceManager);
 				model = modelBuilder(StumpBlock.STEM_STUMP_MODEL)
 						.texture("log_side", logSideTexture)
@@ -846,14 +838,14 @@ public final class Datagen {
 						.texture("log_side", logSideTexture)
 						.texture("log_top", logTopTexture)
 						.texture("leaf", LOG_STUMP_LEAF_TEXTURE)
-						.texture("mushroom", new Identifier("block/brown_mushroom_block"))
+						.texture("mushroom", Identifier.of("block/brown_mushroom_block"))
 						.register(id("block/stump/"
 								+ block.getWoodType().getPathName() + "_brown_mushroom"));
 				var redMushroomModel = modelBuilder(StumpBlock.LOG_STUMP_RED_MUSHROOM_MODEL)
 						.texture("log_side", logSideTexture)
 						.texture("log_top", logTopTexture)
 						.texture("leaf", LOG_STUMP_LEAF_TEXTURE)
-						.texture("mushroom", new Identifier("block/red_mushroom_block"))
+						.texture("mushroom", Identifier.of("block/red_mushroom_block"))
 						.register(id("block/stump/"
 								+ block.getWoodType().getPathName() + "_red_mushroom"));
 
@@ -879,11 +871,11 @@ public final class Datagen {
 
 	private static void generateSimpleItemModel(Item item) {
 		var itemId = Registries.ITEM.getId(item);
-		generateSimpleItemModel(new Identifier(itemId.getNamespace(), "item/" + itemId.getPath()));
+		generateSimpleItemModel(Identifier.of(itemId.getNamespace(), "item/" + itemId.getPath()));
 	}
 
 	private static void generateSimpleItemModel(Identifier id) {
-		modelBuilder(new Identifier("item/generated"))
+		modelBuilder(Identifier.of("item/generated"))
 				.texture("layer0", id)
 				.register(id);
 	}

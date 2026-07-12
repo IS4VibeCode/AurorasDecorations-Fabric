@@ -34,6 +34,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -351,7 +352,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 				var stack = new ItemStack(upSign.getSign());
 				var text = upSign.getText();
 				if (!text.getString().isEmpty())
-					stack.setCustomName(text);
+					stack.set(DataComponentTypes.CUSTOM_NAME, text);
 				stacks.add(stack);
 			}
 
@@ -359,7 +360,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 				var stack = new ItemStack(downSign.getSign());
 				var text = downSign.getText();
 				if (!text.getString().isEmpty())
-					stack.setCustomName(text);
+					stack.set(DataComponentTypes.CUSTOM_NAME, text);
 				stacks.add(stack);
 			}
 		}

@@ -26,6 +26,7 @@ import dev.lambdaurora.aurorasdeco.registry.WoodType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FenceBlock;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundCategory;
@@ -120,9 +121,8 @@ public class SignPostItem extends Item {
 
 				int r = MathHelper.floor((double) ((180.f + context.getPlayerYaw()) * 16.f / 360.f) + 0.5) & 15;
 
-				var text = stack.hasCustomName()
-						? Text.Serializer.fromJson(stack.getSubNbt(ItemStack.DISPLAY_KEY).getString(ItemStack.NAME_KEY))
-						: Text.empty();
+				var customName = stack.get(DataComponentTypes.CUSTOM_NAME);
+				var text = customName != null ? customName : Text.empty();
 				if (SignPostBlock.isUp(context.getHitPos().getY())) {
 					if (signPostBlockEntity.getUp() == null) {
 						signPostBlockEntity.putSignUp(this, text, 90 + r * -22.5f);

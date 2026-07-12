@@ -21,11 +21,13 @@ import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoScreenHandlers;
 import dev.lambdaurora.aurorasdeco.screen.slot.BlackboardToolSlot;
 import dev.lambdaurora.aurorasdeco.screen.slot.ColorSlot;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -41,8 +43,8 @@ import org.jetbrains.annotations.NotNull;
 public class PainterPaletteScreenHandler extends NestedScreenHandler {
 	private final PainterPaletteItem.PainterPaletteInventory inventory;
 
-	public PainterPaletteScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-		this(syncId, playerInventory, buf.readEnumConstant(OriginType.class), buf.readVarInt(), new PainterPaletteItem.PainterPaletteInventory());
+	public PainterPaletteScreenHandler(int syncId, PlayerInventory playerInventory, OpeningData openingData) {
+		this(syncId, playerInventory, openingData.type(), openingData.lockedSlot(), new PainterPaletteItem.PainterPaletteInventory());
 	}
 
 	public PainterPaletteScreenHandler(int syncId, PlayerInventory playerInventory, OriginType originType, int lockedSlot,
@@ -154,11 +156,18 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 		return true;
 	}
 
-	public record Factory(ItemStack self, OriginType type, int lockedSlot) implements ExtendedScreenHandlerFactory {
+	public record OpeningData(OriginType type, int lockedSlot) {
+		public static final PacketCodec<ByteBuf, OpeningData> PACKET_CODEC = PacketCodec.tuple(
+				PacketCodecs.indexed(i -> OriginType.values()[i], OriginType::ordinal), OpeningData::type,
+				PacketCodecs.VAR_INT, OpeningData::lockedSlot,
+				OpeningData::new
+		);
+	}
+
+	public record Factory(ItemStack self, OriginType type, int lockedSlot) implements ExtendedScreenHandlerFactory<OpeningData> {
 		@Override
-		public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-			buf.writeEnumConstant(this.type);
-			buf.writeVarInt(this.lockedSlot);
+		public OpeningData getScreenOpeningData(ServerPlayerEntity player) {
+			return new OpeningData(this.type, this.lockedSlot);
 		}
 
 		@Override
