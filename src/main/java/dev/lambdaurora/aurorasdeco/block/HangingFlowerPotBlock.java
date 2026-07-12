@@ -224,7 +224,7 @@ public class HangingFlowerPotBlock extends Block {
 	/* Entity Stuff */
 
 	@Override
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+	public boolean canPathfindThrough(BlockState state, NavigationType type) {
 		return false;
 	}
 

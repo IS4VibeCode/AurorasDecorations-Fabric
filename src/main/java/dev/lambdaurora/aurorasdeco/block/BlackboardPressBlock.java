@@ -145,7 +145,7 @@ public class BlackboardPressBlock extends BlockWithEntity {
 	/* Entity Stuff */
 
 	@Override
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+	public boolean canPathfindThrough(BlockState state, NavigationType type) {
 		return switch (type) {
 			case LAND, AIR -> false;
 			case WATER -> world.getFluidState(pos).isIn(FluidTags.WATER);

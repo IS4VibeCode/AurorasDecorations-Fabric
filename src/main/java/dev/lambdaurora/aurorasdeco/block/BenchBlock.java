@@ -227,21 +227,20 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		var handStack = player.getStackInHand(hand);
-		if (handStack.getItem() instanceof SeatRestItem seatRestItem) {
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (stack.getItem() instanceof SeatRestItem seatRestItem) {
 			var bench = this.getBlockEntity(world, pos);
 			if (bench != null && !bench.hasRest()) {
 				bench.setRest(seatRestItem);
 				if (!player.getAbilities().creativeMode) {
-					handStack.decrement(1);
+					stack.decrement(1);
 				}
 				world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-				return ActionResult.success(world.isClient());
+				return ItemActionResult.success(world.isClient());
 			}
-		} else if (this.sit(world, pos, state, player, handStack))
-			return ActionResult.success(world.isClient());
-		return super.onUse(state, world, pos, player, hand, hit);
+		} else if (this.sit(world, pos, state, player, stack))
+			return ItemActionResult.success(world.isClient());
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	/* Block Entity stuff */

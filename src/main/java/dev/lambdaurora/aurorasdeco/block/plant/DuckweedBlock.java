@@ -21,6 +21,7 @@ import dev.lambdaurora.aurorasdeco.registry.AurorasDecoTags;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -124,7 +125,7 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	}
 
 	@Override
-	public boolean canFillWithFluid(BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
+	public boolean canFillWithFluid(@Nullable PlayerEntity player, BlockView world, BlockPos pos, BlockState state, Fluid fluid) {
 		return false;
 	}
 
@@ -136,7 +137,7 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	/* Fertilization */
 
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state, boolean isClient) {
+	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
 		return AuroraUtil.HORIZONTAL_DIRECTIONS.stream().anyMatch(direction -> this.canPlaceAt(world, pos.offset(direction), false));
 	}
 

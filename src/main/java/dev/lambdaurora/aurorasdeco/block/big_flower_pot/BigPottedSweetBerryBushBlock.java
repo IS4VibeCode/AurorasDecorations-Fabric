@@ -86,8 +86,8 @@ public class BigPottedSweetBerryBushBlock extends BigPottedProxyBlock implements
 	/* Fertilization */
 
 	@Override
-	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state, boolean isClient) {
-		return ((Fertilizable) this.getPlant()).isFertilizable(world, pos, state, isClient);
+	public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
+		return ((Fertilizable) this.getPlant()).isFertilizable(world, pos, state);
 	}
 
 	@Override

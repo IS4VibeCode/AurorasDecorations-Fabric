@@ -33,6 +33,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -43,6 +44,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -135,7 +137,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	/* Interaction */
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		if (this.getPlantType().getItem() == Items.AIR)
 			return super.getPickStack(world, pos, state);
 
@@ -143,37 +145,36 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		boolean canDoCustomUsage = this.shouldAllowCustomUsageInAdventureMode() || player.getAbilities().allowModifyWorld;
 
 		if (canDoCustomUsage) {
 			var action = this.onCustomUse(state, world, pos, player, hand, hit);
 
 			if (action.isAccepted() || action == ActionResult.FAIL) {
-				return action;
+				return toItemActionResult(action);
 			}
 		}
 
 		if (!player.getAbilities().allowModifyWorld) {
-			return ActionResult.FAIL;
+			return ItemActionResult.FAIL;
 		}
 
-		var handStack = player.getStackInHand(hand);
-		var toPlace = PottedPlantType.getFlowerPotFromItem(handStack.getItem());
+		var toPlace = PottedPlantType.getFlowerPotFromItem(stack.getItem());
 		boolean empty = this.isEmpty();
 		boolean toPlaceEmpty = toPlace.isEmpty();
 		if (empty != toPlaceEmpty) {
 			var up = pos.up();
 			if (empty) {
 				if (!toPlace.allowBlocksOnTop() && !world.getBlockState(up).isAir())
-					return ActionResult.PASS;
+					return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
 				if (!world.isClient()) {
-					world.setBlockState(pos, toPlace.getPlacementState(new ItemPlacementContext(player, hand, handStack, hit)),
+					world.setBlockState(pos, toPlace.getPlacementState(new ItemPlacementContext(player, hand, stack, hit)),
 							Block.NOTIFY_ALL);
 					player.incrementStat(Stats.POT_FLOWER);
 					if (!player.getAbilities().creativeMode) {
-						handStack.decrement(1);
+						stack.decrement(1);
 					}
 
 					if (!toPlace.allowBlocksOnTop())
@@ -184,10 +185,20 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 				this.removePlant(world, pos, state, player, hand, true);
 			}
 
-			return ActionResult.success(world.isClient());
+			return ItemActionResult.success(world.isClient());
 		} else {
-			return toPlaceEmpty ? ActionResult.PASS : ActionResult.CONSUME;
+			return toPlaceEmpty ? ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION : ItemActionResult.CONSUME;
 		}
+	}
+
+	private static ItemActionResult toItemActionResult(ActionResult action) {
+		return switch (action) {
+			case SUCCESS, SUCCESS_NO_ITEM_USED -> ItemActionResult.SUCCESS;
+			case CONSUME -> ItemActionResult.CONSUME;
+			case CONSUME_PARTIAL -> ItemActionResult.CONSUME_PARTIAL;
+			case FAIL -> ItemActionResult.FAIL;
+			case PASS -> ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		};
 	}
 
 	protected boolean shouldAllowCustomUsageInAdventureMode() {
@@ -273,7 +284,7 @@ public class BigFlowerPotBlock extends Block/* implements FluidFillable*/ {
 	/* Entity Stuff */
 
 	@Override
-	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+	public boolean canPathfindThrough(BlockState state, NavigationType type) {
 		return false;
 	}
 

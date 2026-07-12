@@ -22,14 +22,15 @@ import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PillarBlock;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShearsItem;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -48,16 +49,14 @@ public class FloweringAzaleaLogBlock extends PillarBlock {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		ItemStack heldStack = player.getStackInHand(hand);
-
+	public ItemActionResult onUseWithItem(ItemStack heldStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (heldStack.isEmpty()) {
-			return ActionResult.FAIL;
+			return ItemActionResult.FAIL;
 		}
 
 		Item held = heldStack.getItem();
 		if (!(held instanceof ShearsItem)) {
-			return ActionResult.FAIL;
+			return ItemActionResult.FAIL;
 		}
 
 		if (this.normalSupplier != null) {
@@ -69,11 +68,11 @@ public class FloweringAzaleaLogBlock extends PillarBlock {
 
 			world.setBlockState(pos, this.normalSupplier.get().getDefaultState().with(PillarBlock.AXIS, state.get(PillarBlock.AXIS)), 11);
 
-			heldStack.damage(1, player, p -> p.sendToolBreakStatus(hand));
+			heldStack.damage(1, player, hand == Hand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
 
-			return ActionResult.SUCCESS;
+			return ItemActionResult.SUCCESS;
 		}
 
-		return super.onUse(state, world, pos, player, hand, hit);
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 }
