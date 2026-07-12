@@ -22,6 +22,7 @@ import dev.lambdaurora.aurorasdeco.resource.AurorasDecoResourcePackProvider;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.ResourcePackProvider;
+import net.minecraft.resource.ResourceType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,21 +41,22 @@ import java.util.List;
  * QSL's {@code getRegisterDefaultResourcePackEvent()} did this job on Quilt; Fabric has no equivalent
  * event (java/CLAUDE.md §3/Task #18).
  * <p>
- * <b>The provider-based registration above was confirmed NOT sufficient by a real load test</b>: the
+ * <b>The provider-based registration above was confirmed NOT sufficient by a real load test</b> (the
  * dynamic pack's synthetic name never appeared in vanilla's own "Reloading ResourceManager: {}" log
- * line (confirmed by disassembling {@code ReloadableResourceManagerImpl.reload}, which logs exactly
- * the {@code packs} list it's about to build a {@code LifecycledResourceManagerImpl} from), meaning
- * every dynamically-generated blockstate/model/tag this mod writes into {@link AurorasDecoPack} was
- * invisible to every resource lookup, regardless of the content being correctly generated in memory.
- * Root cause not fully isolated (a same-target-class mixin-ordering clobber from another mod's own
- * dynamic-pack mechanism -- this pack runs under Quilt Loader alongside several mods with similar
- * "always-active virtual pack" designs -- is the leading suspect, but not confirmed), so rather than
- * chase that further this class now <em>also</em> force-appends every default pack directly onto
- * {@link ResourcePackManager#createResourcePacks()}'s own return value -- a single choke point every
- * resource/data reload (client and server alike) unconditionally passes through right before building
- * the {@code ResourcePack} list a reload actually uses, bypassing the providers/scanPacks/alwaysEnabled
- * chain (and whatever is silently defeating it) entirely. The provider registration is left in place
- * since it's harmless and keeps the pack visible/correctly-labeled in the resource pack selection UI.
+ * line), so {@link ResourcePackManager#createResourcePacks()} is also force-appended to directly --
+ * but only for the {@code SERVER_DATA}-typed default pack now (see {@code ReloadableResourceManagerMixin} for the
+ * {@code CLIENT_RESOURCES} side, java/CLAUDE.md §3n). Splitting the two matters: unlike the client
+ * pack, {@link AurorasDecoPack#rebuildData()} needs no live {@link net.minecraft.resource.ResourceManager}
+ * (it only registers recipes/tags/loot tables from already-registered blocks), so it's safe -- and,
+ * confirmed by direct inspection, <em>necessary</em> -- to rebuild it right here: nothing anywhere in
+ * this codebase was ever calling {@code rebuildData()} at all, meaning every dynamically-generated
+ * recipe/tag/loot-table for wood-type-derived content (benches, stumps, shelves, ...) was silently
+ * absent server-side, entirely independently of whatever pack-inclusion bug this class also fixes.
+ * {@link ResourcePackManager#createResourcePacks()} is the right place for this because, confirmed via
+ * {@code SaveLoading.DataPacks.load()}'s own bytecode, it's called immediately before <em>every</em>
+ * construction of a {@code LifecycledResourceManagerImpl} for {@code SERVER_DATA} -- both at server/
+ * world startup and on {@code /reload} -- covering the server side unconditionally, the same way it
+ * already covers pack inclusion for both types.
  */
 @Mixin(ResourcePackManager.class)
 public class ResourcePackManagerMixin {
@@ -67,12 +69,17 @@ public class ResourcePackManagerMixin {
 	}
 
 	@Inject(method = "createResourcePacks", at = @At("RETURN"), cancellable = true)
-	private void aurorasdeco$forceAppendDynamicPacks(CallbackInfoReturnable<List<ResourcePack>> cir) {
-		var defaultPacks = AurorasDecoPack.getDefaultPacks();
-		if (defaultPacks.isEmpty()) return;
+	private void aurorasdeco$includeAndRebuildServerDataPacks(CallbackInfoReturnable<List<ResourcePack>> cir) {
+		var toRebuild = AurorasDecoPack.getDefaultPacks().stream()
+				.filter(pack -> pack.getType() == ResourceType.SERVER_DATA)
+				.toList();
+		if (toRebuild.isEmpty()) return;
 
 		var packs = new ArrayList<ResourcePack>(cir.getReturnValue());
-		packs.addAll(defaultPacks);
+		for (var pack : toRebuild) {
+			packs.remove(pack);
+			packs.add(0, pack.rebuild(ResourceType.SERVER_DATA, null));
+		}
 		cir.setReturnValue(packs);
 	}
 }

@@ -51,7 +51,6 @@
     "world.MultiNoiseBiomeSourceParameterListMixin"
   ],
   "client": [
-    "client.BakedModelManagerMixin",
     "client.BedBlockClientMixin",
     "client.BlockDustParticleFactoryMixin",
     "client.BlockStateParticleEffectAccessor",
@@ -60,6 +59,7 @@
     "client.MobEntityRendererAccessor",
     "client.ModelLoaderAccessor",
     "client.MouseMixin",
+    "client.ReloadableResourceManagerMixin",
     "client.SmithingScreenMixin",
     "client.TranslationStorageMixin"
   ],
