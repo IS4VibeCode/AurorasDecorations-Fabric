@@ -95,7 +95,7 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 	private int addRelative(ItemStack toFind, ItemTreeNode node, int offset) {
 		for (int i = 0; i < this.nodes.size(); i++) {
 			if (this.nodes.get(i) instanceof ItemTreeItemNode item) {
-				if (ItemStack.canCombine(item.stack(), toFind)) {
+				if (ItemStack.areItemsAndComponentsEqual(item.stack(), toFind)) {
 					this.nodes.add(i + offset, node);
 					return i + offset;
 				}
@@ -183,10 +183,10 @@ public class ItemTreeGroupNode implements ItemTreeNode {
 
 		for (int i = 0; i < this.nodes.size(); i++) {
 			if (this.nodes.get(i) instanceof ItemTreeItemNode item) {
-				if (ItemStack.canCombine(item.stack(), from)) {
+				if (ItemStack.areItemsAndComponentsEqual(item.stack(), from)) {
 					start = i;
 				}
-				if (ItemStack.canCombine(item.stack(), to)) {
+				if (ItemStack.areItemsAndComponentsEqual(item.stack(), to)) {
 					end = i;
 					break;
 				}

@@ -71,11 +71,11 @@ public class ItemTree extends ItemTreeGroupNode {
 			for (int j = 0; j < nodes.size(); j++) {
 				ItemTreeItemNode node = nodes.get(j);
 
-				if (ItemStack.canCombine(node.stack(), current)) {
+				if (ItemStack.areItemsAndComponentsEqual(node.stack(), current)) {
 					node.setVisibility(ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS);
 					foundIndex = -1;
 					break;
-				} else if (previous != null && ItemStack.canCombine(node.stack(), previous)) {
+				} else if (previous != null && ItemStack.areItemsAndComponentsEqual(node.stack(), previous)) {
 					foundIndex = j + 1;
 				}
 			}

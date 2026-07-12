@@ -21,6 +21,7 @@ import dev.lambdaurora.aurorasdeco.registry.AurorasDecoSounds;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoTags;
 import net.minecraft.block.*;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -29,6 +30,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -133,11 +135,21 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
 		var box = FLAME_BOX.offset(pos);
 		if (box.intersects(entity.getBoundingBox()) && !entity.isFireImmune() && state.get(LIT)
-				&& entity instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity) entity)) {
+				&& entity instanceof LivingEntity livingEntity && !hasFrostWalker(world, livingEntity)) {
 			entity.damage(world.getDamageSources().inFire(), (float) this.fireDamage);
 		}
 
 		super.onEntityCollision(state, world, pos, entity);
+	}
+
+	/**
+	 * Replaces the removed {@code EnchantmentHelper.hasFrostWalker(LivingEntity)} -- enchantments are
+	 * now data-driven registry entries rather than hardcoded classes, so the level lookup needs a
+	 * resolved {@code RegistryEntry<Enchantment>} instead of a static method per enchantment.
+	 */
+	private static boolean hasFrostWalker(World world, LivingEntity entity) {
+		var frostWalker = world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).entryOf(Enchantments.FROST_WALKER);
+		return EnchantmentHelper.getEquipmentLevel(frostWalker, entity) > 0;
 	}
 
 	/* Updates */

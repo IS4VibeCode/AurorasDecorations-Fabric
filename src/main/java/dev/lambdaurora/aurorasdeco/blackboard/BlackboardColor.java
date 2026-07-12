@@ -221,10 +221,9 @@ public class BlackboardColor extends BlackboardDrawModifier {
 			return COLORS.get(color.getId() + 1);
 		}
 
-		int red = (int) (color.getColorComponents()[0] * 255.f);
-		int green = (int) (color.getColorComponents()[1] * 255.f);
-		int blue = (int) (color.getColorComponents()[2] * 255.f);
-		return new BlackboardColor(color.getId() + 1, 0xff000000 | (red << 16) | (green << 8) | blue, dyeItem);
+		// DyeColor.getColorComponents() was removed; getEntityColor() gives the same packed 0xRRGGBB
+		// value the old float components were derived from.
+		return new BlackboardColor(color.getId() + 1, 0xff000000 | color.getEntityColor(), dyeItem);
 	}
 
 	public static void tryRegisterColorFromItem(Identifier id, Item item) {

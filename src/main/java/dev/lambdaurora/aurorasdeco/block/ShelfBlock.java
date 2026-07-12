@@ -278,7 +278,7 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 					int slot = y * 4 + x;
 					var stack = shelf.getStack(slot);
 					if (stack.isEmpty()
-							|| (ItemStack.canCombine(stack, handStack) && stack.getCount() < stack.getMaxCount())) {
+							|| (ItemStack.areItemsAndComponentsEqual(stack, handStack) && stack.getCount() < stack.getMaxCount())) {
 						if (stack.isEmpty()) {
 							stack = handStack.copy();
 							stack.setCount(1);
