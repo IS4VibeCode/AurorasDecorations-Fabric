@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Adds wall lantern to the lantern block item and more.
@@ -115,7 +115,7 @@ public abstract class BlockItemMixin extends Item implements BlockItemAccessor {
 				.ifPresent(explodingRecipe -> {
 					int count = entity.getStack().getCount();
 					for (int i = 0; i < count; i++)
-						ItemUsage.spawnItemContents(entity, Stream.of(explodingRecipe.value().craft(inv, server.getRegistryManager())));
+						ItemUsage.spawnItemContents(entity, List.of(explodingRecipe.value().craft(inv, server.getRegistryManager())));
 					ci.cancel();
 				});
 	}
