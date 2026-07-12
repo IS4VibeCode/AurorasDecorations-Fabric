@@ -22,7 +22,7 @@ import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PillarBlock;
-import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -68,7 +68,7 @@ public class FloweringAzaleaLogBlock extends PillarBlock {
 
 			world.setBlockState(pos, this.normalSupplier.get().getDefaultState().with(PillarBlock.AXIS, state.get(PillarBlock.AXIS)), 11);
 
-			heldStack.damage(1, player, hand == Hand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+			heldStack.damage(1, player, LivingEntity.getSlotForHand(hand));
 
 			return ItemActionResult.SUCCESS;
 		}

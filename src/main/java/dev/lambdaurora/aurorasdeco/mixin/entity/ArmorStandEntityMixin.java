@@ -81,7 +81,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 		} else if (stack.isOf(Items.SHEARS) && player.isSneaking() && !this.shouldHideBasePlate()) {
 			this.setHideBasePlate(true);
 			this.playSound(AurorasDecoSounds.ARMOR_STAND_HIDE_BASE_PLATE_SOUND_EVENT, 1.f, 1.f);
-			stack.damage(1, player, p -> p.sendToolBreakStatus(hand));
+			stack.damage(1, player, LivingEntity.getSlotForHand(hand));
 			world.emitGameEvent(player, GameEvent.SHEAR, this.getBlockPos());
 			cir.setReturnValue(ActionResult.SUCCESS);
 		}

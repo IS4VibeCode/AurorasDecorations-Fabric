@@ -128,28 +128,27 @@ public final class AurorasDecoRegistry {
 			new Item.Settings()
 	);
 	public static final Block AZALEA_BUTTON_BLOCK = registerWithItem("azalea_button",
-			new ButtonBlock(FabricBlockSettings.copyOf(Blocks.OAK_BUTTON), BlockSetType.OAK, 30, true),
+			new ButtonBlock(BlockSetType.OAK, 30, FabricBlockSettings.copyOf(Blocks.OAK_BUTTON)),
 			new Item.Settings()
 	);
 	public static final DoorBlock AZALEA_DOOR = registerWithItem("azalea_door",
-			new DoorBlock(FabricBlockSettings.copyOf(Blocks.OAK_DOOR).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor()), BlockSetType.OAK),
+			new DoorBlock(BlockSetType.OAK, FabricBlockSettings.copyOf(Blocks.OAK_DOOR).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor())),
 			new Item.Settings()
 	);
 	public static final FenceBlock AZALEA_FENCE_BLOCK = registerWithItem("azalea_fence",
 			new FenceBlock(FabricBlockSettings.copyOf(AZALEA_PLANKS_BLOCK)),
 			new Item.Settings());
 	public static final FenceGateBlock AZALEA_FENCE_GATE_BLOCK = registerWithItem("azalea_fence_gate",
-			new FenceGateBlock(FabricBlockSettings.copyOf(AZALEA_PLANKS_BLOCK), net.minecraft.block.WoodType.OAK), new Item.Settings());
+			new FenceGateBlock(net.minecraft.block.WoodType.OAK, FabricBlockSettings.copyOf(AZALEA_PLANKS_BLOCK)), new Item.Settings());
 	public static final Block AZALEA_PRESSURE_PLATE_BLOCK = registerWithItem("azalea_pressure_plate",
 			new PressurePlateBlock(
-					PressurePlateBlock.ActivationRule.EVERYTHING,
-					FabricBlockSettings.copyOf(Blocks.OAK_PRESSURE_PLATE).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor()),
-					BlockSetType.OAK
+					BlockSetType.OAK,
+					FabricBlockSettings.copyOf(Blocks.OAK_PRESSURE_PLATE).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor())
 			),
 			new Item.Settings()
 	);
 	public static final TrapdoorBlock AZALEA_TRAPDOOR = registerWithItem("azalea_trapdoor",
-			new TrapdoorBlock(FabricBlockSettings.copyOf(Blocks.OAK_TRAPDOOR).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor()), BlockSetType.OAK),
+			new TrapdoorBlock(BlockSetType.OAK, FabricBlockSettings.copyOf(Blocks.OAK_TRAPDOOR).mapColor(AZALEA_PLANKS_BLOCK.getDefaultMapColor())),
 			new Item.Settings()
 	);
 
@@ -191,28 +190,27 @@ public final class AurorasDecoRegistry {
 			new Item.Settings()
 	);
 	public static final Block JACARANDA_BUTTON_BLOCK = registerWithItem("jacaranda_button",
-			new ButtonBlock(FabricBlockSettings.copyOf(Blocks.OAK_BUTTON), BlockSetType.OAK, 30, true),
+			new ButtonBlock(BlockSetType.OAK, 30, FabricBlockSettings.copyOf(Blocks.OAK_BUTTON)),
 			new Item.Settings()
 	);
 	public static final DoorBlock JACARANDA_DOOR = registerWithItem("jacaranda_door",
-			new DoorBlock(FabricBlockSettings.copyOf(Blocks.OAK_DOOR).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor()), BlockSetType.OAK),
+			new DoorBlock(BlockSetType.OAK, FabricBlockSettings.copyOf(Blocks.OAK_DOOR).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor())),
 			new Item.Settings()
 	);
 	public static final FenceBlock JACARANDA_FENCE_BLOCK = registerWithItem("jacaranda_fence",
 			new FenceBlock(FabricBlockSettings.copyOf(JACARANDA_PLANKS_BLOCK)),
 			new Item.Settings());
 	public static final FenceGateBlock JACARANDA_FENCE_GATE_BLOCK = registerWithItem("jacaranda_fence_gate",
-			new FenceGateBlock(FabricBlockSettings.copyOf(JACARANDA_PLANKS_BLOCK), net.minecraft.block.WoodType.OAK), new Item.Settings());
+			new FenceGateBlock(net.minecraft.block.WoodType.OAK, FabricBlockSettings.copyOf(JACARANDA_PLANKS_BLOCK)), new Item.Settings());
 	public static final Block JACARANDA_PRESSURE_PLATE_BLOCK = registerWithItem("jacaranda_pressure_plate",
 			new PressurePlateBlock(
-					PressurePlateBlock.ActivationRule.EVERYTHING,
-					FabricBlockSettings.copyOf(Blocks.OAK_PRESSURE_PLATE).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor()),
-					BlockSetType.OAK
+					BlockSetType.OAK,
+					FabricBlockSettings.copyOf(Blocks.OAK_PRESSURE_PLATE).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor())
 			),
 			new Item.Settings()
 	);
 	public static final TrapdoorBlock JACARANDA_TRAPDOOR = registerWithItem("jacaranda_trapdoor",
-			new TrapdoorBlock(FabricBlockSettings.copyOf(Blocks.OAK_TRAPDOOR).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor()), BlockSetType.OAK),
+			new TrapdoorBlock(BlockSetType.OAK, FabricBlockSettings.copyOf(Blocks.OAK_TRAPDOOR).mapColor(JACARANDA_PLANKS_BLOCK.getDefaultMapColor())),
 			new Item.Settings()
 	);
 
@@ -337,7 +335,7 @@ public final class AurorasDecoRegistry {
 			new SturdyStoneBlock(),
 			new Item.Settings());
 	public static final FenceGateBlock NETHER_BRICK_FENCE_GATE = registerWithItem("nether_brick_fence_gate",
-			new FenceGateBlock(FabricBlockSettings.copyOf(Blocks.NETHER_BRICK_FENCE), net.minecraft.block.WoodType.OAK),
+			new FenceGateBlock(net.minecraft.block.WoodType.OAK, FabricBlockSettings.copyOf(Blocks.NETHER_BRICK_FENCE)),
 			new Item.Settings());
 	//endregion
 

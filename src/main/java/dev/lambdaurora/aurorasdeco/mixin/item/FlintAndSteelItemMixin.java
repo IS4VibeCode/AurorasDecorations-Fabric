@@ -22,6 +22,7 @@ import dev.lambdaurora.aurorasdeco.block.BurntVineBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
@@ -30,6 +31,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -58,7 +60,7 @@ public class FlintAndSteelItemMixin {
 			world.setBlockState(pos, BurntVineBlock.fromVine(state), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 			world.emitGameEvent(player, GameEvent.BLOCK_PLACE, pos);
 			if (player != null) {
-				context.getStack().damage(1, player, p -> p.sendToolBreakStatus(context.getHand()));
+				context.getStack().damage(1, player, LivingEntity.getSlotForHand(context.getHand()));
 			}
 
 			if (world.isClient()) {
@@ -79,7 +81,7 @@ public class FlintAndSteelItemMixin {
 			world.setBlockState(pos, state.with(Properties.LIT, true), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 			world.emitGameEvent(player, GameEvent.BLOCK_PLACE, pos);
 			if (player != null) {
-				context.getStack().damage(1, player, p -> p.sendToolBreakStatus(context.getHand()));
+				context.getStack().damage(1, player, LivingEntity.getSlotForHand(context.getHand()));
 			}
 
 			cir.setReturnValue(ActionResult.success(world.isClient()));

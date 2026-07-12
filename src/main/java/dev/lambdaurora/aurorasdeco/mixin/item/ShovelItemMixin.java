@@ -20,6 +20,7 @@ package dev.lambdaurora.aurorasdeco.mixin.item;
 import dev.lambdaurora.aurorasdeco.block.BrazierBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.ShovelItem;
@@ -48,7 +49,7 @@ public class ShovelItemMixin {
 			if (!world.isClient()) {
 				world.setBlockState(pos, state, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 				if (player != null) {
-					context.getStack().damage(1, player, p -> p.sendToolBreakStatus(context.getHand()));
+					context.getStack().damage(1, player, LivingEntity.getSlotForHand(context.getHand()));
 				}
 			}
 
