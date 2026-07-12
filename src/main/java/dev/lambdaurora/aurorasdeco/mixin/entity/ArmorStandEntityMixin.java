@@ -26,6 +26,7 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -88,7 +89,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 	}
 
 	@Inject(method = "breakAndDropItem", at = @At("HEAD"))
-	private void onBreakAndDropItem(DamageSource damageSource, CallbackInfo ci) {
+	private void onBreakAndDropItem(ServerWorld world, DamageSource damageSource, CallbackInfo ci) {
 		if (this.shouldShowArms()) {
 			Block.dropStack(this.getWorld(), this.getBlockPos(), new ItemStack(Items.STICK));
 		}
