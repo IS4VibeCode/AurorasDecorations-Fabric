@@ -51,8 +51,8 @@ public record UnbakedForwardingModel(UnbakedModel baseModel, Function<BakedModel
 
 	@Override
 	public BakedModel bake(
-			Baker loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
-		return this.factory.apply(this.baseModel.bake(loader, textureGetter, rotationContainer, modelId));
+		return this.factory.apply(this.baseModel.bake(loader, textureGetter, rotationContainer));
 	}
 }

@@ -65,14 +65,14 @@ public class UnbakedBlackboardModel implements AuroraUnbakedModel {
 
 	@Override
 	public BakedModel bake(
-			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
-		return new BakedBlackboardModel(this.bakeBaseModel(modelBaker, textureGetter, rotationContainer, modelId));
+		return new BakedBlackboardModel(this.bakeBaseModel(modelBaker, textureGetter, rotationContainer));
 	}
 
 	protected BakedModel bakeBaseModel(
-			Baker loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
-		return this.baseModel.bake(loader, textureGetter, rotationContainer, modelId);
+		return this.baseModel.bake(loader, textureGetter, rotationContainer);
 	}
 }

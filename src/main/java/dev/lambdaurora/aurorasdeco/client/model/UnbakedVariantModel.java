@@ -67,7 +67,7 @@ public class UnbakedVariantModel<T extends UnbakedModel> implements UnbakedModel
 
 	@Override
 	public BakedModel bake(
-			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
 		var map = new Object2ReferenceOpenHashMap<String, BlockState>();
 		var models = new Reference2ObjectOpenHashMap<BlockState, BakedModel>();
@@ -77,7 +77,7 @@ public class UnbakedVariantModel<T extends UnbakedModel> implements UnbakedModel
 		});
 
 		this.unbakedVariantMap.forEach((variant, model) -> {
-			models.put(map.get(variant), model.bake(modelBaker, textureGetter, rotationContainer, modelId));
+			models.put(map.get(variant), model.bake(modelBaker, textureGetter, rotationContainer));
 		});
 
 		return new BakedVariantModel(models);

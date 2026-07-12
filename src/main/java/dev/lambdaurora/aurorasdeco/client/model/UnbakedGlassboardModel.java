@@ -107,16 +107,16 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 
 	@Override
 	public BakedModel bake(
-			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
-		var baseModel = this.bakeBaseModel(modelBaker, textureGetter, rotationContainer, modelId);
+		var baseModel = this.bakeBaseModel(modelBaker, textureGetter, rotationContainer);
 
-		return new BakedGlassboardModel(baseModel, this.bakeAllConnectingModels(modelBaker, textureGetter, rotationContainer, modelId, baseModel));
+		return new BakedGlassboardModel(baseModel, this.bakeAllConnectingModels(modelBaker, textureGetter, rotationContainer, baseModel));
 	}
 
 	private Int2ObjectMap<List<BakedModel>> bakeAllConnectingModels(
 			Baker baker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer,
-			Identifier modelId, BakedModel baseModel
+			BakedModel baseModel
 	) {
 		var map = new Int2ObjectOpenHashMap<List<BakedModel>>();
 
@@ -127,7 +127,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 			for (var type : Type.TYPES) {
 				int id = this.getCornerDataIndex(corner, type);
 				bakedModels.put(id, baker.getOrLoadModel(this.identifiers.get(id))
-						.bake(baker, textureGetter, rotationContainer, modelId));
+						.bake(baker, textureGetter, rotationContainer));
 			}
 		}
 

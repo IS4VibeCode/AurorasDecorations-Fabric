@@ -44,8 +44,8 @@ public record UnbakedBenchModel(UnbakedModel baseModel, RestModelManager restMod
 
 	@Override
 	public BakedModel bake(
-			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId
+			Baker modelBaker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer
 	) {
-		return new BakedBenchModel(this.baseModel().bake(modelBaker, textureGetter, rotationContainer, modelId), this.restModelManager());
+		return new BakedBenchModel(this.baseModel().bake(modelBaker, textureGetter, rotationContainer), this.restModelManager());
 	}
 }
