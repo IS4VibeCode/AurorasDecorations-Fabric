@@ -61,6 +61,16 @@ public final class DynamicLang {
 		var oakLog = WoodType.OAK.getComponent(WoodType.ComponentType.LOG);
 		var oakSlab = WoodType.OAK.getComponent(WoodType.ComponentType.SLAB);
 
+		// Under Connector, Minecraft's own bootstrap ClientLanguage load for the early loading-screen
+		// overlay can fire before Fabric mod entrypoints run (and therefore before AurorasDecoRegistry's
+		// registry sweep populates WoodType's components) -- skip gracefully here; the real, fully
+		// modded resource reload that happens once mod loading is complete will call this again with
+		// everything populated.
+		if (oakPlanks == null || oakLog == null || oakSlab == null) {
+			PROVIDERS.forEach((entry, provider) -> entries.computeIfAbsent(entry, s -> provider.provideEntry(context)));
+			return;
+		}
+
 		var oakPlanksName = context.get(oakPlanks.block().getTranslationKey());
 		var oakLogName = context.get(oakLog.block().getTranslationKey());
 		var oakSlabName = context.get(oakSlab.block().getTranslationKey());
