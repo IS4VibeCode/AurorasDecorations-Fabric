@@ -33,7 +33,6 @@
     "entity.FoxEntityAccessor",
     "entity.ItemFrameEntityMixin",
     "entity.LivingEntityMixin",
-    "entity.MobEntityAccessor",
     "entity.ParrotEntityMixin",
     "entity.ServerPlayerEntityMixin",
     "entity.SitGoalMixin",

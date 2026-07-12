@@ -48,8 +48,8 @@ import dev.lambdaurora.aurorasdeco.tooltip.PainterPaletteTooltipData;
 import net.minecraft.block.Block;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.client.color.world.FoliageColors;
-import net.minecraft.client.color.world.GrassColors;
+import net.minecraft.world.biome.FoliageColors;
+import net.minecraft.world.biome.GrassColors;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.particle.LavaEmberParticle;
@@ -210,8 +210,9 @@ public class AurorasDecoClient implements ClientModInitializer {
 						return UnbakedBlackboardModel.of(modelId, model,
 								(partId, m) -> {
 									var modelLoader = (ModelLoaderAccessor) ctx.loader();
-									modelLoader.invokePutModel(partId, m);
-									modelLoader.getModelsToBake().put(partId, m);
+									var partModelId = net.minecraft.client.util.ModelIdentifier.ofInventoryVariant(partId);
+									modelLoader.invokePutModel(partModelId, m);
+									modelLoader.getModelsToBake().put(partModelId, m);
 								}
 						);
 					}

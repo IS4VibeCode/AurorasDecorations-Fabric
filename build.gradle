@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.8-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -58,14 +58,18 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = 'UTF-8'
 	it.options.deprecation(true)
-	it.options.release = 17
+	it.options.release = 21
+	// javac's defaults (-Xmaxerrs 100 / -Xmaxwarns 100) were silently truncating build.log during the
+	// 1.21.1 upgrade -- raised well past any expected single-round count so every error/warning is
+	// visible in one pass instead of trickling out a hidden 100 at a time.
+	it.options.compilerArgs << '-Xmaxerrs' << '10000' << '-Xmaxwarns' << '10000'
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

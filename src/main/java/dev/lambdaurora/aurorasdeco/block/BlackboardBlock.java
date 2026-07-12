@@ -30,6 +30,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +39,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -232,7 +233,8 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 					world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS,
 							2.f, 1.f);
 					return ActionResult.success(world.isClient());
-				} else if (stack.isOf(Items.POTION) && PotionUtil.getPotion(stack) == Potions.WATER
+				} else if (stack.isOf(Items.POTION)
+						&& stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).matches(Potions.WATER)
 						&& this.tryClear(world, blackboard, player)) {
 					player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
 					if (!player.getAbilities().creativeMode) {

@@ -20,14 +20,15 @@ package dev.lambdaurora.aurorasdeco.block.plant;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoTags;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import net.minecraft.block.*;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
@@ -161,8 +162,8 @@ public final class DuckweedBlock extends Block implements FluidFillable, Fertili
 	/* Tooltip */
 
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
-		super.appendTooltip(stack, world, tooltip, options);
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 		tooltip.add(Text.literal("Lemnoideae").formatted(Formatting.GOLD, Formatting.ITALIC));
 	}
 }

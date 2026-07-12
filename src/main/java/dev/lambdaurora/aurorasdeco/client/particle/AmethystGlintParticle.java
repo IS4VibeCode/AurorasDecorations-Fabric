@@ -19,7 +19,7 @@ package dev.lambdaurora.aurorasdeco.client.particle;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.SimpleParticleType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -49,9 +49,9 @@ public class AmethystGlintParticle extends SpriteBillboardParticle {
 		return ParticleTextureSheet.PARTICLE_SHEET_OPAQUE;
 	}
 
-	public record Factory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType> {
+	public record Factory(SpriteProvider spriteProvider) implements ParticleFactory<SimpleParticleType> {
 		@Override
-		public Particle createParticle(DefaultParticleType parameters, ClientWorld clientWorld, double x, double y, double z,
+		public Particle createParticle(SimpleParticleType parameters, ClientWorld clientWorld, double x, double y, double z,
 				double velocityX, double velocityY, double velocityZ) {
 			var random = clientWorld.random;
 			var particle = new AmethystGlintParticle(clientWorld, x, y, z,

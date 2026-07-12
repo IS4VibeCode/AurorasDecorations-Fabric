@@ -22,7 +22,7 @@ import dev.lambdaurora.aurorasdeco.client.tooltip.BlackboardTooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 
 /**
  * Represents the blackboard tooltip data. Used to build the {@link BlackboardTooltipComponent} on the client.

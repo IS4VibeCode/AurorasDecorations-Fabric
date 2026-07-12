@@ -23,8 +23,8 @@ import com.google.gson.JsonSyntaxException;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.AdvancementRequirements;
 import net.minecraft.advancement.AdvancementRewards;
-import net.minecraft.advancement.CriterionMerger;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.advancement.criterion.RecipeUnlockedCriterion;
 import net.minecraft.predicate.NumberRange;
@@ -95,7 +95,7 @@ public final class AdvancementDatagen {
 
 		advancement.parent(new Identifier("recipes/root"));
 		advancement.rewards(AdvancementRewards.Builder.recipe(recipe.getId()));
-		advancement.criteriaMerger(CriterionMerger.OR);
+		advancement.criteriaMerger(AdvancementRequirements.CriterionMerger.OR);
 		advancement.criterion("has_self", InventoryChangedCriterion.Conditions.items(recipe.getOutput(null).getItem()));
 		advancement.criterion("has_the_recipe",
 				new RecipeUnlockedCriterion.Conditions(LootContextPredicate.EMPTY, recipe.getId())

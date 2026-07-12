@@ -3,7 +3,7 @@
 	"id": "aurorasdeco",
 	"version": "${version}",
 	"name": "Aurora's Decorations",
-	"description": "A decorations-focused mod which tries to have a twist for its different features.\n\nPorted from Quilt (LambdAurora upstream, commit 9073bd2, MC 1.20.1) to plain Fabric -- research port, not an official release.",
+	"description": "A decorations-focused mod which tries to have a twist for its different features.\n\nPorted from Quilt (LambdAurora upstream, commit 9073bd2, MC 1.20.1) to plain Fabric, then upgraded to 1.21.1 -- research port, not an official release.",
 	"authors": [
 		"LambdAurora",
 		"april",
@@ -36,8 +36,8 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.9",
-		"minecraft": "~1.20.1",
-		"java": ">=17",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
 		"fabric-api": "*",
 		"terraform-wood-api-v1": ">=7.0.1"
 	},

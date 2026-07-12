@@ -20,9 +20,10 @@ package dev.lambdaurora.aurorasdeco.block;
 import dev.lambdaurora.aurorasdeco.accessor.ItemExtensions;
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.stat.Stats;
@@ -86,7 +87,7 @@ public class PieBlock extends Block {
 	 * @return the corresponding pie block
 	 */
 	public static PieBlock fromPieItem(Item item) {
-		var block = new PieBlock(item.getFoodComponent());
+		var block = new PieBlock(item.getComponents().get(DataComponentTypes.FOOD));
 
 		Item.BLOCK_ITEMS.put(block, item);
 
@@ -152,7 +153,7 @@ public class PieBlock extends Block {
 			return ActionResult.PASS;
 		} else {
 			player.incrementStat(Stats.EAT_CAKE_SLICE);
-			player.getHungerManager().add(foodComponent.getHunger() / 4, foodComponent.getSaturationModifier());
+			player.getHungerManager().add(foodComponent.nutrition() / 4, foodComponent.saturation());
 			int bites = state.get(BITES);
 			world.emitGameEvent(player, GameEvent.EAT, pos);
 			if (bites < 3) {

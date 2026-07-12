@@ -21,7 +21,7 @@ import dev.lambdaurora.aurorasdeco.client.Wind;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -175,9 +175,9 @@ public class LavenderPetalParticle extends SpriteBillboardParticle {
 		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
 	}
 
-	public record Factory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType> {
+	public record Factory(SpriteProvider spriteProvider) implements ParticleFactory<SimpleParticleType> {
 		@Override
-		public Particle createParticle(DefaultParticleType parameters, ClientWorld clientWorld, double x, double y, double z,
+		public Particle createParticle(SimpleParticleType parameters, ClientWorld clientWorld, double x, double y, double z,
 				double velocityX, double velocityY, double velocityZ) {
 			var random = clientWorld.random;
 			var particle = new LavenderPetalParticle(clientWorld, x, y, z, 0.f, random.nextDouble(), 0.f);

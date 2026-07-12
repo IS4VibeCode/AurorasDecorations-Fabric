@@ -20,29 +20,26 @@ package dev.lambdaurora.aurorasdeco.mixin.item;
 import dev.lambdaurora.aurorasdeco.accessor.ItemExtensions;
 import dev.lambdaurora.aurorasdeco.mixin.SimpleRegistryAccessor;
 import net.minecraft.block.Block;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.ActionResult;
-import org.jetbrains.annotations.Nullable;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * The shadowed {@code foodComponent} field this mixin used to read from directly doesn't exist on
+ * {@code Item} anymore -- food data moved entirely into the item-component system in 1.20.5+
+ * (java/CLAUDE.md §3o), read here via the same public {@code getComponents()} accessor used elsewhere
+ * in this port (e.g. PieBlock.fromPieItem).
+ */
 @Mixin(Item.class)
 public class ItemMixin implements ItemExtensions {
-	@Shadow
-	@Final
-	@Nullable
-	private FoodComponent foodComponent;
-
 	@Unique
 	private BlockItem aurorasdeco$placeable;
 	@Unique
@@ -51,8 +48,8 @@ public class ItemMixin implements ItemExtensions {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void makePlaceable(Block block, boolean requireSneaking) {
-		this.aurorasdeco$placeable = new BlockItem(block, new FabricItemSettings()
-				.food(this.foodComponent));
+		this.aurorasdeco$placeable = new BlockItem(block, new Item.Settings()
+				.food(((Item) (Object) this).getComponents().get(DataComponentTypes.FOOD)));
 		this.aurorasdeco$requireSneaking = requireSneaking;
 
 		var cache = ((SimpleRegistryAccessor<Item>) Registries.ITEM).getEntryToIntrusiveHolder();

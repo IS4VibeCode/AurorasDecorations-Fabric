@@ -22,14 +22,15 @@ import dev.lambdaurora.aurorasdeco.block.DirectionalFlowerPotBlock;
 import dev.lambdaurora.aurorasdeco.block.plant.DaffodilBlock;
 import dev.lambdaurora.aurorasdeco.block.plant.DuckweedBlock;
 import dev.lambdaurora.aurorasdeco.block.plant.LavenderBlock;
-import dev.lambdaurora.aurorasdeco.block.sapling.JacarandaSaplingGenerator;
 import dev.lambdaurora.aurorasdeco.item.DuckweedItem;
+import dev.lambdaurora.aurorasdeco.world.gen.feature.AurorasDecoTreeConfiguredFeatures;
 import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.item.Item;
 
 import java.util.List;
+import java.util.Optional;
 
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.registerBlock;
 import static dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry.registerWithItem;
@@ -53,15 +54,15 @@ public final class AurorasDecoPlants {
 	/* Plants */
 
 	public static final Registrar.BlockEntry<DaffodilBlock> DAFFODIL = Registrar.register("daffodil", new DaffodilBlock())
-			.withItem(new FabricItemSettings(), BlockItem::new)
+			.withItem(new Item.Settings(), BlockItem::new)
 			.finish();
 
 	public static final Registrar.BlockEntry<LavenderBlock> LAVENDER = Registrar.register("lavender", new LavenderBlock())
-			.withItem(new FabricItemSettings(), BlockItem::new)
+			.withItem(new Item.Settings(), BlockItem::new)
 			.finish();
 
 	public static final Registrar.BlockEntry<DuckweedBlock> DUCKWEED = Registrar.register("duckweed", new DuckweedBlock())
-			.withItem(new FabricItemSettings(), DuckweedItem::new)
+			.withItem(new Item.Settings(), DuckweedItem::new)
 			.finish();
 
 	/* Burnt Plants */
@@ -78,9 +79,30 @@ public final class AurorasDecoPlants {
 
 	/* Saplings */
 
+	/*
+	 * SaplingGenerator became final and data-driven in 1.21 -- it can no longer be subclassed to
+	 * override getTreeFeature(Random, boolean) (java/CLAUDE.md §3o). Its own randomized-choice logic
+	 * (SaplingGenerator.getSmallTreeFeature, confirmed by disassembly) is:
+	 * "if (random.nextFloat() < rareChance) pick the rare* variant else the regular* variant, falling
+	 * back to the non-bees variant if the bees-specific one is absent" -- exactly reproducing the
+	 * original 50/50 random.nextBoolean() split between jacaranda/flowering_jacaranda by using
+	 * rareChance = 0.5f with the "regular" slot holding plain jacaranda and the "rare" slot holding
+	 * flowering_jacaranda. No mega (giant tree) variant exists for jacaranda.
+	 */
+	private static final SaplingGenerator JACARANDA_SAPLING_GENERATOR = new SaplingGenerator(
+			"jacaranda",
+			0.5f,
+			Optional.empty(),
+			Optional.empty(),
+			Optional.of(AurorasDecoTreeConfiguredFeatures.JACARANDA_TREE),
+			Optional.of(AurorasDecoTreeConfiguredFeatures.FLOWERING_JACARANDA_TREE),
+			Optional.of(AurorasDecoTreeConfiguredFeatures.JACARANDA_TREE_BEES_015),
+			Optional.of(AurorasDecoTreeConfiguredFeatures.FLOWERING_JACARANDA_TREE_BEES_015)
+	);
+
 	public static final SaplingBlock JACARANDA_SAPLING = registerWithItem("jacaranda_sapling",
-			new SaplingBlock(new JacarandaSaplingGenerator(), FabricBlockSettings.copyOf(Blocks.OAK_SAPLING)),
-			new FabricItemSettings()
+			new SaplingBlock(JACARANDA_SAPLING_GENERATOR, FabricBlockSettings.copyOf(Blocks.OAK_SAPLING)),
+			new Item.Settings()
 	);
 
 	public static final FlowerPotBlock POTTED_JACARANDA_SAPLING = registerBlock("potted/jacaranda_sapling",
@@ -90,13 +112,13 @@ public final class AurorasDecoPlants {
 
 	public static final LeavesBlock JACARANDA_LEAVES = registerWithItem("jacaranda_leaves",
 			new LeavesBlock(FabricBlockSettings.copyOf(Blocks.BIRCH_LEAVES)),
-			new FabricItemSettings());
+			new Item.Settings());
 	public static final LeavesBlock BUDDING_JACARANDA_LEAVES = registerWithItem("budding_jacaranda_leaves",
 			new LeavesBlock(FabricBlockSettings.copyOf(Blocks.FLOWERING_AZALEA_LEAVES)),
-			new FabricItemSettings());
+			new Item.Settings());
 	public static final LeavesBlock FLOWERING_JACARANDA_LEAVES = registerWithItem("flowering_jacaranda_leaves",
 			new LeavesBlock(FabricBlockSettings.copyOf(BUDDING_JACARANDA_LEAVES)),
-			new FabricItemSettings());
+			new Item.Settings());
 
 	static {
 		FLOWER_FOREST_PLANTS = List.of(DAFFODIL.getDefaultState(), LAVENDER.getDefaultState());

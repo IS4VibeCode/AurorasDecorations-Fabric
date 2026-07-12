@@ -22,14 +22,15 @@ import dev.lambdaurora.aurorasdeco.block.BlackboardBlock;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.tooltip.BlackboardTooltipData;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.slot.Slot;
@@ -58,7 +59,8 @@ public class BlackboardItem extends BlockItem {
 	public boolean onClicked(ItemStack self, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStack) {
 		if (clickType == ClickType.RIGHT) {
 			if (otherStack.isOf(Items.WATER_BUCKET)
-					|| (otherStack.isOf(Items.POTION) && PotionUtil.getPotion(otherStack) == Potions.WATER)) {
+					|| (otherStack.isOf(Items.POTION)
+						&& otherStack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).matches(Potions.WATER))) {
 				var nbt = AuroraUtil.getOrCreateBlockEntityNbt(self, AurorasDecoRegistry.BLACKBOARD_BLOCK_ENTITY_TYPE);
 				var blackboard = Blackboard.fromNbt(nbt);
 				if (blackboard.isEmpty())

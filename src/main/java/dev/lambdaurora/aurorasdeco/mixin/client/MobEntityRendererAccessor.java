@@ -18,18 +18,23 @@
 package dev.lambdaurora.aurorasdeco.mixin.client;
 
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.MobEntityRenderer;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+/**
+ * {@code renderLeash} moved from {@code MobEntityRenderer}/{@code LivingEntityRenderer} up to the
+ * base {@code EntityRenderer<T>} class in 1.21 (java/CLAUDE.md §3o), alongside the broader
+ * {@code Leashable} interface rework -- confirmed by checking every class in
+ * {@code MobEntityRenderer}'s real inheritance chain for the method.
+ */
 @Environment(EnvType.CLIENT)
-@Mixin(MobEntityRenderer.class)
-public interface MobEntityRendererAccessor<T extends MobEntity> {
+@Mixin(EntityRenderer.class)
+public interface MobEntityRendererAccessor<T extends Entity> {
 	@Invoker("renderLeash")
 	<E extends Entity> void aurorasdeco$renderLeash(T entity, float tickDelta,
 			MatrixStack matrices, VertexConsumerProvider provider,

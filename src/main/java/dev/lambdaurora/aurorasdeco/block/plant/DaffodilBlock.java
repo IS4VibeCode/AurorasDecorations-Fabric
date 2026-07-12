@@ -19,10 +19,11 @@ package dev.lambdaurora.aurorasdeco.block.plant;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -31,8 +32,6 @@ import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -80,8 +79,8 @@ public final class DaffodilBlock extends AuroraFlowerBlock {
 	/* Tooltip */
 
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
-		super.appendTooltip(stack, world, tooltip, options);
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type) {
+		super.appendTooltip(stack, context, tooltip, type);
 		tooltip.add(Text.literal("Narcissus pseudonarcissus").formatted(Formatting.GOLD, Formatting.ITALIC));
 	}
 }

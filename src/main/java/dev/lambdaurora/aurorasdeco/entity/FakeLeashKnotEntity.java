@@ -17,17 +17,14 @@
 
 package dev.lambdaurora.aurorasdeco.entity;
 
-import dev.lambdaurora.aurorasdeco.mixin.entity.MobEntityAccessor;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Leashable;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.LeashKnotEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -55,10 +52,19 @@ public class FakeLeashKnotEntity extends MobEntity {
 
 	/* Serialization */
 
+	/*
+	 * MobEntityAccessor's raw "leashNbt" compound field is gone in 1.21 -- leash state was formalized
+	 * into the Leashable interface (java/CLAUDE.md §3o), which MobEntity now implements directly, with
+	 * public getLeashData()/setLeashData() (no accessor mixin needed at all) and default
+	 * readLeashDataFromNbt(NbtCompound)/writeLeashDataToNbt(NbtCompound, LeashData) methods replacing
+	 * this class's old hand-rolled resolved/unresolved-holder NBT logic outright -- confirmed against
+	 * the real 1.21.1 Leashable class that these defaults already handle both the "still unresolved,
+	 * read from disk" and "resolved to a live entity" cases the old code branched on manually.
+	 */
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {
-		if (nbt.contains("Leash", NbtElement.COMPOUND_TYPE)) {
-			((MobEntityAccessor) this).setLeashNbt(nbt.getCompound("Leash"));
+		if (nbt.contains(Leashable.LEASH_NBT_KEY)) {
+			this.setLeashData(this.readLeashDataFromNbt(nbt));
 		}
 		this.setPersistent();
 		this.setAiDisabled(true);
@@ -66,23 +72,8 @@ public class FakeLeashKnotEntity extends MobEntity {
 
 	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt) {
-		var leashNbt = ((MobEntityAccessor) this).getLeashNbt();
-
-		if (this.getHoldingEntity() != null) {
-			leashNbt = new NbtCompound();
-			if (this.getHoldingEntity() instanceof LivingEntity) {
-				var uuid = this.getHoldingEntity().getUuid();
-				leashNbt.putUuid("UUID", uuid);
-			} else if (this.getHoldingEntity() instanceof AbstractDecorationEntity) {
-				var pos = ((AbstractDecorationEntity) this.getHoldingEntity()).getDecorationBlockPos();
-				leashNbt.putInt("X", pos.getX());
-				leashNbt.putInt("Y", pos.getY());
-				leashNbt.putInt("Z", pos.getZ());
-			}
-
-			nbt.put("Leash", leashNbt);
-		} else if (leashNbt != null) {
-			nbt.put("Leash", leashNbt.copy());
+		if (this.getLeashData() != null) {
+			this.writeLeashDataToNbt(nbt, this.getLeashData());
 		}
 	}
 
@@ -107,7 +98,7 @@ public class FakeLeashKnotEntity extends MobEntity {
 				if (!this.canStayAttached()) {
 					this.breakAndDiscard(true);
 				} else {
-					var holding = this.getHoldingEntity();
+					var holding = this.getLeashHolder();
 					if (holding == null || !holding.isAlive()) {
 						this.breakAndDiscard(true);
 					}
@@ -132,11 +123,11 @@ public class FakeLeashKnotEntity extends MobEntity {
 	private void breakAndDiscard(boolean drop) {
 		this.getWorld().playSound(null, this.getBlockPos(), SoundEvents.ENTITY_LEASH_KNOT_BREAK, SoundCategory.BLOCKS,
 				1.f, 1.f);
-		if (this.isAlive() && this.getHoldingEntity() != null && drop && !this.getWorld().isClient())
+		if (this.isAlive() && this.getLeashHolder() != null && drop && !this.getWorld().isClient())
 			this.dropItem(Items.LEAD, 1);
 		this.discard();
 
-		var holding = this.getHoldingEntity();
+		var holding = this.getLeashHolder();
 		if (holding instanceof LeashKnotEntity)
 			holding.discard();
 	}

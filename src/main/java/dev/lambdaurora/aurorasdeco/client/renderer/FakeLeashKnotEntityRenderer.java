@@ -62,7 +62,7 @@ public class FakeLeashKnotEntityRenderer
 
 		matrices.pop();
 
-		var holding = fakeLeashKnot.getHoldingEntity();
+		var holding = fakeLeashKnot.getLeashHolder();
 		if (holding != null) {
 			((MobEntityRendererAccessor<FakeLeashKnotEntity>) this).aurorasdeco$renderLeash(
 					fakeLeashKnot, tickDelta, matrices, vertexConsumers, holding

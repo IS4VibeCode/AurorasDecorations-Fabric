@@ -22,7 +22,7 @@ import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 
 /**
  * Represents the painter's palette tooltip data. Used to build the {@link PainterPaletteTooltipComponent} on the client.

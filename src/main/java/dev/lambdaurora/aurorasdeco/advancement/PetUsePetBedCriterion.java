@@ -17,37 +17,33 @@
 
 package dev.lambdaurora.aurorasdeco.advancement;
 
-import com.google.gson.JsonObject;
-import dev.lambdaurora.aurorasdeco.AurorasDeco;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lambdaurora.aurorasdeco.mixin.entity.FoxEntityAccessor;
 import net.minecraft.advancement.criterion.AbstractCriterion;
-import net.minecraft.advancement.criterion.AbstractCriterionConditions;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.predicate.BlockPredicate;
-import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
-import net.minecraft.predicate.entity.AdvancementEntityPredicateSerializer;
 import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Criterion conditions moved from manual JSON parsing (getId()/conditionsFromJson()) to a codec-based
+ * shape in 1.21 (java/CLAUDE.md §3o) -- AbstractCriterion<T> now just needs getConditionsCodec(), and
+ * T is a record implementing AbstractCriterion.Conditions, matching the shape of every real vanilla
+ * criterion (e.g. UsedTotemCriterion.Conditions) checked directly against the real 1.21.1 classes.
+ */
 public class PetUsePetBedCriterion extends AbstractCriterion<PetUsePetBedCriterion.Conditions> {
-	private static final Identifier ID = AurorasDeco.id("pet_use_pet_bed");
-
 	@Override
-	public Identifier getId() {
-		return ID;
-	}
-
-	@Override
-	protected Conditions conditionsFromJson(JsonObject obj, LootContextPredicate playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer) {
-		return new Conditions(playerPredicate, BlockPredicate.fromJson(obj.get("block")));
+	public Codec<Conditions> getConditionsCodec() {
+		return Conditions.CODEC;
 	}
 
 	public void trigger(PathAwareEntity entity, ServerWorld world, BlockPos pos) {
@@ -69,23 +65,15 @@ public class PetUsePetBedCriterion extends AbstractCriterion<PetUsePetBedCriteri
 		this.trigger(player, conditions -> conditions.matches(world, pos));
 	}
 
-	public static class Conditions extends AbstractCriterionConditions {
-		private final BlockPredicate blockPredicate;
-
-		public Conditions(LootContextPredicate playerPredicate, BlockPredicate blockPredicate) {
-			super(ID, playerPredicate);
-			this.blockPredicate = blockPredicate;
-		}
+	public record Conditions(Optional<LootContextPredicate> player, BlockPredicate block)
+			implements AbstractCriterion.Conditions {
+		public static final Codec<Conditions> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				LootContextPredicate.CODEC.optionalFieldOf("player").forGetter(Conditions::player),
+				BlockPredicate.CODEC.fieldOf("block").forGetter(Conditions::block)
+		).apply(instance, Conditions::new));
 
 		public boolean matches(ServerWorld world, BlockPos pos) {
-			return this.blockPredicate.test(world, pos);
-		}
-
-		@Override
-		public JsonObject toJson(AdvancementEntityPredicateSerializer predicateSerializer) {
-			var jsonObject = super.toJson(predicateSerializer);
-			jsonObject.add("block", this.blockPredicate.toJson());
-			return jsonObject;
+			return this.block.test(world, pos);
 		}
 	}
 }

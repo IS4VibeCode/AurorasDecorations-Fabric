@@ -27,7 +27,7 @@ import net.minecraft.item.HangingSignItem;
 import net.minecraft.item.SignItem;
 import net.minecraft.util.Identifier;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.item.Item;
 
 import static dev.lambdaurora.aurorasdeco.AurorasDeco.id;
 
@@ -69,10 +69,10 @@ public final class SignData {
 				));
 
 		this.signItem = AurorasDecoRegistry.registerItem(name + "_sign",
-				new SignItem(new FabricItemSettings(), this.signBlock, this.wallSignBlock)
+				new SignItem(new Item.Settings(), this.signBlock, this.wallSignBlock)
 		);
 		this.hangingSignItem = AurorasDecoRegistry.registerItem(name + "_hanging_sign",
-				new HangingSignItem(this.hangingSignBlock, this.wallHangingSignBlock, new FabricItemSettings())
+				new HangingSignItem(this.hangingSignBlock, this.wallHangingSignBlock, new Item.Settings())
 		);
 	}
 

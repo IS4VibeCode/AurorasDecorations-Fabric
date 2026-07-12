@@ -43,7 +43,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.item.Item;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -120,7 +120,7 @@ public class PetBedBlock extends Block {
 				AurorasDeco.id("pet_bed/" + color.getName()),
 				new PetBedBlock(FabricBlockSettings.create()
 						.mapColor(color).sounds(BlockSoundGroup.WOOD).strength(.2f)));
-		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new FabricItemSettings()));
+		var item = AurorasDecoRegistry.registerItem("pet_bed/" + color.getName(), new BlockItem(block, new Item.Settings()));
 		PET_BEDS_ITEM_GROUP_NODE.add(item);
 	}
 

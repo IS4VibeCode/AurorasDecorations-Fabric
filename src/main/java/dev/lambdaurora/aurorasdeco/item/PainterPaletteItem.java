@@ -24,7 +24,7 @@ import dev.lambdaurora.aurorasdeco.registry.AurorasDecoPackets;
 import dev.lambdaurora.aurorasdeco.screen.NestedScreenHandler;
 import dev.lambdaurora.aurorasdeco.screen.PainterPaletteScreenHandler;
 import dev.lambdaurora.aurorasdeco.tooltip.PainterPaletteTooltipData;
-import net.minecraft.client.item.TooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.inventory.SimpleInventory;

@@ -59,7 +59,7 @@ import net.minecraft.world.poi.PointOfInterestType;
 import net.minecraft.world.poi.PointOfInterestTypes;
 import org.jetbrains.annotations.Nullable;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -275,7 +275,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 		for (var color : AuroraUtil.DYE_COLORS) {
 			var block = register(color);
 			var item = AurorasDecoRegistry.registerItem("sleeping_bag/" + block.getColor().getName(),
-					new BlockItem(block, new FabricItemSettings().maxCount(1)));
+					new BlockItem(block, new Item.Settings().maxCount(1)));
 			SLEEPING_BAGS_ITEM_GROUP_NODE.add(item);
 		}
 
