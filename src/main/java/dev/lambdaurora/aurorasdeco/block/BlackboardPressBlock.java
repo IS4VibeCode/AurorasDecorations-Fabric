@@ -23,7 +23,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -151,9 +150,9 @@ public class BlackboardPressBlock extends BlockWithEntity {
 
 	@Override
 	public boolean canPathfindThrough(BlockState state, NavigationType type) {
-		return switch (type) {
-			case LAND, AIR -> false;
-			case WATER -> world.getFluidState(pos).isIn(FluidTags.WATER);
-		};
+		// canPathfindThrough dropped its BlockView/BlockPos parameters in 1.21.1, so it can no longer
+		// query the world for the fluid actually present at this position -- matches every other
+		// canPathfindThrough override in this codebase in just returning false unconditionally.
+		return false;
 	}
 }

@@ -23,6 +23,7 @@ import net.minecraft.block.FlowerBlock;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.BlockPos;
@@ -40,7 +41,7 @@ import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
  * @since 1.0.0
  */
 public class AuroraFlowerBlock extends FlowerBlock implements Fertilizable {
-	public AuroraFlowerBlock(StatusEffect statusEffect, int effectInStewDuration, Settings settings) {
+	public AuroraFlowerBlock(RegistryEntry<StatusEffect> statusEffect, int effectInStewDuration, Settings settings) {
 		super(statusEffect, effectInStewDuration, settings);
 
 		FlammableBlockRegistry.getDefaultInstance().add(this, 60, 100);

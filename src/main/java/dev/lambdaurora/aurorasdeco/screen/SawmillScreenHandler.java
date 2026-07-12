@@ -27,7 +27,9 @@ import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -53,7 +55,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 	private final ScreenHandlerContext context;
 	private final Property selectedRecipe;
 	private final World world;
-	private List<WoodcuttingRecipe> availableRecipes;
+	private List<RecipeEntry<WoodcuttingRecipe>> availableRecipes;
 	private ItemStack inputStack;
 	private long lastTakeTime;
 	final Slot inputSlot;
@@ -107,7 +109,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public List<WoodcuttingRecipe> getAvailableRecipes() {
+	public List<RecipeEntry<WoodcuttingRecipe>> getAvailableRecipes() {
 		return this.availableRecipes;
 	}
 
@@ -154,7 +156,8 @@ public final class SawmillScreenHandler extends ScreenHandler {
 		this.selectedRecipe.set(-1);
 		this.outputSlot.setStack(ItemStack.EMPTY);
 		if (!stack.isEmpty()) {
-			this.availableRecipes = this.world.getRecipeManager().getAllMatches(RECIPE_TYPE, input, this.world);
+			this.availableRecipes = this.world.getRecipeManager()
+					.getAllMatches(RECIPE_TYPE, new SingleStackRecipeInput(stack), this.world);
 		}
 	}
 
@@ -162,7 +165,8 @@ public final class SawmillScreenHandler extends ScreenHandler {
 		if (!this.availableRecipes.isEmpty() && this.isButtonValid(this.selectedRecipe.get())) {
 			var recipe = this.availableRecipes.get(this.selectedRecipe.get());
 			this.output.setLastRecipe(recipe);
-			this.outputSlot.setStack(recipe.craft(this.input, this.world.getRegistryManager()));
+			this.outputSlot.setStack(recipe.value()
+					.craft(new SingleStackRecipeInput(this.inputSlot.getStack()), this.world.getRegistryManager()));
 		} else {
 			this.outputSlot.setStack(ItemStack.EMPTY);
 		}
@@ -189,7 +193,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 			var item = stack.getItem();
 			outputStack = stack.copy();
 			if (fromIndex == 1) {
-				item.onCraft(stack, player.getWorld(), player);
+				item.onCraftByPlayer(stack, player.getWorld(), player);
 				if (!this.insertItem(stack, 2, 38, true)) {
 					return ItemStack.EMPTY;
 				}
@@ -200,7 +204,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 					return ItemStack.EMPTY;
 				}
 			} else if (this.world.getRecipeManager().getFirstMatch(RECIPE_TYPE,
-					new SimpleInventory(stack), this.world).isPresent()) {
+					new SingleStackRecipeInput(stack), this.world).isPresent()) {
 				if (!this.insertItem(stack, 0, 1, false)) {
 					return ItemStack.EMPTY;
 				}
@@ -249,7 +253,7 @@ public final class SawmillScreenHandler extends ScreenHandler {
 
 		@Override
 		public void onTakeItem(PlayerEntity player, ItemStack stack) {
-			stack.onCraft(player.getWorld(), player, stack.getCount());
+			stack.onCraftByPlayer(player.getWorld(), player, stack.getCount());
 			SawmillScreenHandler.this.output.unlockLastRecipe(player, this.getIngredients());
 			var inputStack = SawmillScreenHandler.this.inputSlot.takeStack(1);
 			if (!inputStack.isEmpty()) {

@@ -24,9 +24,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -55,8 +57,8 @@ public class SeatEntity extends Entity {
 	}
 
 	@Override
-	public double getMountedHeightOffset() {
-		return 0;
+	protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
+		return Vec3d.ZERO;
 	}
 
 	@Override
@@ -95,8 +97,8 @@ public class SeatEntity extends Entity {
 	/* Networking */
 
 	@Override
-	public Packet<ClientPlayPacketListener> createSpawnPacket() {
-		return new EntitySpawnS2CPacket(this);
+	public Packet<ClientPlayPacketListener> createSpawnPacket(EntityTrackerEntry entityTrackerEntry) {
+		return new EntitySpawnS2CPacket(this, entityTrackerEntry);
 	}
 
 	/* Ticking */

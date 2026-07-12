@@ -148,7 +148,7 @@ public class BrazierBlock extends AuroraBlock implements Waterloggable {
 	 * resolved {@code RegistryEntry<Enchantment>} instead of a static method per enchantment.
 	 */
 	private static boolean hasFrostWalker(World world, LivingEntity entity) {
-		var frostWalker = world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).entryOf(Enchantments.FROST_WALKER);
+		var frostWalker = world.getRegistryManager().get(RegistryKeys.ENCHANTMENT).entryOf(Enchantments.FROST_WALKER);
 		return EnchantmentHelper.getEquipmentLevel(frostWalker, entity) > 0;
 	}
 

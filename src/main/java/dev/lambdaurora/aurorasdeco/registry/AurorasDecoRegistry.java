@@ -316,10 +316,10 @@ public final class AurorasDecoRegistry {
 			.addSelfTo(BlockEntityType.CAMPFIRE)
 			.finish().block();
 	public static final TorchBlock COPPER_SULFATE_TORCH_BLOCK = registerBlock("copper_sulfate_torch",
-			new TorchBlock(FabricBlockSettings.copyOf(Blocks.TORCH), COPPER_SULFATE_FLAME));
+			new TorchBlock(COPPER_SULFATE_FLAME, FabricBlockSettings.copyOf(Blocks.TORCH)));
 	public static final WallTorchBlock COPPER_SULFATE_WALL_TORCH_BLOCK = registerBlock("copper_sulfate_wall_torch",
-			new WallTorchBlock(FabricBlockSettings.copyOf(COPPER_SULFATE_TORCH_BLOCK)
-					.dropsLike(COPPER_SULFATE_TORCH_BLOCK), COPPER_SULFATE_FLAME));
+			new WallTorchBlock(COPPER_SULFATE_FLAME, FabricBlockSettings.copyOf(COPPER_SULFATE_TORCH_BLOCK)
+					.dropsLike(COPPER_SULFATE_TORCH_BLOCK)));
 	public static final VerticallyAttachableBlockItem COPPER_SULFATE_TORCH_ITEM = registerItem("copper_sulfate_torch",
 			new VerticallyAttachableBlockItem(COPPER_SULFATE_TORCH_BLOCK, COPPER_SULFATE_WALL_TORCH_BLOCK, new Item.Settings(), Direction.DOWN)
 	);

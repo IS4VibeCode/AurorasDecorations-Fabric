@@ -175,7 +175,7 @@ public class SignPostEditScreen extends Screen {
 		var downData = this.signPost.getDown();
 
 		DiffuseLighting.disableGuiDepthLighting();
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, delta);
 		graphics.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, ColorUtil.TEXT_COLOR);
 		matrices.push();
 		matrices.translate(this.width / 2.f, 0.0, 50.0);
@@ -280,15 +280,14 @@ public class SignPostEditScreen extends Screen {
 					int startX = Math.min(v, w) - 1;
 					int endX = Math.max(v, w);
 					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder buffer = tessellator.getBuffer();
 					RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 					RenderSystem.enableColorLogicOp();
 					RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-					buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-					buffer.vertex(model, startX, 9.f, 0.f).color(0, 0, 255, 255).next();
-					buffer.vertex(model, endX, 9.f, 0.f).color(0, 0, 255, 255).next();
-					buffer.vertex(model, endX, -2.f, 0.f).color(0, 0, 255, 255).next();
-					buffer.vertex(model, startX, -2.f, 0.f).color(0, 0, 255, 255).next();
+					BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+					buffer.vertex(model, startX, 9.f, 0.f).color(0, 0, 255, 255);
+					buffer.vertex(model, endX, 9.f, 0.f).color(0, 0, 255, 255);
+					buffer.vertex(model, endX, -2.f, 0.f).color(0, 0, 255, 255);
+					buffer.vertex(model, startX, -2.f, 0.f).color(0, 0, 255, 255);
 					BufferRenderer.draw(buffer.end());
 					RenderSystem.disableColorLogicOp();
 				}

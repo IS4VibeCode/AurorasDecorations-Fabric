@@ -232,7 +232,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerEntity) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerEntity) {
 		if (!world.isClient() && playerEntity.isCreative()) {
 			var part = state.get(PART);
 			if (part == BedPart.FOOT) {
@@ -245,7 +245,7 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 			}
 		}
 
-		super.onBreak(world, pos, state, playerEntity);
+		return super.onBreak(world, pos, state, playerEntity);
 	}
 
 	private static Direction getDirectionTowardsOtherPart(BedPart part, Direction direction) {

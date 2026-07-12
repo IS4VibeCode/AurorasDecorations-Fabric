@@ -18,12 +18,16 @@
 package dev.lambdaurora.aurorasdeco.resource;
 
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
+import net.minecraft.resource.ResourcePack;
+import net.minecraft.resource.ResourcePackInfo;
+import net.minecraft.resource.ResourcePackPosition;
 import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ResourcePackProvider;
 import net.minecraft.resource.ResourcePackSource;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -37,15 +41,25 @@ public class AurorasDecoResourcePackProvider implements ResourcePackProvider {
 	public void register(Consumer<ResourcePackProfile> consumer) {
 		for (var pack : AurorasDecoPack.getDefaultPacks()) {
 			var name = "aurorasdeco_dynamic_" + pack.getType().name().toLowerCase();
+			var info = new ResourcePackInfo(name, Text.literal("Aurora's Decorations Dynamic Data"),
+					ResourcePackSource.BUILTIN, Optional.empty());
 
 			consumer.accept(ResourcePackProfile.create(
-					name,
-					Text.literal("Aurora's Decorations Dynamic Data"),
-					true, // always enabled, not user-toggleable
-					unused -> pack,
+					info,
+					new ResourcePackProfile.PackFactory() {
+						@Override
+						public ResourcePack open(ResourcePackInfo info) {
+							return pack;
+						}
+
+						@Override
+						public ResourcePack openWithOverlays(ResourcePackInfo info, ResourcePackProfile.Metadata metadata) {
+							return pack;
+						}
+					},
 					pack.getType(),
-					ResourcePackProfile.InsertionPosition.TOP,
-					ResourcePackSource.BUILTIN
+					// always enabled, not user-toggleable
+					new ResourcePackPosition(true, ResourcePackProfile.InsertionPosition.TOP, false)
 			));
 		}
 	}

@@ -73,7 +73,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity {
 		var world = this.getWorld();
 		if (stack.isOf(Items.STICK) && !this.shouldShowArms()) {
 			this.setShowArms(true);
-			this.playSound(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 1.f, 1.f);
+			this.playSound(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC.value(), 1.f, 1.f);
 			if (!player.getAbilities().creativeMode)
 				stack.decrement(1);
 			world.emitGameEvent(player, GameEvent.ENTITY_INTERACT, this.getBlockPos());

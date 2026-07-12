@@ -241,14 +241,12 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 
 	@Override
 	public ActionResult onUse(
-			BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit
+			BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit
 	) {
 		if (!world.isClient()) {
 			var shelf = AurorasDecoRegistry.SHELF_BLOCK_ENTITY_TYPE.get(world, pos);
 
 			if (shelf != null && shelf.canPlayerUse(player)) {
-				var handStack = player.getStackInHand(hand);
-
 				if (shelf.isLocked()) {
 					player.sendMessage(
 							Text.translatable("container.isLocked", shelf.getDisplayName()),
@@ -257,49 +255,70 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 					return ActionResult.PASS;
 				}
 
-				if (!handStack.isEmpty()
-						&& ((LockableContainerBlockEntityAccessor) shelf).getLock().equals(ContainerLock.EMPTY)) {
-					var facing = state.get(FACING);
-
-					int y = 0;
-					if (AuroraUtil.posMod(hit.getPos().getY(), 1) <= 0.5)
-						y = 1;
-
-					int x;
-					if (facing.getAxis() == Direction.Axis.Z) {
-						x = (int) (AuroraUtil.posMod(hit.getPos().getX(), 1) * 4.0);
-					} else {
-						x = 3 - (int) (AuroraUtil.posMod(hit.getPos().getZ(), 1) * 4.0);
-					}
-					if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
-						x = 3 - x;
-					}
-
-					int slot = y * 4 + x;
-					var stack = shelf.getStack(slot);
-					if (stack.isEmpty()
-							|| (ItemStack.areItemsAndComponentsEqual(stack, handStack) && stack.getCount() < stack.getMaxCount())) {
-						if (stack.isEmpty()) {
-							stack = handStack.copy();
-							stack.setCount(1);
-							if (!player.getAbilities().creativeMode)
-								handStack.decrement(1);
-						} else {
-							int difference = Math.min(stack.getMaxCount() - stack.getCount(), handStack.getCount());
-
-							stack.increment(difference);
-							handStack.decrement(difference);
-						}
-						shelf.setStack(slot, stack);
-						world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-						return ActionResult.SUCCESS;
-					}
-				} else if (shelf.checkUnlocked(player)) {
+				if (shelf.checkUnlocked(player)) {
 					player.openHandledScreen(shelf);
 				}
 			}
 		}
 		return ActionResult.SUCCESS;
+	}
+
+	@Override
+	public ItemActionResult onUseWithItem(
+			ItemStack handStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+			BlockHitResult hit
+	) {
+		if (world.isClient()) {
+			return ItemActionResult.SUCCESS;
+		}
+
+		var shelf = AurorasDecoRegistry.SHELF_BLOCK_ENTITY_TYPE.get(world, pos);
+		if (shelf == null || !shelf.canPlayerUse(player) || shelf.isLocked()) {
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		}
+
+		if (handStack.isEmpty()
+				|| !((LockableContainerBlockEntityAccessor) shelf).getLock().equals(ContainerLock.EMPTY)) {
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		}
+
+		var facing = state.get(FACING);
+
+		int y = 0;
+		if (AuroraUtil.posMod(hit.getPos().getY(), 1) <= 0.5)
+			y = 1;
+
+		int x;
+		if (facing.getAxis() == Direction.Axis.Z) {
+			x = (int) (AuroraUtil.posMod(hit.getPos().getX(), 1) * 4.0);
+		} else {
+			x = 3 - (int) (AuroraUtil.posMod(hit.getPos().getZ(), 1) * 4.0);
+		}
+		if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
+			x = 3 - x;
+		}
+
+		int slot = y * 4 + x;
+		var stack = shelf.getStack(slot);
+		if (stack.isEmpty()
+				|| (ItemStack.areItemsAndComponentsEqual(stack, handStack) && stack.getCount() < stack.getMaxCount())) {
+			if (stack.isEmpty()) {
+				stack = handStack.copy();
+				stack.setCount(1);
+				if (!player.getAbilities().creativeMode)
+					handStack.decrement(1);
+			} else {
+				int difference = Math.min(stack.getMaxCount() - stack.getCount(), handStack.getCount());
+
+				stack.increment(difference);
+				handStack.decrement(difference);
+			}
+			shelf.setStack(slot, stack);
+			world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+			return ItemActionResult.SUCCESS;
+		}
+
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.LeashKnotEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -57,7 +58,8 @@ public class FakeLeashKnotEntityRenderer
 		if (renderLayer != null) {
 			var vertices = vertexConsumers.getBuffer(renderLayer);
 			int overlay = getOverlay(fakeLeashKnot, this.getAnimationCounter(fakeLeashKnot, tickDelta));
-			this.model.render(matrices, vertices, light, overlay, 1.f, 1.f, 1.f, translucent ? .15f : 1.f);
+			int color = ColorHelper.Argb.fromFloats(translucent ? .15f : 1.f, 1.f, 1.f, 1.f);
+			this.model.render(matrices, vertices, light, overlay, color);
 		}
 
 		matrices.pop();

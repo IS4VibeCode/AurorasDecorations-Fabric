@@ -25,6 +25,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
@@ -62,7 +63,8 @@ public final class CopperSulfateBehavior implements RandomTickComponent {
 					Block.dropStacks(currentState, world, currentPos, world.getBlockEntity(pos));
 				else {
 					var virtualTool = new ItemStack(Items.NETHERITE_PICKAXE);
-					virtualTool.addEnchantment(Enchantments.SILK_TOUCH, 1);
+					var silkTouch = world.getRegistryManager().get(RegistryKeys.ENCHANTMENT).entryOf(Enchantments.SILK_TOUCH);
+					virtualTool.addEnchantment(silkTouch, 1);
 					Block.dropStacks(currentState, world, currentPos, world.getBlockEntity(pos), null, virtualTool);
 				}
 

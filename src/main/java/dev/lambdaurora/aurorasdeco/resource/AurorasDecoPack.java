@@ -264,8 +264,15 @@ public class AurorasDecoPack implements ResourcePack {
 	public void close() {
 	}
 
+	private static final net.minecraft.resource.ResourcePackInfo INFO = new net.minecraft.resource.ResourcePackInfo(
+			"aurorasdeco:virtual_pack",
+			net.minecraft.text.Text.literal("Aurora's Decorations Virtual Pack"),
+			net.minecraft.resource.ResourcePackSource.BUILTIN,
+			java.util.Optional.empty()
+	);
+
 	@Override
-	public String getId() {
-		return "Aurora's Decorations Virtual Pack";
+	public net.minecraft.resource.ResourcePackInfo getInfo() {
+		return INFO;
 	}
 }

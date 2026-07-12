@@ -26,9 +26,6 @@
 		"client": [
 			"dev.lambdaurora.aurorasdeco.client.AurorasDecoClient",
 			"dev.lambdaurora.aurorasdeco.hook.TrinketsHooks"
-		],
-		"emi": [
-			"dev.lambdaurora.aurorasdeco.hook.EmiHooks"
 		]
 	},
 	"mixins": [

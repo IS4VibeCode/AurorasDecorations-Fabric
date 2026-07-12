@@ -357,7 +357,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerEntity) {
+	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity playerEntity) {
 		var blackboard = this.getBlackboardEntity(world, pos);
 		if (blackboard != null) {
 			if (!world.isClient() && playerEntity.isCreative()) {
@@ -377,7 +377,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 			}
 		}
 
-		super.onBreak(world, pos, state, playerEntity);
+		return super.onBreak(world, pos, state, playerEntity);
 	}
 
 	@Override

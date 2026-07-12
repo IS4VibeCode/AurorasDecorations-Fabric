@@ -24,7 +24,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagGroupLoader;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.registry.tag.TagManagerLoader;
 import net.minecraft.resource.DirectoryResourcePack;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.minecraft.resource.ResourceManager;
@@ -56,7 +55,7 @@ public class ModTagReader {
 	}
 
 	public <T> void loadTags(RegistryKey<Registry<T>> registryKey) {
-		var groupLoader = new TagGroupLoader<>(Optional::of, TagManagerLoader.getPath(registryKey));
+		var groupLoader = new TagGroupLoader<>(Optional::of, RegistryKeys.getTagPath(registryKey));
 		groupLoader.load(this.getResourceManager()).forEach((id, values) -> {
 			this.tags.put(TagKey.of(registryKey, id), values);
 		});
@@ -98,7 +97,13 @@ public class ModTagReader {
 				// outright to avoid manufacturing this noise ourselves.
 				if (!java.nio.file.Files.isDirectory(root.resolve("data"))) continue;
 
-				resourcePacks.add(new DirectoryResourcePack(mod.getMetadata().getId(), root, false));
+				var packInfo = new net.minecraft.resource.ResourcePackInfo(
+						mod.getMetadata().getId(),
+						net.minecraft.text.Text.literal(mod.getMetadata().getId()),
+						net.minecraft.resource.ResourcePackSource.NONE,
+						Optional.empty()
+				);
+				resourcePacks.add(new DirectoryResourcePack(packInfo, root));
 			}
 		}
 

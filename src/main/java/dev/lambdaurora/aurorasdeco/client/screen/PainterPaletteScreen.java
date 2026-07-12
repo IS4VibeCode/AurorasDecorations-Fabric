@@ -68,7 +68,7 @@ public class PainterPaletteScreen extends HandledScreen<PainterPaletteScreenHand
 
 	@Override
 	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, delta);
 
 		for (var slot : this.handler.slots) {
 			if (slot instanceof BlackboardToolSlot) {

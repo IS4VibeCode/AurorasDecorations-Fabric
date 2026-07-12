@@ -58,7 +58,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 
 	@Override
 	protected void drawBackground(DrawContext graphics, float delta, int mouseX, int mouseY) {
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, delta);
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		graphics.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 		int scrollAmount = (int) (41.f * this.scrollAmount);
@@ -86,7 +86,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 				int n = i + m % 4 * 16;
 				int o = j + m / 4 * 18 + 2;
 				if (x >= n && x < n + 16 && y >= o && y < o + 18) {
-					graphics.drawItemTooltip(this.textRenderer, list.get(l).getOutput(this.client.world.getRegistryManager()), x, y);
+					graphics.drawItemTooltip(this.textRenderer, list.get(l).value().getResult(this.client.world.getRegistryManager()), x, y);
 				}
 			}
 		}
@@ -117,7 +117,7 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 			int recipeX = x + offset % 4 * 16;
 			int line = offset / 4;
 			int recipeY = y + line * 18 + 2;
-			graphics.drawItem(list.get(i).getOutput(this.client.world.getRegistryManager()), recipeX, recipeY);
+			graphics.drawItem(list.get(i).value().getResult(this.client.world.getRegistryManager()), recipeX, recipeY);
 		}
 	}
 

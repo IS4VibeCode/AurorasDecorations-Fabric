@@ -17,7 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.block;
 
-import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import com.mojang.serialization.MapCodec;
 import dev.lambdaurora.aurorasdeco.block.entity.SignPostBlockEntity;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
@@ -320,16 +320,15 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 
 	private @Nullable BlockPos getLodestonePos(World world, LodestoneTrackerComponent tracker) {
 		var lodestonePos = tracker.target().orElse(null);
-		if (lodestonePos != null && world.getRegistryKey() == lodestonePos.getDimension()) {
-			return lodestonePos.getPos();
+		if (lodestonePos != null && world.getRegistryKey() == lodestonePos.dimension()) {
+			return lodestonePos.pos();
 		}
 		return null;
 	}
 
 	private @Nullable BlockPos getWorldSpawnPos(World world) {
-		var properties = world.getLevelProperties();
 		return world.getDimension().natural()
-				? new BlockPos(properties.getSpawnX(), properties.getSpawnY(), properties.getSpawnZ())
+				? world.getLevelProperties().getSpawnPos()
 				: null;
 	}
 
@@ -420,8 +419,8 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	 */
 	@Environment(EnvType.CLIENT)
 	public static class State extends BlockState {
-		public State(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
-			super(block, immutableMap, mapCodec);
+		public State(Block block, Reference2ObjectArrayMap<Property<?>, Comparable<?>> propertyMap, MapCodec<BlockState> mapCodec) {
+			super(block, propertyMap, mapCodec);
 		}
 
 		@Override
