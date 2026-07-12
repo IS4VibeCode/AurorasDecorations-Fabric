@@ -36,7 +36,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -107,7 +106,7 @@ public final class SawmillBlock extends Block {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
 			BlockHitResult hit) {
 		if (world.isClient()) {
 			return ActionResult.SUCCESS;

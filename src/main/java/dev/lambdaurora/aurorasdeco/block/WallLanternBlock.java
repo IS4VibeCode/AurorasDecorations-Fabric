@@ -233,7 +233,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 	/* Interaction */
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		return this.getLanternBlock().getPickStack(world, pos, this.getLanternState(state));
 	}
 
@@ -245,7 +245,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
 			BlockHitResult hit) {
 		return this.swing(world, state, hit, player, true)
 				? ActionResult.success(world.isClient()) : ActionResult.PASS;

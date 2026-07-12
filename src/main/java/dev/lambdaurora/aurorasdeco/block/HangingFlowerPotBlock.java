@@ -31,9 +31,9 @@ import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.state.StateManager;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -168,12 +168,11 @@ public class HangingFlowerPotBlock extends Block {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	public ItemActionResult onUseWithItem(ItemStack handStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!player.getAbilities().allowModifyWorld) {
-			return ActionResult.PASS;
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
 
-		var handStack = player.getStackInHand(hand);
 		var blockState = (handStack.getItem() instanceof BlockItem blockItem ?
 				CONTENT_TO_POTTED.getOrDefault(blockItem.getBlock(), Blocks.AIR)
 				: Blocks.AIR
@@ -200,12 +199,12 @@ public class HangingFlowerPotBlock extends Block {
 				world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 			}
 
-			return ActionResult.success(world.isClient());
-		} else return ActionResult.CONSUME;
+			return ItemActionResult.success(world.isClient());
+		} else return ItemActionResult.CONSUME;
 	}
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		return this.isEmpty() ? super.getPickStack(world, pos, state) : new ItemStack(this.getContent());
 	}
 

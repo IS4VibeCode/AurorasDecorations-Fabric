@@ -31,9 +31,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -136,12 +136,11 @@ public class StumpBlock extends Block implements SeatBlock, Waterloggable {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
 			BlockHitResult hit) {
-		ItemStack stack = player.getStackInHand(hand);
 		if (this.sit(world, pos, state, player, stack))
-			return ActionResult.success(world.isClient());
-		return super.onUse(state, world, pos, player, hand, hit);
+			return ItemActionResult.success(world.isClient());
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	/* Fluid */

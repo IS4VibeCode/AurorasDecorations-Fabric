@@ -35,6 +35,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -42,7 +43,6 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -54,7 +54,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.GlobalPos;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -64,6 +64,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldEvents;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import net.fabricmc.api.Environment;
@@ -206,25 +207,23 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	/* Interaction */
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		return this.getFenceBlock().getPickStack(world, pos, this.getFenceState(state));
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (hit.getSide().getAxis() == Direction.Axis.Y) return ActionResult.PASS;
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		if (hit.getSide().getAxis() == Direction.Axis.Y) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
 		var signPost = AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE.get(world, pos);
-		if (signPost == null) return ActionResult.PASS;
-
-		var stack = player.getStackInHand(hand);
+		if (signPost == null) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
 		if (stack.getItem() instanceof SignPostItem)
-			return ActionResult.PASS; // Let the item handle it.
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // Let the item handle it.
 
 		if (signPost.isWaxed()) {
 			world.playSound(null, signPost.getPos(), SoundEvents.BLOCK_SIGN_WAXED_INTERACT_FAIL, SoundCategory.BLOCKS);
-			return ActionResult.PASS;
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
 
 		if (stack.isOf(Items.HONEYCOMB)) {
@@ -232,7 +231,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 			world.syncWorldEvent(null, WorldEvents.BLOCK_WAXED, signPost.getPos(), 0);
 			world.emitGameEvent(GameEvent.BLOCK_CHANGE, signPost.getPos(), GameEvent.Emitter.of(player, signPost.getCachedState()));
 			player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
-			return ActionResult.SUCCESS;
+			return ItemActionResult.SUCCESS;
 		}
 
 		boolean handEmpty = stack.isEmpty();
@@ -245,14 +244,14 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		boolean shouldSucceed = handEmpty || dye || glowInkSac || inkSac || compass || canFlipSign;
 		boolean success = shouldSucceed && player.getAbilities().allowModifyWorld;
 		if (world.isClient()) {
-			return success ? ActionResult.SUCCESS : ActionResult.FAIL;
+			return success ? ItemActionResult.SUCCESS : ItemActionResult.FAIL;
 		}
 
 		boolean up = isUp(hit.getPos().getY());
 		var sign = signPost.getSign(up);
 
 		if (sign == null || !player.getAbilities().allowModifyWorld)
-			return shouldSucceed ? ActionResult.SUCCESS : ActionResult.FAIL;
+			return shouldSucceed ? ItemActionResult.SUCCESS : ItemActionResult.FAIL;
 
 		if (canFlipSign) {
 			sign.setLeft(!sign.isLeft());
@@ -283,8 +282,9 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 				player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
 			}
 		} else if (compass) {
-			var pointingPos = CompassItem.hasLodestone(stack)
-					? this.getLodestonePos(world, stack.getOrCreateNbt())
+			var tracker = stack.get(DataComponentTypes.LODESTONE_TRACKER);
+			var pointingPos = tracker != null
+					? this.getLodestonePos(world, tracker)
 					: this.getWorldSpawnPos(world);
 
 			if (pointingPos != null) {
@@ -293,7 +293,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 			}
 		}
 
-		return ActionResult.success(world.isClient());
+		return ItemActionResult.success(world.isClient());
 	}
 
 	/**
@@ -309,8 +309,8 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		else return up;
 	}
 
-	private @Nullable BlockPos getLodestonePos(World world, NbtCompound nbt) {
-		GlobalPos lodestonePos = CompassItem.createLodestonePos(nbt);
+	private @Nullable BlockPos getLodestonePos(World world, LodestoneTrackerComponent tracker) {
+		var lodestonePos = tracker.target().orElse(null);
 		if (lodestonePos != null && world.getRegistryKey() == lodestonePos.getDimension()) {
 			return lodestonePos.getPos();
 		}
@@ -397,7 +397,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 			if (!(offStack.getItem() instanceof ShieldItem) && player.shouldCancelInteraction() && player.getMainHandStack().isEmpty()) {
 				var state = world.getBlockState(hitResult.getBlockPos());
 				if (state.getBlock() instanceof SignPostBlock) {
-					return state.onUse(world, player, hand, hitResult);
+					return state.onUseWithItem(player.getStackInHand(hand), world, player, hand, hitResult).toActionResult();
 				}
 			}
 			return ActionResult.PASS;

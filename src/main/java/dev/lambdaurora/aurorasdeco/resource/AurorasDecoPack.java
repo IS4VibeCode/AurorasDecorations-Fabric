@@ -265,7 +265,7 @@ public class AurorasDecoPack implements ResourcePack {
 	}
 
 	@Override
-	public String getName() {
+	public String getId() {
 		return "Aurora's Decorations Virtual Pack";
 	}
 }

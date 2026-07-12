@@ -37,6 +37,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -123,12 +124,10 @@ public class BookPileBlock extends BlockWithEntity implements Waterloggable {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
 			BlockHitResult hit) {
-		var stack = player.getStackInHand(hand);
-
 		if (!player.getAbilities().allowModifyWorld) {
-			return ActionResult.PASS;
+			return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		}
 
 		if (stack.isOf(Items.BOOK) || stack.isOf(Items.ENCHANTED_BOOK)) {
@@ -140,36 +139,45 @@ public class BookPileBlock extends BlockWithEntity implements Waterloggable {
 
 				world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 
-				return ActionResult.success(world.isClient());
-			}
-		} else if (stack.isEmpty()) {
-			var bookPile = AurorasDecoRegistry.BOOK_PILE_BLOCK_ENTITY_TYPE.get(world, pos);
-			if (bookPile != null) {
-				int i;
-				for (i = 0; i < bookPile.getBooks().size(); i++) {
-					if (bookPile.getBooks().get(i).isEmpty()) {
-						i--;
-						break;
-					}
-				}
-
-				if (i > 0) {
-					if (i == 5)
-						i--;
-					player.setStackInHand(hand, bookPile.removeBook(i));
-
-					world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-
-					return ActionResult.success(world.isClient());
-				}
+				return ItemActionResult.success(world.isClient());
 			}
 		}
 
-		return super.onUse(state, world, pos, player, hand, hit);
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override
-	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+		if (!player.getAbilities().allowModifyWorld) {
+			return ActionResult.PASS;
+		}
+
+		var bookPile = AurorasDecoRegistry.BOOK_PILE_BLOCK_ENTITY_TYPE.get(world, pos);
+		if (bookPile != null) {
+			int i;
+			for (i = 0; i < bookPile.getBooks().size(); i++) {
+				if (bookPile.getBooks().get(i).isEmpty()) {
+					i--;
+					break;
+				}
+			}
+
+			if (i > 0) {
+				if (i == 5)
+					i--;
+				player.giveItemStack(bookPile.removeBook(i));
+
+				world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+
+				return ActionResult.success(world.isClient());
+			}
+		}
+
+		return super.onUse(state, world, pos, player, hit);
+	}
+
+	@Override
+	public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
 		var bookPile = AurorasDecoRegistry.BOOK_PILE_BLOCK_ENTITY_TYPE.get(world, pos);
 		if (bookPile != null) {
 			return bookPile.getBooks().get(0).copy();

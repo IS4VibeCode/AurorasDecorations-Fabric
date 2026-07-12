@@ -90,7 +90,7 @@ public class BlackboardItem extends BlockItem {
 	}
 
 	@Override
-	public void onCraft(ItemStack stack, World world, PlayerEntity player) {
+	public void onCraftByPlayer(ItemStack stack, World world, PlayerEntity player) {
 		this.ensureValidStack(stack);
 	}
 
