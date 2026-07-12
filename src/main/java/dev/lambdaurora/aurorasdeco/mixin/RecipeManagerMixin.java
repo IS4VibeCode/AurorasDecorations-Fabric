@@ -19,20 +19,21 @@ package dev.lambdaurora.aurorasdeco.mixin;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import dev.lambdaurora.aurorasdeco.resource.datagen.RecipeDatagen;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Map;
 
@@ -43,30 +44,41 @@ import java.util.Map;
  * (confirmed: {@code fabric-recipe-api-v1} at 1.20.1 only has {@code CustomIngredient}-related
  * classes, no runtime static-recipe-registration helper -- java/CLAUDE.md §3/Task #19).
  * <p>
- * 1.21.1 re-verification: {@code RecipeManager.apply()}'s real bytecode was re-disassembled rather
- * than assuming the 1.20.1 injection point still holds. It no longer calls {@code Map.entrySet()}
- * twice -- there is now a single combined loop over the JSON map that builds both the
- * {@code ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>>} (by-type) and
- * {@code ImmutableMap.Builder<Identifier, RecipeEntry<?>>} (by-id) structures at once (recipes no
- * longer carry their own id -- {@link RecipeEntry} is now the separate id+recipe pair created inside
- * that loop). The injection point that matches the old intent ("right after all JSON-sourced recipes
- * have been organized, right before the final immutable structures get built") is now the single
- * {@code ImmutableMultimap.Builder.build()} call that follows the loop -- unique in the method, so no
- * ordinal is needed. At that point both builders are still open and both are captured.
+ * 1.21.1 re-verification: {@code RecipeManager.apply()}'s real bytecode was re-disassembled and a
+ * mid-method local-capture injection (right before the vanilla method's own
+ * {@code ImmutableMultimap.Builder.build()} call) was confirmed correct against the plain Yarn-mapped
+ * game jar -- but crashed for real under Connector when actually opening a world
+ * ({@code SugarApplicationException: Invalid implicit variable discriminator: Found 0 candidate
+ * variables but exactly 1 is required}), meaning whatever Connector's mixin adapter does to bridge
+ * this onto the real Mojang-mapped target class doesn't preserve that local the same way. Rather than
+ * chase why (same "don't trust fragile mid-method local capture" lesson as {@code LivingEntityMixin}),
+ * this instead injects at {@code TAIL} -- no locals needed -- and reads/replaces the two now-fully-
+ * populated {@code RecipeManager} fields directly via {@code @Shadow}/{@code @Mutable}. The end result
+ * is identical: the same dynamically-generated recipes end up merged into the same two structures,
+ * just assembled after vanilla's own pass finishes instead of alongside it.
  */
 @Mixin(RecipeManager.class)
-public class RecipeManagerMixin {
+public abstract class RecipeManagerMixin {
+	@Shadow
+	@Mutable
+	private Multimap<RecipeType<?>, RecipeEntry<?>> recipesByType;
+
+	@Shadow
+	@Mutable
+	private Map<Identifier, RecipeEntry<?>> recipesById;
+
 	@Inject(
 			method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V",
-			at = @At(value = "INVOKE",
-					target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;"),
-			locals = LocalCapture.CAPTURE_FAILHARD
+			at = @At("TAIL")
 	)
 	private void onReload(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler,
-			CallbackInfo ci,
-			ImmutableMultimap.Builder<RecipeType<?>, RecipeEntry<?>> recipesByType,
-			ImmutableMap.Builder<Identifier, RecipeEntry<?>> recipesById,
-			RegistryOps<JsonElement> registryOps) {
+			CallbackInfo ci) {
+		var recipesByType = ImmutableMultimap.<RecipeType<?>, RecipeEntry<?>>builder().putAll(this.recipesByType);
+		var recipesById = ImmutableMap.<Identifier, RecipeEntry<?>>builder().putAll(this.recipesById);
+
 		RecipeDatagen.applyRecipes(map, recipesByType, recipesById);
+
+		this.recipesByType = recipesByType.build();
+		this.recipesById = recipesById.build();
 	}
 }
