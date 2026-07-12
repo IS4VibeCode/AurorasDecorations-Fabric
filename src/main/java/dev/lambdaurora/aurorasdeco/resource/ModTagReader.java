@@ -25,18 +25,16 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagGroupLoader;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.DirectoryResourcePack;
-import net.minecraft.resource.ReloadableResourceManagerImpl;
+import net.minecraft.resource.LifecycledResourceManagerImpl;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Unit;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Mojang removed Material, so I will read tags, I am a menace.
@@ -75,11 +73,17 @@ public class ModTagReader {
 	 * jars, since Fabric Loader's NIO paths transparently work either way.
 	 * <p>
 	 * Quilt Mappings' {@code MultiPackResourceManager(ResourceType, List)} one-liner has no real Yarn
-	 * equivalent -- {@code ReloadableResourceManagerImpl} takes only a {@code ResourceType} and needs
-	 * an explicit, otherwise-async {@code reload(...)} call to attach packs. No {@code ResourceReloader}s
-	 * are registered here (only raw pack-backed resource lookup is needed, not any data-processing
-	 * reload listener), and {@code Runnable::run} as both executors makes the reload run synchronously
-	 * on the calling thread, so blocking on {@code whenComplete()} is safe and immediate.
+	 * equivalent, but {@link LifecycledResourceManagerImpl}'s own constructor is exactly that: a static,
+	 * ready-to-use {@code ResourceManager} view over a list of packs, no reload orchestration involved.
+	 * Constructing it directly (rather than the higher-level {@code ReloadableResourceManagerImpl.reload(...)})
+	 * is required, not just simpler: {@code fabric_resource_loader_v0}'s own mixin
+	 * (SimpleResourceReloadMixin) hooks into *every* {@code reload(...)} call unconditionally and sorts
+	 * resource reload listeners assuming a real {@code RecipeManager} listener is present -- true for the
+	 * game's own full reload, never true for this throwaway, listener-less tag-reading manager, so calling
+	 * {@code reload(...)} here threw {@code IllegalStateException: No RecipeManager found in listeners!}
+	 * on a real 1.21.1/Connector load. {@link LifecycledResourceManagerImpl}'s constructor never touches
+	 * that machinery at all, matching what this method actually needs: raw pack-backed resource lookup,
+	 * no data-processing reload listener.
 	 */
 	private ResourceManager createResourceManager() {
 		var resourcePacks = new ArrayList<ResourcePack>();
@@ -107,10 +111,7 @@ public class ModTagReader {
 			}
 		}
 
-		var manager = new ReloadableResourceManagerImpl(ResourceType.SERVER_DATA);
-		manager.reload(Runnable::run, Runnable::run, CompletableFuture.completedFuture(Unit.INSTANCE), resourcePacks)
-				.whenComplete().join();
-		return manager;
+		return new LifecycledResourceManagerImpl(ResourceType.SERVER_DATA, resourcePacks);
 	}
 
 	private ResourceManager getResourceManager() {
