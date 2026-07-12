@@ -20,7 +20,7 @@ package dev.lambdaurora.aurorasdeco.mixin.client;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import net.minecraft.client.recipebook.ClientRecipeBook;
 import net.minecraft.client.recipebook.RecipeBookGroup;
-import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,11 +32,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientRecipeBook.class)
 public class ClientRecipeBookMixin {
 	@Inject(method = "getGroupForRecipe", at = @At("HEAD"), cancellable = true)
-	private static void onGetGroupForRecipe(Recipe<?> recipe, CallbackInfoReturnable<RecipeBookGroup> cir) {
+	private static void onGetGroupForRecipe(RecipeEntry<?> recipe, CallbackInfoReturnable<RecipeBookGroup> cir) {
 		// Mojang, why is it an enum? :(
-		if (recipe.getType() == AurorasDecoRegistry.WOODCUTTING_RECIPE_TYPE) {
+		if (recipe.value().getType() == AurorasDecoRegistry.WOODCUTTING_RECIPE_TYPE) {
 			cir.setReturnValue(RecipeBookGroup.STONECUTTER);
-		} else if (recipe.getType() == AurorasDecoRegistry.EXPLODING_RECIPE_TYPE) {
+		} else if (recipe.value().getType() == AurorasDecoRegistry.EXPLODING_RECIPE_TYPE) {
 			cir.setReturnValue(RecipeBookGroup.UNKNOWN);
 		}
 	}
