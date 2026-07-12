@@ -52,7 +52,7 @@ public final class AurorasDecoPackets {
 
 	public record SignPostOpenGuiPayload(BlockPos pos) implements CustomPayload {
 		public static final CustomPayload.Id<SignPostOpenGuiPayload> ID =
-				CustomPayload.id(AurorasDeco.id("sign_post/open_gui").toString());
+				new CustomPayload.Id<>(AurorasDeco.id("sign_post/open_gui"));
 		public static final PacketCodec<RegistryByteBuf, SignPostOpenGuiPayload> CODEC = PacketCodec.tuple(
 				BlockPos.PACKET_CODEC, SignPostOpenGuiPayload::pos,
 				SignPostOpenGuiPayload::new
@@ -66,7 +66,7 @@ public final class AurorasDecoPackets {
 
 	public record SignPostOpenGuiFailPayload(BlockPos pos) implements CustomPayload {
 		public static final CustomPayload.Id<SignPostOpenGuiFailPayload> ID =
-				CustomPayload.id(AurorasDeco.id("sign_post/open_gui/fail").toString());
+				new CustomPayload.Id<>(AurorasDeco.id("sign_post/open_gui/fail"));
 		public static final PacketCodec<RegistryByteBuf, SignPostOpenGuiFailPayload> CODEC = PacketCodec.tuple(
 				BlockPos.PACKET_CODEC, SignPostOpenGuiFailPayload::pos,
 				SignPostOpenGuiFailPayload::new
@@ -81,7 +81,7 @@ public final class AurorasDecoPackets {
 	public record SignPostSetTextPayload(BlockPos pos, byte mode, Optional<String> upText, Optional<String> downText)
 			implements CustomPayload {
 		public static final CustomPayload.Id<SignPostSetTextPayload> ID =
-				CustomPayload.id(AurorasDeco.id("sign_post/set_text").toString());
+				new CustomPayload.Id<>(AurorasDeco.id("sign_post/set_text"));
 		public static final PacketCodec<RegistryByteBuf, SignPostSetTextPayload> CODEC = PacketCodec.tuple(
 				BlockPos.PACKET_CODEC, SignPostSetTextPayload::pos,
 				PacketCodecs.BYTE, SignPostSetTextPayload::mode,
@@ -98,7 +98,7 @@ public final class AurorasDecoPackets {
 
 	public record PainterPaletteScrollPayload(double scrollDelta, boolean toolModifier) implements CustomPayload {
 		public static final CustomPayload.Id<PainterPaletteScrollPayload> ID =
-				CustomPayload.id(AurorasDeco.id("painter_palette/scroll").toString());
+				new CustomPayload.Id<>(AurorasDeco.id("painter_palette/scroll"));
 		public static final PacketCodec<RegistryByteBuf, PainterPaletteScrollPayload> CODEC = PacketCodec.tuple(
 				PacketCodecs.DOUBLE, PainterPaletteScrollPayload::scrollDelta,
 				PacketCodecs.BOOL, PainterPaletteScrollPayload::toolModifier,
