@@ -29,6 +29,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -43,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PainterPaletteScreenHandler extends NestedScreenHandler {
 	private final PainterPaletteItem.PainterPaletteInventory inventory;
+	private final RegistryWrapper.WrapperLookup registryLookup;
 
 	public PainterPaletteScreenHandler(int syncId, PlayerInventory playerInventory, OpeningData openingData) {
 		this(syncId, playerInventory, openingData.type(), openingData.lockedSlot(), new PainterPaletteItem.PainterPaletteInventory());
@@ -52,6 +54,7 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 			PainterPaletteItem.PainterPaletteInventory inventory) {
 		super(AurorasDecoScreenHandlers.PAINTER_PALETTE_SCREEN_HANDLER_TYPE, syncId, originType, lockedSlot);
 		this.inventory = inventory;
+		this.registryLookup = playerInventory.player.getWorld().getRegistryManager();
 		this.inventory.onOpen(playerInventory.player);
 
 		for (int row = 0; row < 3; ++row) {
@@ -144,7 +147,7 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 
 	@Override
 	protected boolean saveToOriginItem(ItemStack stack) {
-		var nbt = inventory.toNbt();
+		var nbt = inventory.toNbt(this.registryLookup);
 		if (nbt != null) AuroraUtil.setSubNbt(stack, "inventory", nbt);
 		else {
 			if (AuroraUtil.getSubNbt(stack, "inventory") == null) {
@@ -178,7 +181,8 @@ public class PainterPaletteScreenHandler extends NestedScreenHandler {
 
 		@Override
 		public @NotNull ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-			var inventory = PainterPaletteItem.PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(this.self, "inventory"));
+			var inventory = PainterPaletteItem.PainterPaletteInventory.fromNbt(
+					AuroraUtil.getSubNbt(this.self, "inventory"), player.getWorld().getRegistryManager());
 
 			return new PainterPaletteScreenHandler(syncId, playerInventory, this.type, this.lockedSlot, inventory);
 		}

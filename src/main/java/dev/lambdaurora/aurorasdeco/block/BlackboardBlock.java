@@ -208,9 +208,8 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 	/* Interaction */
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos,
+	public ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos,
 			PlayerEntity player, Hand hand, BlockHitResult hit) {
-		var stack = player.getStackInHand(hand);
 		var offhand = player.getStackInHand(Hand.OFF_HAND);
 		var facing = state.get(FACING);
 
@@ -222,18 +221,19 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 				}
 
 				if (stack.getItem() instanceof PainterPaletteItem paletteItem) {
+					var registryLookup = world.getRegistryManager();
 					if (offhand.isEmpty()) {
-						offhand = paletteItem.getCurrentToolAsItem(stack);
+						offhand = paletteItem.getCurrentToolAsItem(stack, registryLookup);
 					}
 
-					stack = paletteItem.getCurrentColorAsItem(stack);
+					stack = paletteItem.getCurrentColorAsItem(stack, registryLookup);
 				}
 
 				var modifier = BlackboardDrawModifier.fromItem(stack);
 				if (stack.isOf(Items.WATER_BUCKET) && this.tryClear(world, blackboard, player)) {
 					world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS,
 							2.f, 1.f);
-					return ActionResult.success(world.isClient());
+					return ItemActionResult.success(world.isClient());
 				} else if (stack.isOf(Items.POTION)
 						&& stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).matches(Potions.WATER)
 						&& this.tryClear(world, blackboard, player)) {
@@ -249,7 +249,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 					}
 					world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.BLOCKS,
 							2.f, 1.f);
-					return ActionResult.success(world.isClient());
+					return ItemActionResult.success(world.isClient());
 				} else if (offhand.isOf(Items.STICK) && (modifier != null) && !state.get(WATERLOGGED)) {
 					int x;
 					int y = (int) (AuroraUtil.posMod(hit.getPos().getY(), 1) * 16.0);
@@ -269,7 +269,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 					this.line(blackboard, player, x, y, modifier);
 
 					world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-					return ActionResult.success(world.isClient());
+					return ItemActionResult.success(world.isClient());
 				} else if ((modifier != null) && !state.get(WATERLOGGED)) {
 					int x;
 					int y = (int) (AuroraUtil.posMod(hit.getPos().getY(), 1) * 16.0);
@@ -297,7 +297,7 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 					if (action.execute(blackboard, x, y, modifier)) {
 						player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
 						world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-						return ActionResult.success(world.isClient());
+						return ItemActionResult.success(world.isClient());
 					}
 				} else if (stack.isOf(Items.GLOW_INK_SAC) || stack.isOf(Items.INK_SAC)) {
 					boolean lit = stack.isOf(Items.GLOW_INK_SAC);
@@ -316,13 +316,13 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 							stack.decrement(1);
 						}
 
-						return ActionResult.success(world.isClient());
+						return ItemActionResult.success(world.isClient());
 					}
 				}
 			}
 		}
 
-		return super.onUse(state, world, pos, player, hand, hit);
+		return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	private void line(BlackboardBlockEntity blackboard, PlayerEntity player, int x, int y,

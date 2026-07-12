@@ -36,6 +36,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.slot.Slot;
@@ -65,14 +67,14 @@ public class PainterPaletteItem extends Item {
 		super(settings);
 	}
 
-	public ItemStack getCurrentColorAsItem(ItemStack paletteStack) {
-		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
+	public ItemStack getCurrentColorAsItem(ItemStack paletteStack, RegistryWrapper.WrapperLookup registryLookup) {
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"), registryLookup);
 
 		return inventory.getSelectedColor();
 	}
 
-	public ItemStack getCurrentToolAsItem(ItemStack paletteStack) {
-		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
+	public ItemStack getCurrentToolAsItem(ItemStack paletteStack, RegistryWrapper.WrapperLookup registryLookup) {
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"), registryLookup);
 		if (inventory.selectedTool == -1) return ItemStack.EMPTY;
 
 		return inventory.getSelectedTool();
@@ -134,7 +136,8 @@ public class PainterPaletteItem extends Item {
 	}
 
 	public boolean onScroll(PlayerEntity player, ItemStack paletteStack, double scrollDelta, boolean toolModifier) {
-		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"));
+		var registryLookup = player.getWorld().getRegistryManager();
+		var inventory = PainterPaletteInventory.fromNbt(AuroraUtil.getSubNbt(paletteStack, "inventory"), registryLookup);
 
 		if (inventory.isEmpty()) {
 			return false;
@@ -158,7 +161,7 @@ public class PainterPaletteItem extends Item {
 					}
 				}
 
-				var nbt = inventory.toNbt();
+				var nbt = inventory.toNbt(registryLookup);
 				if (nbt != null) AuroraUtil.setSubNbt(paletteStack, "inventory", nbt);
 				else AuroraUtil.removeSubNbt(paletteStack, "inventory");
 				player.playerScreenHandler.sendContentUpdates();
@@ -173,7 +176,7 @@ public class PainterPaletteItem extends Item {
 
 				if (inventory.selectedTool != nextTool) {
 					inventory.selectedTool = nextTool;
-					var nbt = inventory.toNbt();
+					var nbt = inventory.toNbt(registryLookup);
 					if (nbt != null) AuroraUtil.setSubNbt(paletteStack, "inventory", nbt);
 					else AuroraUtil.removeSubNbt(paletteStack, "inventory");
 					player.playerScreenHandler.sendContentUpdates();
@@ -263,7 +266,10 @@ public class PainterPaletteItem extends Item {
 	public Optional<TooltipData> getTooltipData(ItemStack stack) {
 		var nbt = AuroraUtil.getSubNbt(stack, "inventory");
 		if (nbt != null) {
-			return Optional.of(new PainterPaletteTooltipData(PainterPaletteInventory.fromNbt(nbt)));
+			// Item.getTooltipData(ItemStack) has no world/registry access -- DynamicRegistryManager.EMPTY
+			// is an acceptable fallback here since a palette's stored colors/tools are always vanilla
+			// dye/stick items with no registry-dependent components.
+			return Optional.of(new PainterPaletteTooltipData(PainterPaletteInventory.fromNbt(nbt, DynamicRegistryManager.EMPTY)));
 		}
 		return super.getTooltipData(stack);
 	}
@@ -443,15 +449,15 @@ public class PainterPaletteItem extends Item {
 			return true;
 		}
 
-		public @Nullable NbtCompound toNbt() {
+		public @Nullable NbtCompound toNbt(RegistryWrapper.WrapperLookup registryLookup) {
 			if (this.isEmpty()) {
 				return null;
 			}
 
 			var nbt = new NbtCompound();
 
-			this.addInventoryPart(nbt, "colors", (byte) 0, (byte) COLOR_SIZE);
-			this.addInventoryPart(nbt, "tools", (byte) COLOR_SIZE, (byte) (COLOR_SIZE + TOOLS_SIZE));
+			this.addInventoryPart(nbt, "colors", (byte) 0, (byte) COLOR_SIZE, registryLookup);
+			this.addInventoryPart(nbt, "tools", (byte) COLOR_SIZE, (byte) (COLOR_SIZE + TOOLS_SIZE), registryLookup);
 
 			if (!this.getStack(this.selectedColor).isEmpty()) {
 				nbt.putByte(SELECTED_COLOR_KEY, this.selectedColor);
@@ -464,9 +470,9 @@ public class PainterPaletteItem extends Item {
 			return nbt;
 		}
 
-		public void readNbt(NbtCompound nbt) {
-			this.readInventoryPart(nbt.getList("colors", NbtElement.COMPOUND_TYPE), 0);
-			this.readInventoryPart(nbt.getList("tools", NbtElement.COMPOUND_TYPE), COLOR_SIZE);
+		public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+			this.readInventoryPart(nbt.getList("colors", NbtElement.COMPOUND_TYPE), 0, registryLookup);
+			this.readInventoryPart(nbt.getList("tools", NbtElement.COMPOUND_TYPE), COLOR_SIZE, registryLookup);
 
 			if (nbt.contains(SELECTED_COLOR_KEY, NbtElement.BYTE_TYPE)) {
 				this.selectedColor = nbt.getByte(SELECTED_COLOR_KEY);
@@ -481,18 +487,18 @@ public class PainterPaletteItem extends Item {
 			}
 		}
 
-		public static PainterPaletteInventory fromNbt(@Nullable NbtCompound nbt) {
+		public static PainterPaletteInventory fromNbt(@Nullable NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 			var inventory = new PainterPaletteInventory();
 
 			if (nbt == null) {
 				return inventory;
 			}
 
-			inventory.readNbt(nbt);
+			inventory.readNbt(nbt, registryLookup);
 			return inventory;
 		}
 
-		private void addInventoryPart(NbtCompound nbt, String name, byte from, byte to) {
+		private void addInventoryPart(NbtCompound nbt, String name, byte from, byte to, RegistryWrapper.WrapperLookup registryLookup) {
 			var slots = new NbtList();
 
 			for (byte slot = from; slot < to; slot++) {
@@ -501,7 +507,7 @@ public class PainterPaletteItem extends Item {
 				if (!stack.isEmpty()) {
 					var slotNbt = new NbtCompound();
 					slotNbt.putByte("slot", (byte) (slot - from));
-					slotNbt.put("item", stack.writeNbt(new NbtCompound()));
+					slotNbt.put("item", stack.encode(registryLookup));
 					slots.add(slotNbt);
 				}
 			}
@@ -511,13 +517,13 @@ public class PainterPaletteItem extends Item {
 			}
 		}
 
-		private void readInventoryPart(NbtList nbtList, int from) {
+		private void readInventoryPart(NbtList nbtList, int from, RegistryWrapper.WrapperLookup registryLookup) {
 			if (nbtList == null) return;
 
 			for (var nbt : nbtList) {
 				var slotNbt = (NbtCompound) nbt;
 				int slot = slotNbt.getByte("slot") + from;
-				var item = ItemStack.fromNbt(slotNbt.getCompound("item"));
+				var item = ItemStack.fromNbt(registryLookup, slotNbt.getCompound("item")).orElse(ItemStack.EMPTY);
 
 				this.setStack(slot, item);
 			}
