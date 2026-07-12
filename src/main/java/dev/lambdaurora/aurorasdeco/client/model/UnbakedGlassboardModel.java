@@ -33,7 +33,6 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.slf4j.Logger;
@@ -58,7 +57,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 	static final int RIGHT_DOWN_MASK = 0b10000000;
 	static final int ALL_MASK = LEFT_UP_MASK | UP_MASK | RIGHT_UP_MASK | LEFT_MASK | RIGHT_MASK | LEFT_DOWN_MASK | DOWN_MASK | RIGHT_DOWN_MASK;
 
-	private final Int2ObjectMap<Identifier> identifiers = new Int2ObjectOpenHashMap<>();
+	private final Int2ObjectMap<UnbakedModel> models = new Int2ObjectOpenHashMap<>();
 	private final String variant;
 
 	UnbakedGlassboardModel(
@@ -78,8 +77,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 		for (var corner : Corner.CORNERS) {
 			for (var type : Type.TYPES) {
 				var identifier = new ModelIdentifier(AurorasDeco.id("glassboard/" + prefix + "glassboard_" + corner.getShortName() + type.getSuffix()), variant);
-
-				this.identifiers.put(this.getCornerDataIndex(corner, type), identifier.id());
+				int cornerDataIndex = this.getCornerDataIndex(corner, type);
 
 				if (block != Blocks.AIR) {
 					var resourceId = AurorasDeco.id("blockstates/" + identifier.id().getPath() + ".json");
@@ -92,10 +90,22 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 							deserializationContext.setStateFactory(block.getStateManager());
 							var map = ModelVariantMap.fromJson(deserializationContext, reader);
 
-							map.getVariantMap().forEach((variant, model) -> modelConsumer.accept(
-									new ModelIdentifier(identifier.id(), this.variant.replaceFirst("facing=\\w+", variant)),
-									model
-							));
+							map.getVariantMap().forEach((partVariant, model) -> {
+								var partId = new ModelIdentifier(identifier.id(), this.variant.replaceFirst("facing=\\w+", partVariant));
+								modelConsumer.accept(partId, model);
+								// The part's own variant (a rotation of the same corner/type shape) only
+								// matches this board's actual facing for one of the four registered
+								// rotations -- that's the one we need at bake time. Looking the model back
+								// up via Baker#getOrLoadModel(Identifier) doesn't work here: that method
+								// only ever consults ModelLoader's file-backed `unbakedModels` map, never
+								// the ModelIdentifier-keyed `modelsToBake` map modelConsumer just populated
+								// (confirmed via bytecode -- the two maps are entirely disjoint in 1.21.1),
+								// so the bare-Identifier lookup this used to do always missed and fell
+								// through to a real (nonexistent) `models/glassboard/*.json` file load.
+								if (partId.getVariant().equals(this.variant)) {
+									this.models.put(cornerDataIndex, model);
+								}
+							});
 						} catch (IOException e) {
 							LOGGER.warn("Could not load glassboard model part (" + corner + ", " + type + "):", e);
 						}
@@ -126,8 +136,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 		for (var corner : Corner.CORNERS) {
 			for (var type : Type.TYPES) {
 				int id = this.getCornerDataIndex(corner, type);
-				bakedModels.put(id, baker.getOrLoadModel(this.identifiers.get(id))
-						.bake(baker, textureGetter, rotationContainer));
+				bakedModels.put(id, this.models.get(id).bake(baker, textureGetter, rotationContainer));
 			}
 		}
 
