@@ -39,7 +39,18 @@ public class AuroraShapedRecipeBuilder extends AuroraRecipeBuilder<AuroraShapedR
 
 	public AuroraShapedRecipeBuilder(String... pattern) {
 		this.pattern = pattern;
-		this.ingredients.put(' ', Ingredient.EMPTY);
+
+		// 1.21.1's ShapedRecipePattern.of(...) strictly validates that every key is actually used
+		// somewhere in the pattern (no more silent tolerance of unused keys, and no exemption for
+		// space) -- only pre-register the blank-slot symbol when the pattern actually has one, or
+		// patterns with no space at all (e.g. a plain "SS" row) fail with
+		// "Key defines symbols that aren't used in pattern: { }".
+		for (var line : pattern) {
+			if (line.indexOf(' ') >= 0) {
+				this.ingredients.put(' ', Ingredient.EMPTY);
+				break;
+			}
+		}
 	}
 
 	public AuroraShapedRecipeBuilder ingredient(char key, Ingredient ingredient) {
