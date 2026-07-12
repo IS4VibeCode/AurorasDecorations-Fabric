@@ -58,7 +58,15 @@ public class SawmillScreen extends HandledScreen<SawmillScreenHandler> {
 
 	@Override
 	protected void drawBackground(DrawContext graphics, float delta, int mouseX, int mouseY) {
-		this.renderBackground(graphics, mouseX, mouseY, delta);
+		// NOT this.renderBackground(...): HandledScreen.renderBackground(DrawContext, int, int, float)
+		// itself calls renderInGameBackground(...) then this.drawBackground(...) -- calling it back from
+		// inside drawBackground is infinite mutual recursion (confirmed via a real StackOverflowError,
+		// crash-2026-07-12_15.11.57-client.txt). The pre-1.21 source called the single-arg
+		// Screen.renderBackground(GuiGraphics), a distinct, non-dispatching "just draw the in-game
+		// backdrop" method that no longer exists under this name; renderInGameBackground(DrawContext) is
+		// its real 1.21.1 equivalent (confirmed via bytecode: it's the exact call
+		// HandledScreen.renderBackground makes before dispatching to drawBackground).
+		this.renderInGameBackground(graphics);
 		graphics.setShaderColor(1.f, 1.f, 1.f, 1.f);
 		graphics.drawTexture(TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 		int scrollAmount = (int) (41.f * this.scrollAmount);
