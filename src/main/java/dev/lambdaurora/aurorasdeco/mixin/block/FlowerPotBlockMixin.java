@@ -22,6 +22,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowerPotBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -32,21 +33,26 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * Fixes the flower pot use method to use the placement state, which allows directional flower pots.
- *
- * @author LambdAurora
- * @version 1.0.0
- * @since 1.0.0
+ * <p>
+ * In 1.21.1 the "place held item into pot" logic moved from {@code onUse} into the new
+ * {@code onUseWithItem} (the {@code Hand}-bearing item-interaction hook split out of {@code onUse}
+ * -- see {@code AbstractBlock#onUseWithItem}); {@code onUse} itself now only handles emptying an
+ * already-filled pot with an empty hand, and its sole {@code getDefaultState()} call is for
+ * {@code Blocks.FLOWER_POT}, unrelated to placement. Confirmed via bytecode disassembly of the real
+ * 1.21.1 {@code FlowerPotBlock}: {@code onUseWithItem} has exactly one {@code getDefaultState()}
+ * call, resolving the block to place from the held {@code BlockItem}.
  */
 @Mixin(value = FlowerPotBlock.class, priority = 900)
 public class FlowerPotBlockMixin {
 	@Redirect(
-			method = "onUse",
+			method = "onUseWithItem",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getDefaultState()Lnet/minecraft/block/BlockState;", ordinal = 0),
 			require = 0
 	)
 	private BlockState onGetToPlaceState(Block block,
-			BlockState currentState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hitResult) {
-		BlockState state = block.getPlacementState(new ItemPlacementContext(player, hand, player.getStackInHand(hand), hitResult));
+			ItemStack stack, BlockState currentState, World world, BlockPos pos, PlayerEntity player, Hand hand,
+			BlockHitResult hitResult) {
+		BlockState state = block.getPlacementState(new ItemPlacementContext(player, hand, stack, hitResult));
 		if (state == null)
 			return block.getDefaultState();
 		return state;
