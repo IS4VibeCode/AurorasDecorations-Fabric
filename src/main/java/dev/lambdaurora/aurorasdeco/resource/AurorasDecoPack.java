@@ -95,20 +95,20 @@ public class AurorasDecoPack implements ResourcePack {
 	}
 
 	public AurorasDecoPack rebuild(ResourceType type, @Nullable ResourceManager resourceManager) {
-		this.registerTag(new String[]{"blocks"}, Identifier.of("flower_pots"), HangingFlowerPotBlock.stream()
+		this.registerTag(new String[]{"block"}, Identifier.of("flower_pots"), HangingFlowerPotBlock.stream()
 				.map(Registries.BLOCK::getId));
 
-		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("benches"), BenchBlock.streamBenches()
+		this.registerTag(new String[]{"block", "item"}, AurorasDeco.id("benches"), BenchBlock.streamBenches()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("shelves"), ShelfBlock.streamShelves()
+		this.registerTag(new String[]{"block", "item"}, AurorasDeco.id("shelves"), ShelfBlock.streamShelves()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks"}, Identifier.of("mineable/axe"), SignPostBlock.stream() // @TODO: FIX THIS SO IT DOESN'T FUCK THE STONE FENCES
+		this.registerTag(new String[]{"block"}, Identifier.of("mineable/axe"), SignPostBlock.stream() // @TODO: FIX THIS SO IT DOESN'T FUCK THE STONE FENCES
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("small_log_piles"), SmallLogPileBlock.stream()
+		this.registerTag(new String[]{"block", "item"}, AurorasDeco.id("small_log_piles"), SmallLogPileBlock.stream()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks", "items"}, AurorasDeco.id("stumps"), StumpBlock.streamLogStumps()
+		this.registerTag(new String[]{"block", "item"}, AurorasDeco.id("stumps"), StumpBlock.streamLogStumps()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"blocks"}, AurorasDeco.id("wall_lanterns"), LanternRegistry.streamIds());
+		this.registerTag(new String[]{"block"}, AurorasDeco.id("wall_lanterns"), LanternRegistry.streamIds());
 
 		return type == ResourceType.CLIENT_RESOURCES ? this.rebuildClient(resourceManager) : this.rebuildData();
 	}
@@ -233,7 +233,7 @@ public class AurorasDecoPack implements ResourcePack {
 	 * even included in the reload's pack list, but registered under zero namespaces, so nothing was ever
 	 * routed to it. A fixed, namespace-timing-independent answer sidesteps the race entirely: this pack
 	 * always writes under {@code aurorasdeco} (via {@link Datagen}) and vanilla-namespaced tag overrides
-	 * (via {@link #registerTag}, e.g. {@code minecraft:tags/blocks/flower_pots.json}), so those two are
+	 * (via {@link #registerTag}, e.g. {@code minecraft:tags/block/flower_pots.json}), so those two are
 	 * always claimed regardless of generation timing.
 	 */
 	private static final Set<String> NAMESPACES = Set.of(AurorasDeco.NAMESPACE, "minecraft");
