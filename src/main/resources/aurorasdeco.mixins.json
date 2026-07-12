@@ -12,6 +12,7 @@
     "SimpleRegistryAccessor",
     "SpawnHelperMixin",
     "StateManagerBuilderAccessor",
+    "TerraformBoatTrackedDataMixin",
     "TransformSmithingRecipeAccessor",
     "block.AbstractBlockAccessor",
     "block.BedBlockMixin",
