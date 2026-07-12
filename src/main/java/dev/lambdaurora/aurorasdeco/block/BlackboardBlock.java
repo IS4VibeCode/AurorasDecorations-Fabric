@@ -91,6 +91,15 @@ public class BlackboardBlock extends BlockWithEntity implements Waterloggable {
 		);
 	}
 
+	@Override
+	protected com.mojang.serialization.MapCodec<BlackboardBlock> getCodec() {
+		// `locked` isn't recoverable from Settings alone -- this codec is only used for generic block
+		// (de)serialization paths (block predicates, structure templates), never hit for this block in
+		// normal gameplay, so defaulting to unlocked here is an acceptable inaccuracy rather than a
+		// real behavioral regression.
+		return createCodec(settings -> new BlackboardBlock(settings, false));
+	}
+
 	/**
 	 * Returns whether this blackboard block is locked or not.
 	 *

@@ -18,6 +18,7 @@
 package dev.lambdaurora.aurorasdeco.registry;
 
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import dev.lambdaurora.aurorasdeco.resource.ModTagReader;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -298,7 +299,7 @@ public final class WoodType {
 		}
 
 		public BlockSoundGroup blockSoundGroup() {
-			return this.block().getSoundGroup(this.block().getDefaultState());
+			return ((AbstractBlockAccessor) this.block()).aurorasdeco$getSoundGroup(this.block().getDefaultState());
 		}
 
 		public Item item() {

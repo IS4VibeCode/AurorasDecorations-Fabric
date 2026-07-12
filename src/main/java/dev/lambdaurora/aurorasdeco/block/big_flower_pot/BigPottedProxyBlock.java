@@ -94,7 +94,7 @@ public class BigPottedProxyBlock extends BigFlowerPotBlock {
 	}
 
 	private VoxelShape shape(BlockState state, BlockView world, BlockPos pos) {
-		var plantShape = this.getPlant().getOutlineShape(state, world, pos, ShapeContext.absent());
+		var plantShape = ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$getOutlineShape(state, world, pos, ShapeContext.absent());
 		float ratio = .65f;
 		float offset = (1.f - ratio) / 2.f;
 		return VoxelShapes.union(BIG_FLOWER_POT_SHAPE, AuroraUtil.resizeVoxelShape(plantShape, ratio).offset(offset, .8f, offset));
@@ -104,12 +104,12 @@ public class BigPottedProxyBlock extends BigFlowerPotBlock {
 
 	@Override
 	public boolean hasRandomTicks(BlockState state) {
-		return this.getPlant().hasRandomTicks(state);
+		return ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$hasRandomTicks(state);
 	}
 
 	@Override
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		this.getPlant().randomTick(state, world, pos, random);
+		((AbstractBlockAccessor) this.getPlant()).aurorasdeco$randomTick(state, world, pos, random);
 	}
 
 	/* Placement */

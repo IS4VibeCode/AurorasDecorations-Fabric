@@ -73,6 +73,11 @@ public class BookPileBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
+	protected com.mojang.serialization.MapCodec<BookPileBlock> getCodec() {
+		return createCodec(BookPileBlock::new);
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(WATERLOGGED);
 	}

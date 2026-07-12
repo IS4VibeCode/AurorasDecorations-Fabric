@@ -95,6 +95,14 @@ public class ShelfBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
+	protected com.mojang.serialization.MapCodec<ShelfBlock> getCodec() {
+		// This block is keyed to a specific WoodType that Settings alone can't reconstruct -- this
+		// codec is only reachable via generic block (de)serialization paths (block predicates,
+		// structure templates) that this decorative block never hits in normal gameplay.
+		throw new UnsupportedOperationException("ShelfBlock does not support codec-based reconstruction.");
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(TYPE, FACING, WATERLOGGED);
 	}

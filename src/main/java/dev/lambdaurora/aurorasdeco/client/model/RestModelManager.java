@@ -64,8 +64,9 @@ public class RestModelManager {
 		});
 
 		context.modifyModelOnLoad().register((unbakedModel, ctx) -> {
-			if (ctx.id() instanceof ModelIdentifier modelId && !modelId.getVariant().equals("inventory")
-					&& modelId.getPath().startsWith("bench/")) {
+			var modelId = ctx.topLevelId();
+			if (modelId != null && !modelId.getVariant().equals("inventory")
+					&& modelId.id().getPath().startsWith("bench/")) {
 				return new UnbakedBenchModel(unbakedModel, this);
 			} else {
 				return unbakedModel;

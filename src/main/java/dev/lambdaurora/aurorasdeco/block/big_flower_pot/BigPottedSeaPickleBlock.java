@@ -105,7 +105,7 @@ public class BigPottedSeaPickleBlock extends BigFlowerPotBlock implements Waterl
 				handStack.decrement(1);
 			}
 
-			world.playSound(player, pos, this.getPlant().getSoundGroup(this.getPlantState(state)).getPlaceSound(), SoundCategory.BLOCKS,
+			world.playSound(player, pos, ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$getSoundGroup(this.getPlantState(state)).getPlaceSound(), SoundCategory.BLOCKS,
 					1.f, 1.f);
 
 			if (!world.isClient()) {
@@ -117,7 +117,7 @@ public class BigPottedSeaPickleBlock extends BigFlowerPotBlock implements Waterl
 			if (handStack.isEmpty()) {
 				player.setStackInHand(hand, new ItemStack(this.getPlantType().getItem()));
 
-				world.playSound(player, pos, this.getPlant().getSoundGroup(this.getPlantState(state)).getBreakSound(), SoundCategory.BLOCKS,
+				world.playSound(player, pos, ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$getSoundGroup(this.getPlantState(state)).getBreakSound(), SoundCategory.BLOCKS,
 						1.f, 1.f);
 
 				if (!world.isClient()) {
@@ -151,7 +151,7 @@ public class BigPottedSeaPickleBlock extends BigFlowerPotBlock implements Waterl
 	}
 
 	private VoxelShape shape(BlockState state, BlockView world, BlockPos pos) {
-		var plantShape = this.getPlant().getOutlineShape(state, world, pos, ShapeContext.absent());
+		var plantShape = ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$getOutlineShape(state, world, pos, ShapeContext.absent());
 		float ratio = .65f;
 		float offset = (1.f - ratio) / 2.f;
 		return VoxelShapes.union(BIG_FLOWER_POT_SHAPE, AuroraUtil.resizeVoxelShape(plantShape, ratio).offset(offset, .8f, offset));

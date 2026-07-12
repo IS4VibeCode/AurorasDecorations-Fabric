@@ -17,6 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.block.big_flower_pot;
 
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Fertilizable;
 import net.minecraft.block.ShapeContext;
@@ -66,7 +67,7 @@ public class BigPottedSweetBerryBushBlock extends BigPottedProxyBlock implements
 
 	@Override
 	public ActionResult onCustomUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		var result = this.getPlant().onUse(state, world, pos, player, hand, hit);
+		var result = ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$onUse(state, world, pos, player, hit);
 		if (result.isAccepted())
 			return result;
 		else if (player.getStackInHand(hand).isOf(Items.BONE_MEAL))
@@ -79,7 +80,7 @@ public class BigPottedSweetBerryBushBlock extends BigPottedProxyBlock implements
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
 		var selfBox = SWEET_BERRY_BUSH_BOX.offset(pos);
 		if (selfBox.intersects(entity.getBoundingBox())) {
-			this.getPlant().onEntityCollision(state, world, pos, entity);
+			((AbstractBlockAccessor) this.getPlant()).aurorasdeco$onEntityCollision(state, world, pos, entity);
 		}
 	}
 

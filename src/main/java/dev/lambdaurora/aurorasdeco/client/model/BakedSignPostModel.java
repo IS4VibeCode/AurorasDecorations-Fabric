@@ -64,7 +64,7 @@ public class BakedSignPostModel extends ForwardingBakedModel {
 			var states = this.signPostBlock.getStateManager().getStates();
 			for (var state : states) {
 				var fenceState = this.signPostBlock.getFenceState(state);
-				var fenceModel = context.getOrLoadModel(BlockModels.getModelId(fenceState));
+				var fenceModel = context.getOrLoadModel(BlockModels.getModelId(fenceState).id());
 				context.setModel(state, new UnbakedForwardingModel(fenceModel, BakedSignPostModel::new));
 			}
 		}

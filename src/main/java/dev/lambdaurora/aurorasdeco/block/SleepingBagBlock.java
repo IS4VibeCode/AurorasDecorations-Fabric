@@ -119,6 +119,14 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 		this.setDefaultState(this.stateManager.getDefaultState().with(PART, BedPart.FOOT).with(OCCUPIED, false));
 	}
 
+	@Override
+	protected com.mojang.serialization.MapCodec<SleepingBagBlock> getCodec() {
+		// This block is keyed to a specific DyeColor that Settings alone can't reconstruct -- this
+		// codec is only reachable via generic block (de)serialization paths (block predicates,
+		// structure templates) that this decorative block never hits in normal gameplay.
+		throw new UnsupportedOperationException("SleepingBagBlock does not support codec-based reconstruction.");
+	}
+
 	public DyeColor getColor() {
 		return this.color;
 	}

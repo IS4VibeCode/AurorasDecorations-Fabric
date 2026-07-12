@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.accessor.BlockItemAccessor;
 import dev.lambdaurora.aurorasdeco.block.entity.SwayingBlockEntity;
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import dev.lambdaurora.aurorasdeco.mixin.block.BlockAccessor;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoSounds;
@@ -106,6 +107,14 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 		if (item instanceof BlockItem) {
 			((BlockItemAccessor) item).aurorasdeco$setWallBlock(this);
 		}
+	}
+
+	@Override
+	protected com.mojang.serialization.MapCodec<WallLanternBlock<L>> getCodec() {
+		// This block wraps a specific lantern instance that Settings alone can't reconstruct -- this
+		// codec is only reachable via generic block (de)serialization paths (block predicates,
+		// structure templates) that this decorative block never hits in normal gameplay.
+		throw new UnsupportedOperationException("WallLanternBlock does not support codec-based reconstruction.");
 	}
 
 	public LanternBlock getLanternBlock() {
@@ -210,12 +219,12 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 
 	@Override
 	public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-		this.lanternBlock.onBlockAdded(state, world, pos, oldState, notify);
+		((AbstractBlockAccessor) this.lanternBlock).aurorasdeco$onBlockAdded(state, world, pos, oldState, notify);
 	}
 
 	@Override
 	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-		this.lanternBlock.onStateReplaced(state, world, pos, newState, moved);
+		((AbstractBlockAccessor) this.lanternBlock).aurorasdeco$onStateReplaced(state, world, pos, newState, moved);
 		super.onStateReplaced(state, world, pos, newState, moved);
 	}
 
@@ -334,7 +343,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 	@Override
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(World world, BlockState state,
 			BlockEntityType<T> type) {
-		return checkType(type, AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE,
+		return validateTicker(type, AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE,
 				world.isClient() ? SwayingBlockEntity::clientTick : SwayingBlockEntity::serverTick);
 	}
 
@@ -356,7 +365,7 @@ public class WallLanternBlock<L extends LanternBlock> extends BlockWithEntity im
 
 	@Override
 	public boolean emitsRedstonePower(BlockState state) {
-		return this.lanternBlock.emitsRedstonePower(state);
+		return ((AbstractBlockAccessor) this.lanternBlock).aurorasdeco$emitsRedstonePower(state);
 	}
 
 	@Override

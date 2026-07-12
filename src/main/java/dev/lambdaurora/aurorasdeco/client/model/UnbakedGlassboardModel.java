@@ -63,26 +63,26 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 
 	UnbakedGlassboardModel(
 			ModelIdentifier id, UnbakedModel baseModel, ResourceManager resourceManager,
-			ModelVariantMap.DeserializationContext deserializationContext, BiConsumer<Identifier, UnbakedModel> modelConsumer
+			ModelVariantMap.DeserializationContext deserializationContext, BiConsumer<ModelIdentifier, UnbakedModel> modelConsumer
 	) {
 		super(baseModel);
 		this.variant = id.getVariant();
 
 		String prefix = "";
-		if (id.getPath().contains("waxed")) {
+		if (id.id().getPath().contains("waxed")) {
 			prefix = "waxed/";
 		}
 
-		Block block = Registries.BLOCK.get(AurorasDeco.id(id.getPath()));
+		Block block = Registries.BLOCK.get(AurorasDeco.id(id.id().getPath()));
 
 		for (var corner : Corner.CORNERS) {
 			for (var type : Type.TYPES) {
 				var identifier = new ModelIdentifier(AurorasDeco.id("glassboard/" + prefix + "glassboard_" + corner.getShortName() + type.getSuffix()), variant);
 
-				this.identifiers.put(this.getCornerDataIndex(corner, type), identifier);
+				this.identifiers.put(this.getCornerDataIndex(corner, type), identifier.id());
 
 				if (block != Blocks.AIR) {
-					var resourceId = AurorasDeco.id("blockstates/" + identifier.getPath() + ".json");
+					var resourceId = AurorasDeco.id("blockstates/" + identifier.id().getPath() + ".json");
 					var resource = resourceManager.getResource(resourceId);
 
 					if (resource.isEmpty()) {
@@ -93,7 +93,7 @@ public class UnbakedGlassboardModel extends UnbakedBlackboardModel {
 							var map = ModelVariantMap.fromJson(deserializationContext, reader);
 
 							map.getVariantMap().forEach((variant, model) -> modelConsumer.accept(
-									new ModelIdentifier(identifier.getNamespace(), identifier.getPath(), this.variant.replaceFirst("facing=\\w+", variant)),
+									new ModelIdentifier(identifier.id(), this.variant.replaceFirst("facing=\\w+", variant)),
 									model
 							));
 						} catch (IOException e) {

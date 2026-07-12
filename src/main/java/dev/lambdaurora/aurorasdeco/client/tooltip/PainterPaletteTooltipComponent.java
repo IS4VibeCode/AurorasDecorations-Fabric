@@ -17,14 +17,12 @@
 
 package dev.lambdaurora.aurorasdeco.client.tooltip;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lambdaurora.aurorasdeco.blackboard.BlackboardColor;
 import dev.lambdaurora.aurorasdeco.item.PainterPaletteItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -32,6 +30,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -45,6 +44,9 @@ import net.fabricmc.api.Environment;
  */
 @Environment(EnvType.CLIENT)
 public class PainterPaletteTooltipComponent implements TooltipComponent {
+	// Matches vanilla's own BundleTooltipComponent.SlotSprite.SLOT, which is no longer exposed publicly.
+	private static final Identifier SLOT_SPRITE = Identifier.ofVanilla("container/bundle/slot");
+
 	private final PainterPaletteItem.PainterPaletteInventory inventory;
 	private final Text selectedToolText;
 
@@ -113,19 +115,7 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 			DrawContext graphics, TextRenderer textRenderer, ItemStack stack,
 			int index, boolean start, boolean end
 	) {
-		this.drawSlotPart(graphics, 1, 1, 0, 0, 0, 18, 20);
-
-		if (start) this.drawSlotPart(graphics, 0, 0, 0, 0, 20, 1, 1);
-		if (end) this.drawSlotPart(graphics, 0, 0, 0, 0, 20, 1, 1);
-
-		this.drawSlotPart(graphics, 1, 0, 0, 0, 20, 18, 1);
-		this.drawSlotPart(graphics, 1, 20, 0, 0, 60, 18, 1);
-
-		if (start) this.drawSlotPart(graphics, 0, 0, 0, 0, 18, 1, 20);
-		if (end) this.drawSlotPart(graphics, 18 + 1, 0, 0, 0, 18, 1, 20);
-
-		if (start) this.drawSlotPart(graphics, 0, 20, 0, 0, 60, 1, 1);
-		if (end) this.drawSlotPart(graphics, 18 + 1, 20, 0, 0, 60, 1, 1);
+		graphics.drawGuiTexture(SLOT_SPRITE, 0, 0, 18, 20);
 
 		if (!stack.isEmpty()) {
 			graphics.drawItem(stack, 2, 2, index);
@@ -141,11 +131,5 @@ public class PainterPaletteTooltipComponent implements TooltipComponent {
 			graphics.fill(0, 0, 4, 4, color.getColor());
 			graphics.getMatrices().pop();
 		}
-	}
-
-	private void drawSlotPart(DrawContext graphics, int x, int y, int z, float u, float v, int width, int height) {
-		RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
-		RenderSystem.setShaderTexture(0, BundleTooltipComponent.TEXTURE);
-		graphics.drawTexture(BundleTooltipComponent.TEXTURE, x, y, 0, u, v, width, height, 128, 128);
 	}
 }

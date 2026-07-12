@@ -31,6 +31,11 @@ public class AuroraPlantBlock extends PlantBlock {
 		super(settings);
 	}
 
+	@Override
+	protected com.mojang.serialization.MapCodec<? extends PlantBlock> getCodec() {
+		return createCodec(AuroraPlantBlock::new);
+	}
+
 	public boolean canBePotted() {
 		return true;
 	}

@@ -39,8 +39,8 @@ public class UnbakedBlackboardModel implements AuroraUnbakedModel {
 	protected final UnbakedModel baseModel;
 
 	public static UnbakedBlackboardModel of(ModelIdentifier id, UnbakedModel baseModel,
-			BiConsumer<Identifier, UnbakedModel> modelConsumer) {
-		if (id.getPath().contains("glass")) {
+			BiConsumer<ModelIdentifier, UnbakedModel> modelConsumer) {
+		if (id.id().getPath().contains("glass")) {
 			return new UnbakedGlassboardModel(id, baseModel,
 					MinecraftClient.getInstance().getResourceManager(), new ModelVariantMap.DeserializationContext(), modelConsumer
 			);

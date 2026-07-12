@@ -198,19 +198,19 @@ public class AurorasDecoClient implements ClientModInitializer {
 			});
 
 			context.modifyModelOnLoad().register((model, ctx) -> {
-				if (ctx.id() instanceof ModelIdentifier modelId && !modelId.getVariant().equals("inventory"))
-					if (modelId.getPath().startsWith("big_flower_pot/")) {
-						var potBlock = PottedPlantType.fromId(modelId.getPath().substring("big_flower_pot/".length())).getPot();
+				var modelId = ctx.topLevelId();
+				if (modelId != null && !modelId.getVariant().equals("inventory"))
+					if (modelId.id().getPath().startsWith("big_flower_pot/")) {
+						var potBlock = PottedPlantType.fromId(modelId.id().getPath().substring("big_flower_pot/".length())).getPot();
 						if (potBlock.hasDynamicModel()) {
 							return new UnbakedForwardingModel(model, BakedBigFlowerPotModel::new);
 						}
-					} else if (modelId.getPath().startsWith("hanging_flower_pot")) {
+					} else if (modelId.id().getPath().startsWith("hanging_flower_pot")) {
 						return new UnbakedForwardingModel(model, BakedHangingFlowerPotModel::new);
-					} else if (modelId.getPath().endsWith("board")) {
+					} else if (modelId.id().getPath().endsWith("board")) {
 						return UnbakedBlackboardModel.of(modelId, model,
-								(partId, m) -> {
+								(partModelId, m) -> {
 									var modelLoader = (ModelLoaderAccessor) ctx.loader();
-									var partModelId = net.minecraft.client.util.ModelIdentifier.ofInventoryVariant(partId);
 									modelLoader.invokePutModel(partModelId, m);
 									modelLoader.getModelsToBake().put(partModelId, m);
 								}
@@ -286,6 +286,6 @@ public class AurorasDecoClient implements ClientModInitializer {
 		var modelId = new ModelIdentifier(Identifier.of(id.getNamespace(), id.getPath() + "_base"),
 				"inventory");
 		BuiltinItemRendererRegistry.INSTANCE.register(blackboard, new BlackboardItemRenderer(modelId));
-		ModelLoadingPlugin.register(context -> context.addModels(modelId, BLACKBOARD_MASK));
+		ModelLoadingPlugin.register(context -> context.addModels(modelId.id(), BLACKBOARD_MASK.id()));
 	}
 }

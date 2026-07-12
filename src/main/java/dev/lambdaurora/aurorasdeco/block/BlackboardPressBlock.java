@@ -76,6 +76,11 @@ public class BlackboardPressBlock extends BlockWithEntity {
 	}
 
 	@Override
+	protected com.mojang.serialization.MapCodec<BlackboardPressBlock> getCodec() {
+		return createCodec(BlackboardPressBlock::new);
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(FACING, WATERLOGGED);
 	}

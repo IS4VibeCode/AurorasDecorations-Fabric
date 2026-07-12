@@ -119,8 +119,8 @@ public record RenderRule(List<Model> models) {
 	}
 
 	public static void addModels(ModelLoadingPlugin.Context context) {
-		ITEM_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).forEach(context::addModels);
-		TAG_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).forEach(context::addModels);
+		ITEM_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(ModelIdentifier::id).forEach(context::addModels);
+		TAG_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(ModelIdentifier::id).forEach(context::addModels);
 	}
 
 	public static void reload(ResourceManager manager) {

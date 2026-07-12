@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
 import dev.lambdaurora.aurorasdeco.block.entity.SignPostBlockEntity;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import dev.lambdaurora.aurorasdeco.mixin.block.BlockAccessor;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
@@ -104,6 +105,14 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 		BlockPropertiesInjector.clear();
 	}
 
+	@Override
+	protected com.mojang.serialization.MapCodec<SignPostBlock> getCodec() {
+		// This block wraps a specific FenceBlock instance that Settings alone can't reconstruct -- this
+		// codec is only reachable via generic block (de)serialization paths (block predicates,
+		// structure templates) that this decorative block never hits in normal gameplay.
+		throw new UnsupportedOperationException("SignPostBlock does not support codec-based reconstruction.");
+	}
+
 	public static SignPostBlock byFence(FenceBlock fenceBlock) {
 		for (var block : SIGN_POSTS) {
 			if (block.getFenceBlock().equals(fenceBlock)) {
@@ -161,12 +170,12 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 
 	@Override
 	public boolean hasRandomTicks(BlockState state) {
-		return this.fenceBlock.hasRandomTicks(state);
+		return ((AbstractBlockAccessor) this.fenceBlock).aurorasdeco$hasRandomTicks(state);
 	}
 
 	@Override
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		this.fenceBlock.randomTick(state, world, pos, random);
+		((AbstractBlockAccessor) this.fenceBlock).aurorasdeco$randomTick(state, world, pos, random);
 	}
 
 	@Override
@@ -178,7 +187,7 @@ public class SignPostBlock extends BlockWithEntity implements Waterloggable {
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(World world, BlockState state,
 			BlockEntityType<T> type) {
 		if (state.get(GENERATE_DIRECTIONS) && !world.isClient())
-			return checkType(type, AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE, WaySignFeature::generateDirections);
+			return validateTicker(type, AurorasDecoRegistry.SIGN_POST_BLOCK_ENTITY_TYPE, WaySignFeature::generateDirections);
 
 		return null;
 	}

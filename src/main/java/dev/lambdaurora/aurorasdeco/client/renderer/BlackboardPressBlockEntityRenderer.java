@@ -118,7 +118,7 @@ public class BlackboardPressBlockEntityRenderer implements BlockEntityRenderer<B
 		});
 	}
 
-	private static UnbakedModel initModel(Identifier resourceId, Identifier modelId) {
+	private static UnbakedModel initModel(Identifier resourceId, ModelIdentifier modelId) {
 		var model = MinecraftClient.getInstance().getResourceManager().getResource(resourceId).map(resource -> {
 			try (var reader = new InputStreamReader(resource.getInputStream())) {
 				var context = new ModelVariantMap.DeserializationContext();

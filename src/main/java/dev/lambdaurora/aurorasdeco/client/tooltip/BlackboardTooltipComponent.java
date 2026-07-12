@@ -117,12 +117,12 @@ public class BlackboardTooltipComponent implements TooltipComponent {
 			Matrix4f model, VertexConsumerProvider vertexConsumers, int light) {
 		var vertices = vertexConsumers.getBuffer(renderLayer);
 		vertices.vertex(model, 0.f, 1.f, 0.f).color(255, 255, 255, 255)
-				.texture(uMin, vMax).light(light).next();
+				.texture(uMin, vMax).light(light);
 		vertices.vertex(model, 1.f, 1.f, 0.f).color(255, 255, 255, 255)
-				.texture(uMax, vMax).light(light).next();
+				.texture(uMax, vMax).light(light);
 		vertices.vertex(model, 1.f, 0.f, 0.f).color(255, 255, 255, 255)
-				.texture(uMax, vMin).light(light).next();
+				.texture(uMax, vMin).light(light);
 		vertices.vertex(model, 0.f, 0.f, 0.f).color(255, 255, 255, 255)
-				.texture(uMin, vMin).light(light).next();
+				.texture(uMin, vMin).light(light);
 	}
 }

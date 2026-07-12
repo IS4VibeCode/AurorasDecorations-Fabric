@@ -17,6 +17,7 @@
 
 package dev.lambdaurora.aurorasdeco.block.big_flower_pot;
 
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.NetherWartBlock;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,13 +47,13 @@ public class BigPottedNetherWartBlock extends BigPottedProxyBlock {
 
 	@Override
 	public boolean hasRandomTicks(BlockState state) {
-		return this.getPlant().hasRandomTicks(state);
+		return ((AbstractBlockAccessor) this.getPlant()).aurorasdeco$hasRandomTicks(state);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		this.getPlant().randomTick(state, world, pos, random);
+		((AbstractBlockAccessor) this.getPlant()).aurorasdeco$randomTick(state, world, pos, random);
 	}
 
 	/* Interaction */

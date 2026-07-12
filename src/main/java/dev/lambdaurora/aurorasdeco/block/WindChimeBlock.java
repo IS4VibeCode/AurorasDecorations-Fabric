@@ -63,6 +63,11 @@ public class WindChimeBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
+	protected com.mojang.serialization.MapCodec<WindChimeBlock> getCodec() {
+		return createCodec(WindChimeBlock::new);
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(WATERLOGGED);
 	}
@@ -193,7 +198,7 @@ public class WindChimeBlock extends BlockWithEntity implements Waterloggable {
 	@Override
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(World world, BlockState state,
 			BlockEntityType<T> type) {
-		return checkType(type, AurorasDecoRegistry.WIND_CHIME_BLOCK_ENTITY_TYPE,
+		return validateTicker(type, AurorasDecoRegistry.WIND_CHIME_BLOCK_ENTITY_TYPE,
 				world.isClient() ? SwayingBlockEntity::clientTick : SwayingBlockEntity::serverTick);
 	}
 

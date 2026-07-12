@@ -19,6 +19,7 @@ package dev.lambdaurora.aurorasdeco.block;
 
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.accessor.BlockItemAccessor;
+import dev.lambdaurora.aurorasdeco.mixin.block.AbstractBlockAccessor;
 import dev.lambdaurora.aurorasdeco.mixin.block.BlockAccessor;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -212,12 +213,12 @@ public class HangingFlowerPotBlock extends Block {
 
 	@Override
 	public boolean hasRandomTicks(BlockState state) {
-		return this.flowerPot.hasRandomTicks(state);
+		return ((AbstractBlockAccessor) this.flowerPot).aurorasdeco$hasRandomTicks(state);
 	}
 
 	@Override
 	public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		this.flowerPot.randomTick(state, world, pos, random);
+		((AbstractBlockAccessor) this.flowerPot).aurorasdeco$randomTick(state, world, pos, random);
 	}
 
 	/* Entity Stuff */

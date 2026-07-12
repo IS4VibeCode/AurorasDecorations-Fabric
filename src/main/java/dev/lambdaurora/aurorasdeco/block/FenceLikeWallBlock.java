@@ -56,6 +56,11 @@ public class FenceLikeWallBlock extends HorizontalConnectingBlock {
 	}
 
 	@Override
+	protected com.mojang.serialization.MapCodec<FenceLikeWallBlock> getCodec() {
+		return createCodec(FenceLikeWallBlock::new);
+	}
+
+	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(NORTH, EAST, WEST, SOUTH, WATERLOGGED);
 	}
