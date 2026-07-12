@@ -95,7 +95,13 @@ public final class BlockContentRegistration {
 
 		compost.add(item("duckweed"), 0.3f);
 		compost.add(item("daffodil"), 0.65f);
-		compost.add(itemTag("jacaranda_leaves"), 0.3f);
+		// CompostingChanceRegistryImpl.add(TagKey, float) throws UnsupportedOperationException
+		// ("Tags currently not supported!") in this fabric-content-registries-v0 version -- register
+		// each aurorasdeco:jacaranda_leaves tag member directly instead (confirmed via the real tag
+		// file, data/aurorasdeco/tags/items/jacaranda_leaves.json).
+		compost.add(item("budding_jacaranda_leaves"), 0.3f);
+		compost.add(item("flowering_jacaranda_leaves"), 0.3f);
+		compost.add(item("jacaranda_leaves"), 0.3f);
 		compost.add(item("jacaranda_sapling"), 0.3f);
 		compost.add(item("lavender"), 0.65f);
 	}
@@ -110,9 +116,5 @@ public final class BlockContentRegistration {
 
 	private static TagKey<Block> blockTag(String path) {
 		return TagKey.of(RegistryKeys.BLOCK, Identifier.of("aurorasdeco", path));
-	}
-
-	private static TagKey<Item> itemTag(String path) {
-		return TagKey.of(RegistryKeys.ITEM, Identifier.of("aurorasdeco", path));
 	}
 }
