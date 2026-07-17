@@ -181,14 +181,20 @@ public class AurorasDecoClient implements ClientModInitializer {
 					@Override
 					public void reload(net.minecraft.resource.ResourceManager manager) {
 						AurorasDecoClient.RESOURCE_PACK.rebuild(ResourceType.CLIENT_RESOURCES, manager);
-						RenderRule.reload(manager);
 					}
 				}
 		);
 
-		ModelLoadingPlugin.register(context -> {
-			RenderRule.addModels(context);
+		// RenderRule's own data used to be (re)loaded inside the plain reload listener above, with
+		// no ordering guarantee relative to the ModelLoadingPlugin callback below that reads it to
+		// decide which models to bake -- on any reload where the two ran in the "wrong" order (nothing
+		// tied them together), books/etc. using a render rule silently baked with no model at all,
+		// rendering as the missing-model placeholder. PreparableModelLoadingPlugin exists specifically
+		// to load external data and use it while registering models with a guaranteed order -- see
+		// RenderRule.load's doc comment for the full explanation.
+		net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin.register(RenderRule::load, RenderRule::apply);
 
+		ModelLoadingPlugin.register(context -> {
 			new RestModelManager().init(context);
 
 			BlackboardPressBlockEntityRenderer.initModels(context);
@@ -286,6 +292,10 @@ public class AurorasDecoClient implements ClientModInitializer {
 		var modelId = new ModelIdentifier(Identifier.of(id.getNamespace(), id.getPath() + "_base"),
 				"inventory");
 		BuiltinItemRendererRegistry.INSTANCE.register(blackboard, new BlackboardItemRenderer(modelId));
-		ModelLoadingPlugin.register(context -> context.addModels(modelId.id(), BLACKBOARD_MASK.id()));
+		// See RenderRule.toRequestedModelPath's doc comment: Context#addModels needs the real
+		// models/item/ path baked in by hand now that ModelIdentifier no longer carries its "inventory"
+		// variant through to this call in 1.21+.
+		ModelLoadingPlugin.register(context -> context.addModels(
+				RenderRule.toRequestedModelPath(modelId), RenderRule.toRequestedModelPath(BLACKBOARD_MASK)));
 	}
 }

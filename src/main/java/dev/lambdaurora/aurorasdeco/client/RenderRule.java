@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * Represents a render rule.
@@ -119,51 +121,110 @@ public record RenderRule(List<Model> models) {
 	}
 
 	public static void addModels(ModelLoadingPlugin.Context context) {
-		ITEM_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(ModelIdentifier::id).forEach(context::addModels);
-		TAG_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(ModelIdentifier::id).forEach(context::addModels);
+		ITEM_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(RenderRule::toRequestedModelPath).forEach(context::addModels);
+		TAG_RULES.values().stream().flatMap(rule -> rule.models().stream()).map(Model::modelId).map(RenderRule::toRequestedModelPath).forEach(context::addModels);
 	}
 
-	public static void reload(ResourceManager manager) {
-		ITEM_RULES.clear();
-		TAG_RULES.clear();
+	/**
+	 * Confirmed real via a live-test log ({@code FileNotFoundException} at
+	 * {@code aurorasdeco:models/blackboard_base.json}, and the same for every {@code special/book/*}
+	 * model): {@code ModelLoadingPlugin.Context#addModels} only ever accepts a bare {@code Identifier}
+	 * in 1.21.1 and resolves it straight to {@code models/<path>.json}, with no notion of an
+	 * "inventory"/item-model variant at all. The pre-port (Quilt, 1.20.1) code passed a
+	 * {@code ModelIdentifier} directly to the equivalent call -- back then {@code ModelIdentifier}
+	 * itself extended {@code Identifier}, and the model loader resolved an "inventory"-variant one
+	 * through the real {@code models/item/} convention these assets have always shipped under
+	 * (confirmed via git history: {@code models/item/blackboard_base.json} etc. have never moved). In
+	 * 1.21, {@code ModelIdentifier} became a plain record (id + variant, no longer an {@code Identifier}
+	 * subclass) -- porting this call site to compile against the new API (extracting {@code
+	 * ModelIdentifier#id()}) was necessary, but it silently dropped the variant that the item-model
+	 * convention depended on, since the new {@code addModels} has no way to receive it at all. Baking
+	 * {@code item/} into the path ourselves for the "inventory" case restores the real resolved location.
+	 */
+	public static Identifier toRequestedModelPath(ModelIdentifier modelId) {
+		if (modelId.getVariant().equals(ModelIdentifier.INVENTORY_VARIANT)) {
+			return modelId.id().withPrefixedPath("item/");
+		}
+		return modelId.id();
+	}
 
-		manager.findResources("aurorasdeco/render_rules", path -> path.getPath().endsWith(".json")).forEach((id, resource) -> {
-			try (var reader = new InputStreamReader(resource.getInputStream())) {
-				var element = JsonParser.parseReader(reader);
-				if (element.isJsonObject()) {
-					var root = element.getAsJsonObject();
+	/**
+	 * Parses every {@code aurorasdeco/render_rules/*.json} resource into a snapshot, without touching
+	 * {@link #ITEM_RULES}/{@link #TAG_RULES} yet.
+	 * <p>
+	 * Previously this parsing (as {@code reload(ResourceManager)}) ran inside a plain
+	 * {@code SimpleSynchronousResourceReloadListener}, entirely independent of the {@link
+	 * ModelLoadingPlugin#register} callback that reads {@link #ITEM_RULES}/{@link #TAG_RULES} in {@link
+	 * #addModels}. Nothing tied those two together: on any reload where the model-loading pass happened
+	 * to run before that listener (Fabric's own reload-listener graph has no dependency between them,
+	 * since neither side declared one), {@code addModels} would request baking for whatever the *previous*
+	 * reload's rules were -- or nothing at all, on the very first load -- silently leaving every
+	 * render-rule book/etc. model unbaked and rendering as the missing-model placeholder. Moved to
+	 * {@link net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin}, which exists
+	 * specifically for this "load external data, then use it while registering models" sequencing: its
+	 * {@code DataLoader} (this method) is guaranteed to complete before {@link #apply} runs, which is in
+	 * turn guaranteed to run before model baking -- no reload-listener ordering race possible.
+	 */
+	public static CompletableFuture<RuleSet> load(ResourceManager manager, Executor executor) {
+		return CompletableFuture.supplyAsync(() -> {
+			Map<Identifier, RenderRule> itemRules = new Object2ObjectOpenHashMap<>();
+			Map<TagKey<Item>, RenderRule> tagRules = new Object2ObjectOpenHashMap<>();
 
-					var models = new ArrayList<Model>();
-					var modelsJson = root.getAsJsonArray("models");
-					modelsJson.forEach(modelElement -> {
-						var model = Model.readModelPredicate(id, modelElement);
-						if (model != null)
-							models.add(model);
-					});
+			manager.findResources("aurorasdeco/render_rules", path -> path.getPath().endsWith(".json")).forEach((id, resource) -> {
+				try (var reader = new InputStreamReader(resource.getInputStream())) {
+					var element = JsonParser.parseReader(reader);
+					if (element.isJsonObject()) {
+						var root = element.getAsJsonObject();
 
-					if (models.isEmpty())
-						return;
+						var models = new ArrayList<Model>();
+						var modelsJson = root.getAsJsonArray("models");
+						modelsJson.forEach(modelElement -> {
+							var model = Model.readModelPredicate(id, modelElement);
+							if (model != null)
+								models.add(model);
+						});
 
-					var renderRule = new RenderRule(models);
+						if (models.isEmpty())
+							return;
 
-					var match = root.getAsJsonObject("match");
-					if (match.has("item")) {
-						ITEM_RULES.put(Identifier.tryParse(match.get("item").getAsString()), renderRule);
-					} else if (match.has("items")) {
-						var array = match.getAsJsonArray("items");
-						for (var item : array) {
-							ITEM_RULES.put(Identifier.tryParse(item.getAsString()), renderRule);
+						var renderRule = new RenderRule(models);
+
+						var match = root.getAsJsonObject("match");
+						if (match.has("item")) {
+							itemRules.put(Identifier.tryParse(match.get("item").getAsString()), renderRule);
+						} else if (match.has("items")) {
+							var array = match.getAsJsonArray("items");
+							for (var item : array) {
+								itemRules.put(Identifier.tryParse(item.getAsString()), renderRule);
+							}
+						} else if (match.has("tag")) {
+							var tagId = Identifier.tryParse(match.get("tag").getAsString());
+							tagRules.put(TagKey.of(RegistryKeys.ITEM, tagId), renderRule);
 						}
-					} else if (match.has("tag")) {
-						var tagId = Identifier.tryParse(match.get("tag").getAsString());
-						TAG_RULES.put(TagKey.of(RegistryKeys.ITEM, tagId), renderRule);
 					}
+				} catch (Exception e) {
+					LOGGER.error("Failed to read render rule {}.", id, e);
 				}
-			} catch (Exception e) {
-				LOGGER.error("Failed to read render rule {}.", id, e);
-			}
-		});
+			});
+
+			return new RuleSet(itemRules, tagRules);
+		}, executor);
 	}
+
+	/**
+	 * Installs a {@link RuleSet} produced by {@link #load} and requests baking for every model it
+	 * references, in one atomic step -- see {@link #load}'s doc comment for why both need to happen
+	 * together rather than as two independently-ordered steps.
+	 */
+	public static void apply(RuleSet ruleSet, ModelLoadingPlugin.Context context) {
+		ITEM_RULES.clear();
+		ITEM_RULES.putAll(ruleSet.itemRules());
+		TAG_RULES.clear();
+		TAG_RULES.putAll(ruleSet.tagRules());
+		addModels(context);
+	}
+
+	public record RuleSet(Map<Identifier, RenderRule> itemRules, Map<TagKey<Item>, RenderRule> tagRules) {}
 
 	public record Model(ModelIdentifier modelId, @Nullable Block restrictedBlock, @Nullable TagKey<Block> restrictedBlockTag) {
 		public boolean test(ItemStack stack, BlockState state) {
@@ -176,7 +237,14 @@ public record RenderRule(List<Model> models) {
 		}
 
 		public BakedModel getModel() {
-			return MinecraftClient.getInstance().getBakedModelManager().getModel(this.modelId);
+			// A model registered via Context#addModels has no corresponding ModelIdentifier at all
+			// (confirmed via FabricBakedModelManager's own doc comment) -- it must be retrieved through
+			// the Identifier-keyed overload using the exact same path addModels was given, not vanilla's
+			// ModelIdentifier-keyed getModel (which queries a completely different, never-baked entry).
+			// This was the actual reason books/blackboards still rendered as missing-model even after
+			// toRequestedModelPath fixed the *registration* path -- the *retrieval* side needed the
+			// identical fix.
+			return MinecraftClient.getInstance().getBakedModelManager().getModel(toRequestedModelPath(this.modelId));
 		}
 
 		public static @Nullable Model readModelPredicate(Identifier manifest, JsonElement json) {

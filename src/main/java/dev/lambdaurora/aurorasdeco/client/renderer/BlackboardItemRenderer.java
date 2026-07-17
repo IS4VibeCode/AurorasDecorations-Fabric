@@ -20,6 +20,7 @@ package dev.lambdaurora.aurorasdeco.client.renderer;
 import dev.lambdaurora.aurorasdeco.blackboard.Blackboard;
 import dev.lambdaurora.aurorasdeco.client.AurorasDecoClient;
 import dev.lambdaurora.aurorasdeco.client.BlackboardTexture;
+import dev.lambdaurora.aurorasdeco.client.RenderRule;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -51,14 +52,18 @@ public class BlackboardItemRenderer implements BuiltinItemRendererRegistry.Dynam
 	@Override
 	public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices,
 			VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		var model = MinecraftClient.getInstance().getBakedModelManager().getModel(this.modelId);
+		// Models registered via Context#addModels have no corresponding ModelIdentifier (confirmed via
+		// FabricBakedModelManager's own doc comment) -- must be retrieved through the Identifier-keyed
+		// overload using the same path addModels was given, not vanilla's ModelIdentifier-keyed getModel.
+		var model = MinecraftClient.getInstance().getBakedModelManager().getModel(RenderRule.toRequestedModelPath(this.modelId));
 
 		matrices.push();
 
 		matrices.translate(0.5, 0.5, 0.5);
 		boolean leftHanded = mode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND;
 		if (mode == ModelTransformationMode.HEAD) {
-			var maskModel = MinecraftClient.getInstance().getBakedModelManager().getModel(AurorasDecoClient.BLACKBOARD_MASK);
+			var maskModel = MinecraftClient.getInstance().getBakedModelManager()
+					.getModel(RenderRule.toRequestedModelPath(AurorasDecoClient.BLACKBOARD_MASK));
 			MinecraftClient.getInstance().getItemRenderer().renderItem(stack, mode,
 					false, matrices, vertexConsumers, light, overlay, maskModel);
 		}

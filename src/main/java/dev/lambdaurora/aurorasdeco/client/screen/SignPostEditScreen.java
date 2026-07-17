@@ -169,6 +169,17 @@ public class SignPostEditScreen extends Screen {
 	/* Rendering */
 
 	@Override
+	public void renderBackground(DrawContext graphics, int mouseX, int mouseY, float delta) {
+		// Vanilla's own AbstractSignEditScreen overrides this the same way (confirmed via bytecode
+		// disassembly of the real 1.21.1 class): a lightweight in-game backdrop, not the heavy
+		// blur+darken combo Screen's default renderBackground draws for full menu screens (pause,
+		// options, ...). Without this override, this.renderBackground(...) in render() below resolved
+		// to that default, producing the "blur over the whole screen" behavior reported live -- sign
+		// editing is meant to keep the world crisply visible behind the small text-entry UI.
+		this.renderInGameBackground(graphics);
+	}
+
+	@Override
 	public void render(DrawContext graphics, int mouseX, int mouseY, float delta) {
 		MatrixStack matrices = graphics.getMatrices();
 		var upData = this.signPost.getUp();
