@@ -26,7 +26,6 @@ import dev.lambdaurora.aurorasdeco.block.StumpBlock;
 import dev.lambdaurora.aurorasdeco.block.big_flower_pot.PottedPlantType;
 import dev.lambdaurora.aurorasdeco.block.entity.BlackboardBlockEntity;
 import dev.lambdaurora.aurorasdeco.client.model.*;
-import dev.lambdaurora.aurorasdeco.client.particle.AmethystGlintParticle;
 import dev.lambdaurora.aurorasdeco.client.particle.LavenderPetalParticle;
 import dev.lambdaurora.aurorasdeco.client.renderer.*;
 import dev.lambdaurora.aurorasdeco.client.screen.CopperHopperScreen;
@@ -94,7 +93,6 @@ public class AurorasDecoClient implements ClientModInitializer {
 		this.initEntityRenderers();
 		this.initBlockRenderLayers();
 
-		ParticleFactoryRegistry.getInstance().register(AurorasDecoParticles.AMETHYST_GLINT, AmethystGlintParticle.Factory::new);
 		ParticleFactoryRegistry.getInstance().register(AurorasDecoParticles.COPPER_SULFATE_FLAME, FlameParticle.Factory::new);
 		ParticleFactoryRegistry.getInstance().register(AurorasDecoParticles.COPPER_SULFATE_LAVA, LavaEmberParticle.Factory::new);
 		ParticleFactoryRegistry.getInstance().register(AurorasDecoParticles.LAVENDER_PETAL, LavenderPetalParticle.Factory::new);
@@ -239,8 +237,6 @@ public class AurorasDecoClient implements ClientModInitializer {
 				ShelfBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(SIGN_POST_BLOCK_ENTITY_TYPE,
 				SignPostBlockEntityRenderer::new);
-		BlockEntityRendererFactories.register(AurorasDecoRegistry.WALL_LANTERN_BLOCK_ENTITY_TYPE,
-				LanternBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(AurorasDecoRegistry.WIND_CHIME_BLOCK_ENTITY_TYPE,
 				WindChimeBlockEntityRenderer::new);
 	}
@@ -258,7 +254,6 @@ public class AurorasDecoClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(),
 				AurorasDecoPlants.BURNT_VINE_BLOCK);
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
-				AMETHYST_LANTERN_BLOCK,
 				AZALEA_DOOR,
 				AZALEA_TRAPDOOR,
 				JACARANDA_DOOR,
@@ -278,7 +273,6 @@ public class AurorasDecoClient implements ClientModInitializer {
 				AurorasDecoPlants.POTTED_LAVENDER,
 				AurorasDecoPlants.JACARANDA_SAPLING,
 				AurorasDecoPlants.POTTED_JACARANDA_SAPLING,
-				REDSTONE_LANTERN_BLOCK,
 				SAWMILL_BLOCK,
 				SOUL_BRAZIER_BLOCK,
 				WIND_CHIME_BLOCK

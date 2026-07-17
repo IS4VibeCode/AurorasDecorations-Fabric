@@ -24,7 +24,6 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.logging.LogUtils;
 import dev.lambdaurora.aurorasdeco.AurorasDeco;
 import dev.lambdaurora.aurorasdeco.block.*;
-import dev.lambdaurora.aurorasdeco.registry.LanternRegistry;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.InputSupplier;
@@ -108,7 +107,6 @@ public class AurorasDecoPack implements ResourcePack {
 				.map(Registries.BLOCK::getId));
 		this.registerTag(new String[]{"block", "item"}, AurorasDeco.id("stumps"), StumpBlock.streamLogStumps()
 				.map(Registries.BLOCK::getId));
-		this.registerTag(new String[]{"block"}, AurorasDeco.id("wall_lanterns"), LanternRegistry.streamIds());
 
 		return type == ResourceType.CLIENT_RESOURCES ? this.rebuildClient(resourceManager) : this.rebuildData();
 	}

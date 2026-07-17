@@ -222,9 +222,7 @@ public class ItemTree extends ItemTreeGroupNode {
 				stack -> stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof LanternBlock
 		);
 
-		lanterns.add(AMETHYST_LANTERN_BLOCK);
 		lanterns.add(COPPER_SULFATE_LANTERN_BLOCK);
-		lanterns.add(REDSTONE_LANTERN_BLOCK);
 
 		var campfires = tree.collectItemsAsGroup(Identifier.of("minecraft", "campfire"),
 				stack -> stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CampfireBlock
@@ -271,7 +269,6 @@ public class ItemTree extends ItemTreeGroupNode {
 	}
 
 	private static void modifyRedstoneBlocks(ItemTree tree) {
-		tree.addAfter(Items.REDSTONE_TORCH, REDSTONE_LANTERN_BLOCK);
 		tree.addAfter(Items.HOPPER, COPPER_HOPPER_BLOCK);
 		tree.addAfter(Items.OBSERVER, STURDY_STONE_BLOCK);
 	}

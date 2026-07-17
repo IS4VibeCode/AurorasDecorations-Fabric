@@ -66,10 +66,8 @@ import net.minecraft.stat.StatFormatter;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.poi.PointOfInterestType;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 
 import java.util.function.BiFunction;
@@ -94,9 +92,6 @@ public final class AurorasDecoRegistry {
 	}
 
 	/* Blocks & Items */
-
-	public static final AmethystLanternBlock AMETHYST_LANTERN_BLOCK = registerWithItem("amethyst_lantern",
-			new AmethystLanternBlock(), new Item.Settings());
 
 	//region Azalea
 	public static final PillarBlock AZALEA_LOG_BLOCK = registerWithItem("azalea_log",
@@ -326,8 +321,6 @@ public final class AurorasDecoRegistry {
 	//endregion
 
 	//region Redstone
-	public static final RedstoneLanternBlock REDSTONE_LANTERN_BLOCK = registerWithItem("redstone_lantern",
-			new RedstoneLanternBlock(), new Item.Settings());
 	public static final CopperHopperBlock COPPER_HOPPER_BLOCK = registerWithItem("copper_hopper",
 			new CopperHopperBlock(FabricBlockSettings.copyOf(Blocks.HOPPER).mapColor(MapColor.ORANGE)),
 			new Item.Settings());
@@ -353,22 +346,11 @@ public final class AurorasDecoRegistry {
 	public static final SawmillBlock SAWMILL_BLOCK = registerWithItem("sawmill", new SawmillBlock(),
 			new Item.Settings());
 
-	//region Wall lanterns
-	public static final WallLanternBlock<LanternBlock> WALL_LANTERN_BLOCK = registerBlock("wall_lantern",
-			new WallLanternBlock<>((LanternBlock) Blocks.LANTERN));
-	public static final WallLanternBlock<LanternBlock> SOUL_WALL_LANTERN_BLOCK = registerBlock("wall_lantern/soul",
-			new WallLanternBlock<>((LanternBlock) Blocks.SOUL_LANTERN));
-	public static final WallLanternBlock<RedstoneLanternBlock> REDSTONE_WALL_LANTERN_BLOCK = LanternRegistry.registerWallLantern(REDSTONE_LANTERN_BLOCK);
-	public static final BlockEntityType<LanternBlockEntity> WALL_LANTERN_BLOCK_ENTITY_TYPE = Registry.register(
-			Registries.BLOCK_ENTITY_TYPE,
-			id("lantern"),
-			FabricBlockEntityTypeBuilder.create(LanternBlockEntity::new, WALL_LANTERN_BLOCK, SOUL_WALL_LANTERN_BLOCK, REDSTONE_WALL_LANTERN_BLOCK)
-					.build()
-	);
-	public static final WallLanternBlock<AmethystLanternBlock> AMETHYST_WALL_LANTERN_BLOCK = LanternRegistry.registerWallLantern(AMETHYST_LANTERN_BLOCK);
-	public static final WallLanternBlock<LanternBlock> COPPER_SULFATE_WALL_LANTERN_BLOCK = LanternRegistry.registerWallLantern(COPPER_SULFATE_LANTERN_BLOCK);
-	//endregion
-
+	// Wall lanterns (including the wall variant of our own COPPER_SULFATE_LANTERN_BLOCK) are now
+	// handled entirely by Aurora's Lanterns' own LanternRegistry -- it sweeps every LanternBlock in the
+	// registry (not just its own) at init and reactively via RegistryEntryAddedCallback, the same
+	// dynamic-registration pattern this mod's own registries use (java/CLAUDE.md §3c), so no explicit
+	// registration is needed here anymore for any lantern, foreign or our own.
 	public static final WindChimeBlock WIND_CHIME_BLOCK = registerWithItem("wind_chime",
 			new WindChimeBlock(FabricBlockSettings.create().nonOpaque()
 					.sounds(BlockSoundGroup.AMETHYST_BLOCK)),
@@ -513,21 +495,6 @@ public final class AurorasDecoRegistry {
 
 	public static final RecipeSerializer<ActuallyGoodTransformSmithingRecipe> ACTUALLY_GOOD_TRANSFORM_SMITHING_RECIPE_SERIALIZER
 			= register("actually_good_smithing_transform", ActuallyGoodTransformSmithingRecipe.SERIALIZER);
-
-	/* POI */
-
-	public static final RegistryKey<PointOfInterestType> AMETHYST_LANTERN_POI = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE, id("amethyst_lantern"));
-
-	static {
-		// PointOfInterestHelper.register returns the plain PointOfInterestType, not its RegistryKey
-		// (Quilt Mappings' PointOfInterestHelper.register did) -- the key is constructed directly above
-		// instead, since it's fully determined by the id passed in.
-		PointOfInterestHelper.register(
-				id("amethyst_lantern"),
-				0, 2,
-				AMETHYST_LANTERN_BLOCK, AMETHYST_WALL_LANTERN_BLOCK
-		);
-	}
 
 	/* Advancement Criteria */
 
@@ -705,7 +672,7 @@ public final class AurorasDecoRegistry {
 				);
 
 				addSupportedBlock(SIGN_POST_BLOCK_ENTITY_TYPE, signPostBlock);
-			} else LanternRegistry.tryRegisterWallLantern(Registries.BLOCK, block, id);
+			}
 		}
 	}
 
@@ -714,12 +681,10 @@ public final class AurorasDecoRegistry {
 
 		var accessor = (BlockItemAccessor) item;
 
-		if (item.getBlock() instanceof LanternBlock) {
-			var lanternBlock = LanternRegistry.fromItem(item);
-			if (lanternBlock != null)
-				accessor.aurorasdeco$setWallBlock(lanternBlock);
-			Item.BLOCK_ITEMS.put(lanternBlock, item);
-		} else if (item.getBlock() instanceof CandleBlock candleBlock && id.getNamespace().equals("minecraft")) {
+		// Wall/ceiling lantern items are no longer handled here at all -- Aurora's Lanterns' own
+		// LanternRegistry sweeps every LanternBlock in the registry (including our own
+		// COPPER_SULFATE_LANTERN_BLOCK) and wires up its own item-to-wall-block mapping independently.
+		if (item.getBlock() instanceof CandleBlock candleBlock && id.getNamespace().equals("minecraft")) {
 			var wall = registerBlock(
 					"wall_" + id.getPath(),
 					new WallCandleBlock(candleBlock)

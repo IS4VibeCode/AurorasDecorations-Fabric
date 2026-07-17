@@ -28,7 +28,6 @@ import dev.lambdaurora.aurorasdeco.item.SeatRestItem;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
 import dev.lambdaurora.aurorasdeco.recipe.WoodcuttingRecipe;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
-import dev.lambdaurora.aurorasdeco.registry.LanternRegistry;
 import dev.lambdaurora.aurorasdeco.registry.WoodType;
 import dev.lambdaurora.aurorasdeco.resource.datagen.*;
 import dev.lambdaurora.aurorasdeco.util.AuroraUtil;
@@ -71,10 +70,6 @@ import static dev.lambdaurora.aurorasdeco.util.AuroraUtil.jsonArray;
  */
 public final class Datagen {
 	public static final Logger LOGGER = LoggerFactory.getLogger("aurorasdeco:datagen");
-
-	private static final Identifier WALL_LANTERN_ATTACHMENT = id("block/wall_lantern_attachment");
-	private static final Identifier WALL_LANTERN_ATTACHMENT_EXTENDED1 = id("block/wall_lantern_attachment_extended1");
-	private static final Identifier WALL_LANTERN_ATTACHMENT_EXTENDED2 = id("block/wall_lantern_attachment_extended2");
 
 	private static final Identifier TEMPLATE_LANTERN_MODEL = Identifier.of("block/template_lantern");
 	private static final Identifier TEMPLATE_HANGING_LANTERN_MODEL = Identifier.of("block/template_hanging_lantern");
@@ -572,24 +567,6 @@ public final class Datagen {
 					.texture("head_side", headSideTexture)
 					.texture("head_top", headTopTexture)
 					.register(id("item/" + Registries.ITEM.getId(sleepingBag.asItem()).getPath()));
-		});
-
-		LanternRegistry.forEach((lanternId, wallLantern) -> {
-			var builder = blockStateBuilder(wallLantern);
-			for (var direction : AuroraUtil.DIRECTIONS) {
-				if (direction.getAxis().isHorizontal()) {
-					int rotation = (int) (direction.getOpposite().asRotation() + 90) % 360;
-					builder.addToVariant("facing=" + direction.getName() + ",extension=none",
-							WALL_LANTERN_ATTACHMENT, rotation);
-					builder.addToVariant("facing=" + direction.getName() + ",extension=wall",
-							WALL_LANTERN_ATTACHMENT_EXTENDED1, rotation);
-					builder.addToVariant("facing=" + direction.getName() + ",extension=fence",
-							WALL_LANTERN_ATTACHMENT_EXTENDED2, rotation);
-				}
-			}
-			builder.register();
-
-			registerBetterGrassLayer(wallLantern, WallLanternBlock.LANTERN_BETTERGRASS_DATA);
 		});
 	}
 

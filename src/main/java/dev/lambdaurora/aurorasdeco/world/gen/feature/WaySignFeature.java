@@ -21,22 +21,18 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.lambdaurora.aurorasdeco.block.ExtensionType;
 import dev.lambdaurora.aurorasdeco.block.SignPostBlock;
-import dev.lambdaurora.aurorasdeco.block.WallLanternBlock;
 import dev.lambdaurora.aurorasdeco.block.entity.SignPostBlockEntity;
 import dev.lambdaurora.aurorasdeco.item.SignPostItem;
 import dev.lambdaurora.aurorasdeco.mixin.world.ChunkGeneratorAccessor;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoRegistry;
 import dev.lambdaurora.aurorasdeco.registry.AurorasDecoTags;
-import dev.lambdaurora.aurorasdeco.registry.LanternRegistry;
 import dev.lambdaurora.aurorasdeco.world.gen.WorldGenUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FenceBlock;
-import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -113,8 +109,10 @@ public class WaySignFeature extends Feature<WaySignFeature.Config> {
 
 		sign.setGenerationSettings(new SignPostBlockEntity.GenerationSettings(config.signPostItem(), facing));
 
-		var lantern = LanternRegistry.fromItem(Items.LANTERN).getDefaultState();
-		this.setBlockState(world, pos, lantern.with(WallLanternBlock.FACING, facing).with(WallLanternBlock.EXTENSION, ExtensionType.FENCE));
+		// The wall lantern placed here used to be aurorasdeco's own WallLanternBlock; lanterns moved to
+		// a separate mod (Aurora's Lanterns) that this project can't take a hard build dependency on
+		// (see java/CLAUDE.md), so the way sign no longer gets a lantern -- purely cosmetic worldgen
+		// decoration, doesn't affect any existing world content.
 
 		pos.set(context.getOrigin());
 		pos.move(Direction.DOWN);
