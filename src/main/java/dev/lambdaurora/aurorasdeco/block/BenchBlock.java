@@ -183,7 +183,12 @@ public class BenchBlock extends Block implements BlockEntityProvider, SeatBlock,
 		var pos = ctx.getBlockPos();
 		var fluid = world.getFluidState(pos);
 
-		var facing = ctx.getPlayerLookDirection().getOpposite();
+		// getHorizontalPlayerFacing() (not getPlayerLookDirection(), which can return UP/DOWN based on
+		// pitch) -- FACING is HORIZONTAL_FACING (4-way only); confirmed via real vanilla BedBlock's own
+		// getPlacementState using the horizontal-only variant. A steep look angle previously threw when
+		// .with(FACING, ...) rejected an UP/DOWN value, silently failing placement (SleepingBagBlock's
+		// own doc comment has the full story).
+		var facing = ctx.getHorizontalPlayerFacing().getOpposite();
 
 		var relativeRight = pos.offset(facing.rotateYCounterclockwise());
 		var relativeLeft = pos.offset(facing.rotateYClockwise());

@@ -136,7 +136,9 @@ public class SmallLogPileBlock extends Block implements Waterloggable {
 					state = state.with(TYPE, PartType.BOTTOM);
 			}
 
-			return state.with(FACING, ctx.getPlayerLookDirection());
+			// getHorizontalPlayerFacing(), not getPlayerLookDirection() -- see SleepingBagBlock's doc
+			// comment for why the latter silently breaks placement at steep look angles.
+			return state.with(FACING, ctx.getHorizontalPlayerFacing());
 		}
 	}
 

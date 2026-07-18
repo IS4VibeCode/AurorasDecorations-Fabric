@@ -177,7 +177,7 @@ public final class Datagen {
 		var id = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				Identifier.of(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
+				Identifier.of(id.getNamespace(), "loot_table/blocks/" + id.getPath()),
 				benchBlockLootTable(id)
 		);
 	}
@@ -213,7 +213,7 @@ public final class Datagen {
 		var id = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				Identifier.of(id.getNamespace(), "loot_tables/blocks/" + id.getPath()),
+				Identifier.of(id.getNamespace(), "loot_table/blocks/" + id.getPath()),
 				doubleBlockLootTable(id)
 		);
 	}
@@ -291,7 +291,7 @@ public final class Datagen {
 		var blockId = Registries.BLOCK.getId(block);
 		AurorasDeco.RESOURCE_PACK.putJsonText(
 				ResourceType.SERVER_DATA,
-				Identifier.of(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
+				Identifier.of(blockId.getNamespace(), "loot_table/blocks/" + blockId.getPath()),
 				candleLikeBlockLootTable(blockId, Registries.ITEM.getId(block.getParent().asItem()))
 		);
 	}
@@ -304,7 +304,7 @@ public final class Datagen {
 	public static void registerSimpleBlockLootTable(Identifier blockId, Identifier itemId, boolean copyName) {
 		AurorasDeco.RESOURCE_PACK.putJson(
 				ResourceType.SERVER_DATA,
-				Identifier.of(blockId.getNamespace(), "loot_tables/blocks/" + blockId.getPath()),
+				Identifier.of(blockId.getNamespace(), "loot_table/blocks/" + blockId.getPath()),
 				simpleBlockLootTable(itemId, copyName)
 		);
 	}

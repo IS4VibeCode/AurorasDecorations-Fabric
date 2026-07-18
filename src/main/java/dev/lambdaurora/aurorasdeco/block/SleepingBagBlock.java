@@ -148,7 +148,15 @@ public class SleepingBagBlock extends HorizontalFacingBlock {
 
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		var direction = ctx.getPlayerLookDirection();
+		// Real vanilla BedBlock.getPlacementState uses getHorizontalPlayerFacing() (always one of the 4
+		// cardinal directions), not getPlayerLookDirection() (confirmed via bytecode disassembly of the
+		// real 1.20.1 BedBlock: it explicitly calls the horizontal-only variant). FACING/HEAD_SHAPES here
+		// are only ever defined for the 4 horizontal directions -- when the player looks steeply enough
+		// up or down, getPlayerLookDirection() can return UP/DOWN, and .with(FACING, direction) then
+		// throws (HORIZONTAL_FACING's value set has no UP/DOWN member), silently failing placement. This
+		// explains the reported "can't place on leaves/glass": placing on a low-profile surface tends to
+		// mean looking more steeply downward at it, not anything specific to those block types.
+		var direction = ctx.getHorizontalPlayerFacing();
 		var pos = ctx.getBlockPos();
 		var headPos = pos.offset(direction);
 		return ctx.getWorld().getBlockState(headPos).canReplace(ctx) ? this.getDefaultState().with(FACING, direction) : null;

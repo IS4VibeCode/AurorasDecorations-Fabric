@@ -61,8 +61,10 @@ public final class DaffodilBlock extends AuroraFlowerBlock {
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		var state = super.getPlacementState(ctx);
+		// getHorizontalPlayerFacing(), not getPlayerLookDirection() -- see SleepingBagBlock's doc
+		// comment for why the latter silently breaks placement at steep look angles.
 		if (state != null)
-			return state.with(FACING, ctx.getPlayerLookDirection().getOpposite());
+			return state.with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
 		return null;
 	}
 

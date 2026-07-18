@@ -95,7 +95,9 @@ public class PetBedBlock extends Block {
 
 	@Override
 	public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-		var direction = ctx.getPlayerLookDirection();
+		// getHorizontalPlayerFacing(), not getPlayerLookDirection() -- see SleepingBagBlock's doc
+		// comment for why the latter silently breaks placement at steep look angles.
+		var direction = ctx.getHorizontalPlayerFacing();
 		return this.getDefaultState().with(FACING, direction.getOpposite());
 	}
 

@@ -90,7 +90,9 @@ public final class SawmillBlock extends Block {
 
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return this.getDefaultState().with(FACING, ctx.getPlayerLookDirection().getOpposite());
+		// getHorizontalPlayerFacing(), not getPlayerLookDirection() -- see SleepingBagBlock's doc
+		// comment for why the latter silently breaks placement at steep look angles.
+		return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
 	}
 
 	@Override
